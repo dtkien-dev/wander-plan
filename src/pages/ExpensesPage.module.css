@@ -12,6 +12,12 @@
 .categories strong { font-size: 14px; }
 .categories > div > div { grid-column: 1 / -1; height: 7px; overflow: hidden; background: var(--color-surface-muted); border-radius: var(--radius-tight); }
 .categories i { display: block; height: 100%; background: var(--color-secondary); border-radius: inherit; }
+.daily { display: grid; grid-template-columns: 190px 1fr; gap: 18px; margin-bottom: 24px; padding: 22px 24px; background: linear-gradient(145deg, rgba(255,253,247,.96), rgba(223,236,226,.48)); border: 1px solid var(--color-border); border-radius: var(--radius-surface); box-shadow: var(--shadow-surface); }
+.daily header h2 { margin: 0; font-size: 24px; }
+.daily > div { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+.daily article { display: grid; gap: 5px; padding: 12px 14px; background: rgba(255,253,247,.72); border: 1px solid var(--color-border); border-radius: var(--radius-inset); }
+.daily time { color: var(--color-text-muted); font-size: 13px; text-transform: capitalize; }
+.daily strong { color: var(--color-primary); }
 .list { display: grid; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-surface); box-shadow: var(--shadow-surface); overflow: hidden; }
 .expense { display: grid; grid-template-columns: 110px minmax(0, 1fr) 160px auto; align-items: center; gap: 18px; padding: 20px 24px; }
 .expense + .expense { border-top: 1px solid var(--color-border); }
@@ -21,4 +27,5 @@
 .amount { display: grid; justify-items: end; gap: 3px; }
 .amount small { color: var(--color-text-muted); }
 .actions { display: grid; grid-auto-flow: column; gap: 8px; }
-@media (max-width: 760px) { .summary { grid-template-columns: 1fr; } .total, .categories { padding: 22px 20px; } .expense { grid-template-columns: 1fr auto; gap: 10px 14px; padding: 18px; } .category { grid-column: 1; } .expense > div:nth-of-type(1) { grid-column: 1 / -1; } .amount { grid-column: 1; justify-items: start; } .actions { grid-column: 2; grid-row: 3; } }
+@media (max-width: 760px) { .summary { grid-template-columns: 1fr; } .total, .categories { padding: 22px 20px; } .daily { grid-template-columns: 1fr; padding: 20px 18px; } .daily > div { grid-template-columns: 1fr 1fr; } .expense { grid-template-columns: 1fr auto; gap: 10px 14px; padding: 18px; } .category { grid-column: 1; } .expense > div:nth-of-type(1) { grid-column: 1 / -1; } .amount { grid-column: 1; justify-items: start; } .actions { grid-column: 2; grid-row: 3; } }
+@media (max-width: 420px) { .daily > div { grid-template-columns: 1fr; } }

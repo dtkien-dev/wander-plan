@@ -25,6 +25,11 @@ export const actualOrEstimated = (expense: Expense) =>
 export const totalExpenses = (expenses: Expense[]) =>
   expenses.reduce((total, expense) => total + actualOrEstimated(expense), 0)
 
+export const safePercent = (value: number, total: number) => {
+  if (!Number.isFinite(value) || !Number.isFinite(total) || total <= 0) return 0
+  return Math.min(Math.max((value / total) * 100, 0), 100)
+}
+
 export const isGoogleMapsUrl = (value: string) => {
   if (!value) return true
   try {

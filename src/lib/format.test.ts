@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { isGoogleMapsUrl, totalExpenses } from './format'
+import { isGoogleMapsUrl, safePercent, totalExpenses } from './format'
 
 describe('travel format helpers', () => {
   it('uses actual cost when available and estimated cost otherwise', () => {
@@ -12,5 +12,11 @@ describe('travel format helpers', () => {
   it('accepts only known Google Maps hosts', () => {
     expect(isGoogleMapsUrl('https://maps.app.goo.gl/abc')).toBe(true)
     expect(isGoogleMapsUrl('https://example.com/maps')).toBe(false)
+  })
+
+  it('keeps progress percentages finite for zero or invalid budgets', () => {
+    expect(safePercent(100, 0)).toBe(0)
+    expect(safePercent(120, 100)).toBe(100)
+    expect(safePercent(-10, 100)).toBe(0)
   })
 })

@@ -4,7 +4,7 @@ import { z } from 'zod'
 import { isGoogleMapsUrl } from '../lib/format'
 import type { ItineraryDraft, ItineraryItem } from '../types'
 
-const schema = z.object({
+const createSchema = (tripStart: string, tripEnd: string) => z.object({
   title: z.string().trim().min(2, 'Nhập tên địa điểm.'),
   visitDate: z.string().min(1, 'Chọn ngày.'),
   startTime: z.string().min(1, 'Chọn giờ bắt đầu.'),
@@ -13,7 +13,9 @@ const schema = z.object({
   address: z.string().trim().min(3, 'Nhập địa chỉ.'),
   mapsUrl: z.string().trim().refine(isGoogleMapsUrl, 'Hãy dùng Google Maps URL hợp lệ.'),
   notes: z.string().trim().max(500, 'Ghi chú tối đa 500 ký tự.'),
-}).refine((data) => data.endTime > data.startTime, { message: 'Giờ kết thúc phải sau giờ bắt đầu.', path: ['endTime'] })
+})
+  .refine((data) => data.visitDate >= tripStart && data.visitDate <= tripEnd, { message: 'Ngày đến phải nằm trong thời gian chuyến đi.', path: ['visitDate'] })
+  .refine((data) => data.endTime > data.startTime, { message: 'Giờ kết thúc phải sau giờ bắt đầu.', path: ['endTime'] })
 
 interface ItineraryFormProps {
   item?: ItineraryItem
@@ -26,7 +28,7 @@ interface ItineraryFormProps {
 
 export function ItineraryForm({ item, tripStart, tripEnd, pending, onSubmit, onCancel }: ItineraryFormProps) {
   const { register, handleSubmit, formState: { errors } } = useForm<ItineraryDraft>({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(createSchema(tripStart, tripEnd)),
     defaultValues: item ?? {
       title: '', visitDate: tripStart, startTime: '08:00', endTime: '09:30', estimatedCostVnd: 0,
       address: '', mapsUrl: '', notes: '',

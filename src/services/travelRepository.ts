@@ -1,15 +1,23 @@
 import { demoWorkspace } from '../data/demoData'
 import { supabase } from '../lib/supabase'
-import type { Expense, ExpenseDraft, ItineraryDraft, ItineraryItem, Trip, WorkspaceData } from '../types'
+import type { Expense, ExpenseDraft, ItineraryDraft, ItineraryItem, Trip, TripDraft, TripPerson, WorkspaceData } from '../types'
 
 const STORAGE_KEY = 'wander-plan-demo-workspace-v1'
+const PEOPLE_STORAGE_KEY = 'wander-plan-demo-people-v1'
+const demoPeople: TripPerson[] = [
+  { userId: 'demo-owner', email: 'ban@example.com', displayName: 'Bạn', role: 'owner', status: 'active', joinedAt: '2026-10-13T00:00:00Z' },
+  { userId: 'demo-editor', email: 'banthan@example.com', displayName: 'Người bạn đồng hành', role: 'editor', status: 'active', joinedAt: '2026-10-13T00:00:00Z' },
+]
 
 export interface TravelRepository {
   loadWorkspace(): Promise<WorkspaceData | null>
   createDefaultTrip(): Promise<WorkspaceData>
-  saveItinerary(draft: ItineraryDraft, existing?: ItineraryItem): Promise<void>
+  updateTrip(draft: TripDraft, existing: Trip): Promise<void>
+  loadTripPeople(tripId: string): Promise<TripPerson[]>
+  inviteMember(tripId: string, email: string): Promise<void>
+  saveItinerary(draft: ItineraryDraft, tripId: string, existing?: ItineraryItem): Promise<void>
   deleteItinerary(item: ItineraryItem): Promise<void>
-  saveExpense(draft: ExpenseDraft, existing?: Expense): Promise<void>
+  saveExpense(draft: ExpenseDraft, tripId: string, existing?: Expense): Promise<void>
   deleteExpense(expense: Expense): Promise<void>
 }
 
@@ -37,7 +45,26 @@ class DemoRepository implements TravelRepository {
     return data
   }
 
-  async saveItinerary(draft: ItineraryDraft, existing?: ItineraryItem) {
+  async updateTrip(draft: TripDraft) {
+    const data = this.read()
+    data.trip = { ...data.trip, ...draft, version: data.trip.version + 1 }
+    this.write(data)
+  }
+
+  async loadTripPeople() {
+    const saved = localStorage.getItem(PEOPLE_STORAGE_KEY)
+    return saved ? (JSON.parse(saved) as TripPerson[]) : [...demoPeople]
+  }
+
+  async inviteMember(_tripId: string, email: string) {
+    const people = await this.loadTripPeople()
+    if (people.some((person) => person.email === email)) return
+    if (people.length >= 3) throw new Error('Chuyến đi đã đủ 3 thành viên hoặc lời mời.')
+    people.push({ userId: null, email, displayName: email, role: 'editor', status: 'invited', joinedAt: null })
+    localStorage.setItem(PEOPLE_STORAGE_KEY, JSON.stringify(people))
+  }
+
+  async saveItinerary(draft: ItineraryDraft, _tripId: string, existing?: ItineraryItem) {
     const data = this.read()
     if (existing) {
       data.itinerary = data.itinerary.map((item) =>
@@ -60,7 +87,7 @@ class DemoRepository implements TravelRepository {
     this.write(data)
   }
 
-  async saveExpense(draft: ExpenseDraft, existing?: Expense) {
+  async saveExpense(draft: ExpenseDraft, _tripId: string, existing?: Expense) {
     const data = this.read()
     if (existing) {
       data.expenses = data.expenses.map((expense) =>
@@ -92,6 +119,7 @@ const mapTrip = (row: any): Trip => ({
   endDate: row.end_date,
   timezone: row.timezone,
   budgetVnd: Number(row.budget_vnd),
+  version: row.version,
 })
 
 const mapItinerary = (row: any): ItineraryItem => ({
@@ -127,23 +155,33 @@ const throwIfError = (error: { message: string } | null) => {
 class SupabaseRepository implements TravelRepository {
   async loadWorkspace() {
     if (!supabase) return null
-    const { data: trips, error } = await supabase.from('trips').select('*').order('start_date').limit(1)
+    const { error: claimError } = await supabase.rpc('claim_trip_invitations')
+    throwIfError(claimError)
+    const { data: trips, error } = await supabase
+      .from('trips')
+      .select('id,name,destination,start_date,end_date,timezone,budget_vnd,version')
+      .order('start_date')
+      .limit(1)
     throwIfError(error)
     if (!trips?.length) return null
     const trip = mapTrip(trips[0])
     const [itineraryResult, expenseResult, memberResult] = await Promise.all([
-      supabase.from('itinerary_items').select('*').eq('trip_id', trip.id).order('visit_date').order('start_time'),
-      supabase.from('expenses').select('*').eq('trip_id', trip.id).order('expense_date'),
-      supabase.from('trip_members').select('*', { count: 'exact', head: true }).eq('trip_id', trip.id),
+      supabase.from('itinerary_items').select('id,trip_id,title,visit_date,start_time,end_time,estimated_cost_vnd,address,maps_url,notes,version').eq('trip_id', trip.id).order('visit_date').order('start_time'),
+      supabase.from('expenses').select('id,trip_id,title,category,expense_date,estimated_amount_vnd,actual_amount_vnd,notes,version').eq('trip_id', trip.id).order('expense_date'),
+      supabase.from('trip_members').select('user_id,role').eq('trip_id', trip.id),
     ])
     throwIfError(itineraryResult.error)
     throwIfError(expenseResult.error)
     throwIfError(memberResult.error)
+    const { data: authData } = await supabase.auth.getSession()
+    const currentMembership = memberResult.data?.find((member) => member.user_id === authData.session?.user.id)
+    if (!currentMembership) throw new Error('Tài khoản chưa thuộc chuyến đi này.')
     return {
       trip,
       itinerary: (itineraryResult.data ?? []).map(mapItinerary),
       expenses: (expenseResult.data ?? []).map(mapExpense),
-      memberCount: memberResult.count ?? 1,
+      memberCount: memberResult.data?.length ?? 1,
+      currentRole: currentMembership.role as WorkspaceData['currentRole'],
     }
   }
 
@@ -156,7 +194,48 @@ class SupabaseRepository implements TravelRepository {
     return workspace
   }
 
-  async saveItinerary(draft: ItineraryDraft, existing?: ItineraryItem) {
+  async updateTrip(draft: TripDraft, existing: Trip) {
+    if (!supabase) return
+    const { data, error } = await supabase
+      .from('trips')
+      .update({
+        name: draft.name,
+        destination: draft.destination,
+        start_date: draft.startDate,
+        end_date: draft.endDate,
+        budget_vnd: draft.budgetVnd,
+      })
+      .eq('id', existing.id)
+      .eq('version', existing.version)
+      .select('id')
+    throwIfError(error)
+    if (!data?.length) throw new Error('Thông tin chuyến đi đã được cập nhật ở thiết bị khác. Hãy tải lại.')
+  }
+
+  async loadTripPeople(tripId: string) {
+    if (!supabase) return []
+    const { data, error } = await supabase.rpc('get_trip_people', { target_trip_id: tripId })
+    throwIfError(error)
+    return (data ?? []).map((person: any): TripPerson => ({
+      userId: person.user_id,
+      email: person.email,
+      displayName: person.display_name || person.email,
+      role: person.role,
+      status: person.status,
+      joinedAt: person.joined_at,
+    }))
+  }
+
+  async inviteMember(tripId: string, email: string) {
+    if (!supabase) return
+    const { error } = await supabase.rpc('invite_trip_member', {
+      target_trip_id: tripId,
+      target_email: email,
+    })
+    throwIfError(error)
+  }
+
+  async saveItinerary(draft: ItineraryDraft, tripId: string, existing?: ItineraryItem) {
     if (!supabase) return
     const payload = {
       title: draft.title,
@@ -178,9 +257,7 @@ class SupabaseRepository implements TravelRepository {
       throwIfError(error)
       if (!data?.length) throw new Error('Lịch trình đã được người khác cập nhật. Hãy tải lại và thử lại.')
     } else {
-      const workspace = await this.loadWorkspace()
-      if (!workspace) throw new Error('Không tìm thấy chuyến đi.')
-      const { error } = await supabase.from('itinerary_items').insert({ ...payload, trip_id: workspace.trip.id })
+      const { error } = await supabase.from('itinerary_items').insert({ ...payload, trip_id: tripId })
       throwIfError(error)
     }
   }
@@ -197,7 +274,7 @@ class SupabaseRepository implements TravelRepository {
     if (!data?.length) throw new Error('Không thể xóa vì lịch trình đã thay đổi. Hãy tải lại.')
   }
 
-  async saveExpense(draft: ExpenseDraft, existing?: Expense) {
+  async saveExpense(draft: ExpenseDraft, tripId: string, existing?: Expense) {
     if (!supabase) return
     const payload = {
       title: draft.title,
@@ -217,9 +294,7 @@ class SupabaseRepository implements TravelRepository {
       throwIfError(error)
       if (!data?.length) throw new Error('Chi phí đã được người khác cập nhật. Hãy tải lại và thử lại.')
     } else {
-      const workspace = await this.loadWorkspace()
-      if (!workspace) throw new Error('Không tìm thấy chuyến đi.')
-      const { error } = await supabase.from('expenses').insert({ ...payload, trip_id: workspace.trip.id })
+      const { error } = await supabase.from('expenses').insert({ ...payload, trip_id: tripId })
       throwIfError(error)
     }
   }
@@ -237,4 +312,6 @@ class SupabaseRepository implements TravelRepository {
   }
 }
 
-export const travelRepository: TravelRepository = supabase ? new SupabaseRepository() : new DemoRepository()
+export const travelRepository: TravelRepository = supabase
+  ? new SupabaseRepository()
+  : new DemoRepository()

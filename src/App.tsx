@@ -6,10 +6,12 @@ import { DashboardPage } from './pages/DashboardPage'
 import { ExpensesPage } from './pages/ExpensesPage'
 import { ItineraryPage } from './pages/ItineraryPage'
 import { LoginPage } from './pages/LoginPage'
+import { GroupPage } from './pages/GroupPage'
 
 export function App() {
-  const { isDemo, loading, session } = useAuth()
+  const { configurationError, isDemo, loading, session } = useAuth()
   if (loading) return <main className="boot-state"><StateView state="loading" /></main>
+  if (configurationError) return <main className="boot-state"><StateView state="error" title="Thiếu cấu hình hệ thống" message={configurationError} /></main>
   if (!isDemo && !session) return <LoginPage />
   return (
     <Routes>
@@ -17,6 +19,7 @@ export function App() {
         <Route index element={<DashboardPage />} />
         <Route path="itinerary" element={<ItineraryPage />} />
         <Route path="expenses" element={<ExpensesPage />} />
+        <Route path="group" element={<GroupPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
     </Routes>

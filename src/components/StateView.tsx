@@ -6,9 +6,10 @@ interface StateViewProps {
   message?: string
   actionLabel?: string
   onAction?: () => void
+  actionDisabled?: boolean
 }
 
-export function StateView({ state, title, message, actionLabel, onAction }: StateViewProps) {
+export function StateView({ state, title, message, actionLabel, onAction, actionDisabled = false }: StateViewProps) {
   if (state === 'loading') {
     return (
       <section className="state-view state-view--loading" aria-busy="true" aria-label="Đang tải dữ liệu">
@@ -26,7 +27,7 @@ export function StateView({ state, title, message, actionLabel, onAction }: Stat
       <h2>{title ?? (state === 'error' ? 'Chưa thể tải dữ liệu' : 'Chưa có kế hoạch nào')}</h2>
       <p>{message ?? (state === 'error' ? 'Kết nối đang gặp sự cố. Bạn thử lại nhé.' : 'Bắt đầu bằng một điểm đến đầu tiên cho cả nhóm.')}</p>
       {onAction && (
-        <button className="button button--primary" type="button" onClick={onAction}>
+        <button className="button button--primary" type="button" onClick={onAction} disabled={actionDisabled}>
           {state === 'error' && <RefreshCw size={18} aria-hidden="true" />}
           {actionLabel ?? (state === 'error' ? 'Thử lại' : 'Bắt đầu')}
         </button>

@@ -1,11 +1,12 @@
 import { createContext, useContext, useEffect, useMemo, useState, type PropsWithChildren } from 'react'
 import type { Session } from '@supabase/supabase-js'
-import { isSupabaseConfigured, supabase } from '../lib/supabase'
+import { configurationError, isDemoMode, isSupabaseConfigured, supabase } from '../lib/supabase'
 
 interface AuthContextValue {
   session: Session | null
   loading: boolean
   isDemo: boolean
+  configurationError: string | null
   signInWithEmail: (email: string) => Promise<void>
   signOut: () => Promise<void>
 }
@@ -18,10 +19,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
 
   useEffect(() => {
     if (!supabase) return
-    void supabase.auth.getSession().then(({ data }) => {
-      setSession(data.session)
-      setLoading(false)
-    })
+    void supabase.auth.getSession().then(({ data }) => setSession(data.session)).finally(() => setLoading(false))
     const { data } = supabase.auth.onAuthStateChange((_event, nextSession) => {
       setSession(nextSession)
       setLoading(false)
@@ -32,9 +30,10 @@ export function AuthProvider({ children }: PropsWithChildren) {
   const value = useMemo<AuthContextValue>(() => ({
     session,
     loading,
-    isDemo: !isSupabaseConfigured,
+    isDemo: isDemoMode,
+    configurationError,
     signInWithEmail: async (email: string) => {
-      if (!supabase) return
+      if (!supabase) throw new Error(configurationError ?? 'Supabase chưa được cấu hình.')
       const { error } = await supabase.auth.signInWithOtp({
         email,
         options: { emailRedirectTo: window.location.href.split('#')[0] },

@@ -1,7 +1,7 @@
 import { ArrowRight, CalendarDays, MapPin, ReceiptText, Users } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { StateView } from '../components/StateView'
-import { formatCurrency, formatDate, totalExpenses } from '../lib/format'
+import { formatCurrency, formatDate, safePercent, totalExpenses } from '../lib/format'
 import { useWorkspace, useWorkspaceMutations } from '../hooks/useWorkspace'
 import styles from './DashboardPage.module.css'
 
@@ -10,9 +10,10 @@ export function DashboardPage() {
   const { createTrip } = useWorkspaceMutations()
   if (workspace.isLoading) return <StateView state="loading" />
   if (workspace.isError) return <StateView state="error" onAction={() => void workspace.refetch()} />
-  if (!workspace.data) return <StateView state="empty" title="Bạn chưa thuộc chuyến đi nào" message="Nếu bạn là người tạo nhóm, hãy khởi tạo chuyến Đà Lạt. Thành viên còn lại cần được chủ chuyến đi thêm vào nhóm." actionLabel={createTrip.isPending ? 'Đang khởi tạo…' : 'Khởi tạo chuyến Đà Lạt'} onAction={() => void createTrip.mutateAsync()} />
+  if (!workspace.data) return <StateView state={createTrip.isError ? 'error' : 'empty'} title={createTrip.isError ? 'Chưa thể tham gia chuyến đi' : 'Bạn chưa thuộc chuyến đi nào'} message={createTrip.error instanceof Error ? createTrip.error.message : 'Nếu bạn là người tạo nhóm, hãy khởi tạo chuyến Đà Lạt. Thành viên còn lại cần được chủ chuyến đi mời bằng email.'} actionLabel={createTrip.isPending ? 'Đang khởi tạo…' : createTrip.isError ? 'Thử lại' : 'Khởi tạo chuyến Đà Lạt'} actionDisabled={createTrip.isPending} onAction={() => createTrip.mutate()} />
   const { trip, itinerary, expenses, memberCount } = workspace.data
   const spent = totalExpenses(expenses)
+  const budgetPercent = safePercent(spent, trip.budgetVnd)
   const upcoming = itinerary.slice(0, 3)
 
   return (
@@ -33,7 +34,7 @@ export function DashboardPage() {
       <section className={styles.metrics} aria-label="Tóm tắt chuyến đi">
         <article className={styles.metric}><span><CalendarDays size={22} /></span><p>Điểm đến</p><strong>{itinerary.length}</strong><small>trong lịch trình</small></article>
         <article className={styles.metric}><span><ReceiptText size={22} /></span><p>Đã dự trù</p><strong>{formatCurrency(spent)}</strong><small>trên {formatCurrency(trip.budgetVnd)}</small></article>
-        <article className={`${styles.metric} ${styles.progress}`}><p>Ngân sách còn lại</p><strong>{formatCurrency(Math.max(trip.budgetVnd - spent, 0))}</strong><div className={styles.bar}><span style={{ width: `${Math.min((spent / trip.budgetVnd) * 100, 100)}%` }} /></div><small>{Math.round((spent / trip.budgetVnd) * 100)}% ngân sách đã dùng</small></article>
+        <article className={`${styles.metric} ${styles.progress}`}><p>Ngân sách còn lại</p><strong>{formatCurrency(Math.max(trip.budgetVnd - spent, 0))}</strong><div className={styles.bar}><span style={{ width: `${budgetPercent}%` }} /></div><small>{Math.round(budgetPercent)}% ngân sách đã dùng</small></article>
       </section>
 
       <section className={styles.schedule} data-ai-id="upcoming-itinerary">

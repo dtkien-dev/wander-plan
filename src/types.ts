@@ -9,6 +9,18 @@ export interface Trip {
   endDate: string
   timezone: string
   budgetVnd: number
+  version: number
+}
+
+export type TripDraft = Pick<Trip, 'name' | 'destination' | 'startDate' | 'endDate' | 'budgetVnd'>
+
+export interface TripPerson {
+  userId: string | null
+  email: string
+  displayName: string
+  role: MemberRole
+  status: 'active' | 'invited'
+  joinedAt: string | null
 }
 
 export interface ItineraryItem {
@@ -42,6 +54,7 @@ export interface WorkspaceData {
   itinerary: ItineraryItem[]
   expenses: Expense[]
   memberCount: number
+  currentRole: MemberRole
 }
 
 export type ItineraryDraft = Omit<ItineraryItem, 'id' | 'tripId' | 'version'>

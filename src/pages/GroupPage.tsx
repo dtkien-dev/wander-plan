@@ -1,0 +1,122 @@
+import { useEffect, useState } from 'react'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useForm } from 'react-hook-form'
+import { CalendarRange, CheckCircle2, Clock3, Crown, MailPlus, MapPin, UsersRound, WalletCards } from 'lucide-react'
+import { z } from 'zod'
+import { StateView } from '../components/StateView'
+import { useTripPeople, useWorkspace, useWorkspaceMutations } from '../hooks/useWorkspace'
+import { formatCurrency, formatDate } from '../lib/format'
+import type { TripDraft } from '../types'
+import styles from './GroupPage.module.css'
+
+const tripSchema = z.object({
+  name: z.string().trim().min(2, 'Tên chuyến đi cần ít nhất 2 ký tự.').max(100),
+  destination: z.string().trim().min(2, 'Nhập điểm đến.').max(150),
+  startDate: z.string().min(1, 'Chọn ngày bắt đầu.'),
+  endDate: z.string().min(1, 'Chọn ngày kết thúc.'),
+  budgetVnd: z.number().int().min(0, 'Ngân sách không thể âm.'),
+}).refine((data) => data.endDate >= data.startDate, { message: 'Ngày kết thúc phải sau ngày bắt đầu.', path: ['endDate'] })
+
+const inviteSchema = z.object({ email: z.email('Nhập email hợp lệ.').transform((value) => value.trim().toLowerCase()) })
+
+type InviteValues = z.infer<typeof inviteSchema>
+
+export function GroupPage() {
+  const workspace = useWorkspace()
+  const people = useTripPeople(workspace.data?.trip.id)
+  const mutations = useWorkspaceMutations()
+  const [notice, setNotice] = useState('')
+  const [formError, setFormError] = useState('')
+  const trip = workspace.data?.trip
+  const isOwner = workspace.data?.currentRole === 'owner'
+  const tripForm = useForm<TripDraft>({
+    resolver: zodResolver(tripSchema),
+    defaultValues: trip ? {
+      name: trip.name,
+      destination: trip.destination,
+      startDate: trip.startDate,
+      endDate: trip.endDate,
+      budgetVnd: trip.budgetVnd,
+    } : { name: '', destination: '', startDate: '2026-11-27', endDate: '2026-11-30', budgetVnd: 0 },
+  })
+  const inviteForm = useForm<InviteValues>({ resolver: zodResolver(inviteSchema), defaultValues: { email: '' } })
+  const resetTripForm = tripForm.reset
+
+  useEffect(() => {
+    if (!notice) return
+    const timer = window.setTimeout(() => setNotice(''), 5000)
+    return () => window.clearTimeout(timer)
+  }, [notice])
+
+  useEffect(() => {
+    if (!trip) return
+    resetTripForm({ name: trip.name, destination: trip.destination, startDate: trip.startDate, endDate: trip.endDate, budgetVnd: trip.budgetVnd })
+  }, [trip, resetTripForm])
+
+  if (workspace.isLoading) return <StateView state="loading" />
+  if (workspace.isError) return <StateView state="error" onAction={() => void workspace.refetch()} />
+  if (!workspace.data || !trip) return <StateView state="empty" title="Chưa có chuyến đi" />
+
+  const saveTrip = async (draft: TripDraft) => {
+    setFormError('')
+    try {
+      await mutations.updateTrip.mutateAsync({ draft, existing: trip })
+      setNotice('Đã cập nhật thông tin chuyến đi.')
+    } catch (error) {
+      setFormError(error instanceof Error ? error.message : 'Không thể cập nhật chuyến đi.')
+    }
+  }
+
+  const invite = async ({ email }: InviteValues) => {
+    try {
+      await mutations.inviteMember.mutateAsync({ tripId: trip.id, email })
+      inviteForm.reset()
+      setNotice('Đã thêm lời mời. Người bạn sẽ tự tham gia sau khi đăng nhập bằng email này.')
+    } catch (error) {
+      inviteForm.setError('email', { message: error instanceof Error ? error.message : 'Không thể gửi lời mời.' })
+    }
+  }
+
+  return (
+    <div className={styles.page} data-ai-id="group-page">
+      <header className="section-header section-header--page">
+        <div><p className="eyebrow">Nhóm ba người</p><h1>Chuyến đi & thành viên</h1><p>Một nơi để chốt ngày đi, ngân sách và những người được phép chỉnh sửa.</p></div>
+        <div className={styles.sync}><CheckCircle2 size={18} aria-hidden="true" /><span>Đồng bộ realtime</span></div>
+      </header>
+      {notice && <div className="feedback" role="status">{notice}<button type="button" onClick={() => setNotice('')}>Đóng</button></div>}
+      <div className={styles.grid}>
+        <section className={styles.settings} aria-labelledby="trip-settings-title">
+          <header><div><span className={styles.sectionIcon}><CalendarRange size={24} /></span><p className="eyebrow">Thông tin chung</p><h2 id="trip-settings-title">{trip.name}</h2></div>{!isOwner && <span className={styles.readonly}>Chỉ chủ chuyến đi được sửa</span>}</header>
+          <div className={styles.tripFacts} aria-label="Tóm tắt chuyến đi">
+            <span><CalendarRange size={18} />{formatDate(trip.startDate)} — {formatDate(trip.endDate)}</span>
+            <span><MapPin size={18} />{trip.destination}</span>
+            <span><WalletCards size={18} />{formatCurrency(trip.budgetVnd)}</span>
+          </div>
+          {formError && <div className="form-error-banner" role="alert">{formError}</div>}
+          <form className="form" onSubmit={tripForm.handleSubmit(saveTrip)}>
+            <label className="field field--wide">Tên chuyến đi<input disabled={!isOwner} {...tripForm.register('name')} aria-invalid={Boolean(tripForm.formState.errors.name)} />{tripForm.formState.errors.name && <span>{tripForm.formState.errors.name.message}</span>}</label>
+            <label className="field field--wide">Điểm đến<input disabled={!isOwner} {...tripForm.register('destination')} aria-invalid={Boolean(tripForm.formState.errors.destination)} />{tripForm.formState.errors.destination && <span>{tripForm.formState.errors.destination.message}</span>}</label>
+            <label className="field">Ngày bắt đầu<input type="date" disabled={!isOwner} {...tripForm.register('startDate')} aria-invalid={Boolean(tripForm.formState.errors.startDate)} />{tripForm.formState.errors.startDate && <span>{tripForm.formState.errors.startDate.message}</span>}</label>
+            <label className="field">Ngày kết thúc<input type="date" disabled={!isOwner} {...tripForm.register('endDate')} aria-invalid={Boolean(tripForm.formState.errors.endDate)} />{tripForm.formState.errors.endDate && <span>{tripForm.formState.errors.endDate.message}</span>}</label>
+            <label className="field field--wide">Ngân sách dự kiến<input type="number" min="0" step="100000" inputMode="numeric" disabled={!isOwner} {...tripForm.register('budgetVnd', { valueAsNumber: true })} aria-invalid={Boolean(tripForm.formState.errors.budgetVnd)} />{tripForm.formState.errors.budgetVnd && <span>{tripForm.formState.errors.budgetVnd.message}</span>}</label>
+            {isOwner && <div className="form__actions field--wide"><button className="button button--primary" type="submit" disabled={mutations.updateTrip.isPending || !tripForm.formState.isDirty}>{mutations.updateTrip.isPending ? 'Đang lưu…' : 'Lưu thông tin'}</button></div>}
+          </form>
+        </section>
+
+        <aside className={styles.people} aria-labelledby="people-title">
+          <header><span className={styles.sectionIcon}><UsersRound size={24} /></span><p className="eyebrow">Quyền truy cập</p><h2 id="people-title">Thành viên</h2><p>{workspace.data.memberCount}/3 người đã tham gia</p></header>
+          {isOwner && <form className={styles.invite} onSubmit={inviteForm.handleSubmit(invite)}>
+            <label htmlFor="invite-email">Mời bằng email</label>
+            <div><input id="invite-email" type="email" autoComplete="email" placeholder="ban@example.com" {...inviteForm.register('email')} aria-invalid={Boolean(inviteForm.formState.errors.email)} /><button className="button button--primary" type="submit" disabled={mutations.inviteMember.isPending}><MailPlus size={18} />{mutations.inviteMember.isPending ? 'Đang thêm…' : 'Thêm'}</button></div>
+            {inviteForm.formState.errors.email && <span role="alert">{inviteForm.formState.errors.email.message}</span>}
+          </form>}
+          {people.isLoading ? <div className={styles.peopleLoading} aria-busy="true">Đang tải thành viên…</div> : people.isError ? <div className={styles.peopleError} role="alert"><p>Chưa thể tải danh sách thành viên.</p><button className="button button--ghost" type="button" onClick={() => void people.refetch()}>Thử lại</button></div> : (
+            <ul className={styles.peopleList}>
+              {people.data?.map((person) => <li key={`${person.status}-${person.userId ?? person.email}`}><span className={styles.avatar}>{person.displayName.slice(0, 1).toUpperCase()}</span><div><strong>{person.displayName}</strong><small>{person.email}</small></div><span className={`${styles.status} ${person.status === 'invited' ? styles.pending : ''}`}>{person.role === 'owner' ? <Crown size={15} /> : person.status === 'invited' ? <Clock3 size={15} /> : <CheckCircle2 size={15} />}{person.role === 'owner' ? 'Chủ nhóm' : person.status === 'invited' ? 'Đã mời' : 'Thành viên'}</span></li>)}
+            </ul>
+          )}
+        </aside>
+      </div>
+    </div>
+  )
+}
