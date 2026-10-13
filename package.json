@@ -8,7 +8,10 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "test:db": "supabase test db",
+    "supabase:start": "supabase start",
+    "supabase:stop": "supabase stop"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
@@ -19,6 +22,8 @@
     "react-dom": "^19.3.0",
     "react-hook-form": "^7.71.2",
     "react-router-dom": "7.18.4",
+    "read-excel-file": "^9.3.10",
+    "write-excel-file": "^4.1.1",
     "zod": "^4.3.6"
   },
   "devDependencies": {
@@ -30,6 +35,7 @@
     "@vitejs/plugin-react": "^4.7.0",
     "eslint": "^9.39.5",
     "jsdom": "^26.1.0",
+    "supabase": "2.120.0",
     "tailwindcss": "^4.3.3",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.71.2",

@@ -1,0 +1,21 @@
+.intro { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 18px; margin-bottom: 18px; }
+.intro p { margin: 0; color: var(--color-text-muted); line-height: 1.55; }
+.dropzone { position: relative; display: grid; justify-items: center; gap: 6px; margin-bottom: 18px; padding: 26px 20px; color: var(--color-primary); background: var(--color-mint); border: 1px dashed var(--color-secondary); border-radius: var(--radius-inset); cursor: pointer; }
+.dropzone span { color: var(--color-text-muted); font-size: 13px; }
+.dropzone input { position: absolute; inset: 0; width: 100%; opacity: 0; cursor: pointer; }
+.dropzone:focus-within { outline: 3px solid rgba(201,120,63,.5); outline-offset: 3px; }
+.summary { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 16px; }
+.summary span { display: grid; gap: 2px; padding: 10px 12px; color: var(--color-text-muted); background: var(--color-surface-muted); border-radius: var(--radius-inset); font-size: 12px; }
+.summary strong { color: var(--color-primary); font-size: 20px; }
+.summary .invalid strong, .invalid { color: var(--color-danger); }
+.tableWrap { max-height: 310px; overflow: auto; border: 1px solid var(--color-border); border-radius: var(--radius-inset); }
+.table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.table th { position: sticky; top: 0; z-index: 1; padding: 10px 12px; color: #fffdf7; background: var(--color-primary); text-align: left; }
+.table td { padding: 10px 12px; border-top: 1px solid var(--color-border); vertical-align: top; }
+.table td:nth-child(2) { text-align: right; }
+.valid { color: var(--color-secondary); font-weight: 700; }
+.duplicate { color: #8a5a28; font-weight: 700; }
+.more, .empty { margin: 14px 0 0; color: var(--color-text-muted); font-size: 13px; }
+.more { padding: 0 12px; }
+.actions { display: grid; grid-auto-flow: column; justify-content: end; gap: 10px; margin-top: 20px; }
+@media (max-width: 620px) { .intro { grid-template-columns: 1fr; } .intro button { width: 100%; } .summary { grid-template-columns: 1fr; } .actions { grid-auto-flow: row; } .actions button { width: 100%; } }

@@ -13,7 +13,12 @@ export const demoWorkspace: WorkspaceData = {
     version: 1,
   },
   memberCount: 2,
+  currentUserId: 'demo-owner',
   currentRole: 'owner',
+  people: [
+    { userId: 'demo-owner', email: 'ban@example.com', displayName: 'Bạn', role: 'owner', status: 'active', joinedAt: '2026-10-13T00:00:00Z' },
+    { userId: 'demo-editor', email: 'banthan@example.com', displayName: 'Người bạn đồng hành', role: 'editor', status: 'active', joinedAt: '2026-10-13T00:00:00Z' },
+  ],
   itinerary: [
     {
       id: 'demo-i-1',
@@ -64,6 +69,8 @@ export const demoWorkspace: WorkspaceData = {
       expenseDate: '2026-11-27',
       estimatedAmountVnd: 2400000,
       actualAmountVnd: 2250000,
+      paidByUserId: 'demo-owner',
+      participantUserIds: ['demo-owner', 'demo-editor'],
       notes: 'Phòng bốn người, đã đặt cọc.',
       version: 1,
     },
@@ -75,6 +82,8 @@ export const demoWorkspace: WorkspaceData = {
       expenseDate: '2026-11-27',
       estimatedAmountVnd: 900000,
       actualAmountVnd: null,
+      paidByUserId: 'demo-editor',
+      participantUserIds: ['demo-owner', 'demo-editor'],
       notes: 'Hai xe trong ba ngày.',
       version: 1,
     },

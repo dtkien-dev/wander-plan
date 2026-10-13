@@ -1,0 +1,145 @@
+import { describe, expect, it } from 'vitest'
+import readXlsxFile from 'read-excel-file/node'
+import writeXlsxFile from 'write-excel-file/node'
+import { buildTravelExcelPreview, buildTravelExcelReportSheets, getImportDraft } from './travelExcel'
+import { demoWorkspace } from '../data/demoData'
+import type { Trip } from '../types'
+
+const trip: Trip = {
+  id: 'trip', name: 'Đà Lạt', destination: 'Đà Lạt', startDate: '2026-11-27', endDate: '2026-11-30',
+  timezone: 'Asia/Ho_Chi_Minh', budgetVnd: 1_000_000, maxMembers: 4, version: 1,
+}
+
+describe('travel Excel import', () => {
+  it('parses Vietnamese template rows and maps expense categories', () => {
+    const preview = buildTravelExcelPreview('trip.xlsx', [
+      { sheet: 'LichTrinh', data: [
+        ['Tên địa điểm', 'Ngày', 'Bắt đầu', 'Kết thúc', 'Chi phí dự kiến', 'Địa chỉ', 'Google Maps URL', 'Ghi chú'],
+        ['Đồi chè', '28/11/2026', '05:30', '08:00', '350.000', 'Cầu Đất', '', 'Mang áo ấm'],
+      ] },
+      { sheet: 'ChiPhi', data: [
+        ['Khoản chi', 'Phân loại', 'Ngày', 'Dự kiến', 'Thực tế', 'Người thanh toán', 'Người tham gia', 'Ghi chú'],
+        ['Ăn sáng', 'Ăn uống', '2026-11-28', 200000, '', 'ban@example.com', 'ban@example.com, banthan@example.com', ''],
+      ] },
+    ], trip, [], [], demoWorkspace.people)
+
+    expect(preview.itinerary[0].data).toMatchObject({ visitDate: '2026-11-28', estimatedCostVnd: 350000 })
+    expect(preview.expenses[0].data).toMatchObject({ category: 'food', actualAmountVnd: null })
+    expect(preview.itinerary[0].action).toBe('create')
+    expect(preview.expenses[0].action).toBe('create')
+    expect(getImportDraft(preview)).toEqual({
+      itinerary: [{ draft: preview.itinerary[0].data, id: undefined, version: undefined }],
+      expenses: [{ draft: preview.expenses[0].data, id: undefined, version: undefined }],
+    })
+  })
+
+  it('reports invalid rows and skips duplicates from existing data or the same file', () => {
+    const preview = buildTravelExcelPreview('trip.xlsx', [{ sheet: 'ChiPhi', data: [
+      ['Khoản chi', 'Phân loại', 'Ngày', 'Dự kiến', 'Thực tế', 'Người thanh toán', 'Người tham gia', 'Ghi chú'],
+      ['Homestay', 'Lưu trú', '2026-11-27', 2400000, 2250000, 'ban@example.com', 'ban@example.com, banthan@example.com', ''],
+      ['Homestay', 'Lưu trú', '2026-11-27', 2400000, 2250000, 'ban@example.com', 'ban@example.com, banthan@example.com', ''],
+      ['Taxi', 'Không rõ', '2026-12-01', -1, '', 'ban@example.com', 'ban@example.com', ''],
+    ] }], trip, [], [{
+      id: 'e1', tripId: trip.id, title: 'Homestay', category: 'stay', expenseDate: '2026-11-27',
+      estimatedAmountVnd: 2400000, actualAmountVnd: 2250000, paidByUserId: 'demo-owner', participantUserIds: ['demo-owner', 'demo-editor'], notes: '', version: 1,
+    }], demoWorkspace.people)
+
+    expect(preview.expenses[0].action).toBe('skip')
+    expect(preview.expenses[1].action).toBe('skip')
+    expect(preview.expenses[2].errors).toEqual(expect.arrayContaining([
+      'Phân loại không hợp lệ', 'Ngày nằm ngoài chuyến đi', 'Số tiền dự kiến phải là số nguyên không âm',
+    ]))
+    expect(getImportDraft(preview).expenses).toEqual([])
+  })
+
+  it('rejects impossible dates and non-numeric money instead of treating them as valid values', () => {
+    const preview = buildTravelExcelPreview('trip.xlsx', [{ sheet: 'ChiPhi', data: [
+      ['Khoản chi', 'Phân loại', 'Ngày', 'Dự kiến', 'Thực tế', 'Người thanh toán', 'Người tham gia', 'Ghi chú'],
+      ['Taxi', 'Di chuyển', '31/11/2026', 'không rõ', '', 'ban@example.com', 'ban@example.com', ''],
+    ] }], trip, [], [], demoWorkspace.people)
+
+    expect(preview.expenses[0].errors).toEqual(expect.arrayContaining([
+      'Ngày không hợp lệ', 'Số tiền dự kiến phải là số nguyên không âm',
+    ]))
+  })
+
+  it('recognizes edited exported rows as optimistic updates', () => {
+    const existing = {
+      id: 'expense-1', tripId: trip.id, title: 'Homestay', category: 'stay' as const, expenseDate: '2026-11-27',
+      estimatedAmountVnd: 2400000, actualAmountVnd: null, paidByUserId: 'demo-owner', participantUserIds: ['demo-owner'], notes: '', version: 4,
+    }
+    const preview = buildTravelExcelPreview('trip.xlsx', [{ sheet: 'ChiPhi', data: [
+      ['Khoản chi', 'Phân loại', 'Ngày', 'Dự kiến', 'Thực tế', 'Người thanh toán', 'Người tham gia', 'Ghi chú', 'Đang tính', 'Trạng thái', 'ID', 'Version'],
+      ['Homestay mới', 'Lưu trú', '2026-11-27', 2500000, '', 'ban@example.com', 'ban@example.com', 'Đã sửa', 2500000, 'Dự kiến', existing.id, existing.version],
+    ] }], trip, [], [existing], demoWorkspace.people)
+
+    expect(preview.expenses[0].action).toBe('update')
+    expect(getImportDraft(preview).expenses[0]).toMatchObject({
+      id: existing.id, version: existing.version,
+      draft: { title: 'Homestay mới', estimatedAmountVnd: 2500000, notes: 'Đã sửa' },
+    })
+  })
+
+  it('skips unchanged exported rows and reports stale versions as conflicts', () => {
+    const existing = {
+      id: 'expense-1', tripId: trip.id, title: 'Homestay', category: 'stay' as const, expenseDate: '2026-11-27',
+      estimatedAmountVnd: 2400000, actualAmountVnd: null, paidByUserId: 'demo-owner', participantUserIds: ['demo-owner'], notes: '', version: 4,
+    }
+    const header = ['Khoản chi', 'Phân loại', 'Ngày', 'Dự kiến', 'Thực tế', 'Người thanh toán', 'Người tham gia', 'Ghi chú', 'ID', 'Version']
+    const unchanged = buildTravelExcelPreview('trip.xlsx', [{ sheet: 'ChiPhi', data: [
+      header, ['Homestay', 'Lưu trú', '2026-11-27', 2400000, '', 'ban@example.com', 'ban@example.com', '', existing.id, 4],
+    ] }], trip, [], [existing], demoWorkspace.people)
+    const stale = buildTravelExcelPreview('trip.xlsx', [{ sheet: 'ChiPhi', data: [
+      header, ['Homestay mới', 'Lưu trú', '2026-11-27', 2500000, '', 'ban@example.com', 'ban@example.com', '', existing.id, 3],
+    ] }], trip, [], [existing], demoWorkspace.people)
+    const missingId = buildTravelExcelPreview('trip.xlsx', [{ sheet: 'ChiPhi', data: [
+      header, ['Homestay mới', 'Lưu trú', '2026-11-27', 2500000, '', 'ban@example.com', 'ban@example.com', '', '', 4],
+    ] }], trip, [], [existing], demoWorkspace.people)
+
+    expect(unchanged.expenses[0]).toMatchObject({ action: 'skip', statusMessage: 'Không có thay đổi' })
+    expect(stale.expenses[0].action).toBe('conflict')
+    expect(stale.expenses[0].statusMessage).toContain('Version đã thay đổi')
+    expect(missingId.expenses[0]).toMatchObject({ action: 'conflict', statusMessage: expect.stringContaining('thiếu ID') })
+    expect(getImportDraft(stale).expenses).toEqual([])
+  })
+
+  it('builds a shareable report with summary totals and typed Excel dates', () => {
+    const sheets = buildTravelExcelReportSheets(demoWorkspace, new Date(2026, 9, 13, 9, 30))
+    const summary = sheets.find((sheet) => sheet.sheet === 'TongQuan')!
+    const itinerary = sheets.find((sheet) => sheet.sheet === 'LichTrinh')!
+    const cellValue = (cell: unknown) => typeof cell === 'object' && cell !== null && 'value' in cell
+      ? (cell as { value: unknown }).value
+      : cell
+    const summaryRow = summary.data.find((row) => cellValue(row[0]) === 'Chi phí đang tính')!
+
+    expect(sheets.map((sheet) => sheet.sheet)).toEqual(['TongQuan', 'LichTrinh', 'ChiPhi'])
+    expect(cellValue(summaryRow[1])).toBe(3_150_000)
+    expect(cellValue(itinerary.data[1][1])).toBeInstanceOf(Date)
+    expect(cellValue(itinerary.data[1][0])).toBe('Cà phê bên đồi thông')
+    expect(itinerary.data[0].map(cellValue)).toEqual(expect.arrayContaining(['ID', 'Version']))
+  })
+
+  it('serializes the report as a readable three-sheet xlsx workbook', async () => {
+    const originalTimezone = process.env.TZ
+    process.env.TZ = 'America/Los_Angeles'
+    try {
+      const report = buildTravelExcelReportSheets(demoWorkspace, new Date(2026, 9, 13, 9, 30))
+      const buffer = await writeXlsxFile(report, { fontFamily: 'Arial', fontSize: 10 }).toBuffer()
+      const sheets = await readXlsxFile(buffer)
+
+      expect(sheets.map((sheet) => sheet.sheet)).toEqual(['TongQuan', 'LichTrinh', 'ChiPhi'])
+      expect(sheets[0].data.some((row) => row[0] === 'Chi phí đang tính' && row[1] === 3_150_000)).toBe(true)
+      expect(sheets[1].data[0]).toEqual(expect.arrayContaining(['Tên địa điểm', 'Ngày', 'Bắt đầu', 'ID', 'Version']))
+
+      const unchanged = buildTravelExcelPreview('report.xlsx', sheets, demoWorkspace.trip, demoWorkspace.itinerary, demoWorkspace.expenses, demoWorkspace.people)
+      expect([...unchanged.itinerary, ...unchanged.expenses].every((row) => row.action === 'skip')).toBe(true)
+
+      sheets[1].data[1][0] = 'Cà phê bên đồi thông (đã sửa)'
+      const edited = buildTravelExcelPreview('report.xlsx', sheets, demoWorkspace.trip, demoWorkspace.itinerary, demoWorkspace.expenses, demoWorkspace.people)
+      expect(edited.itinerary[0].action).toBe('update')
+    } finally {
+      if (originalTimezone === undefined) delete process.env.TZ
+      else process.env.TZ = originalTimezone
+    }
+  })
+})

@@ -46,6 +46,8 @@ export interface Expense {
   expenseDate: string
   estimatedAmountVnd: number
   actualAmountVnd: number | null
+  paidByUserId: string
+  participantUserIds: string[]
   notes: string
   version: number
 }
@@ -54,9 +56,27 @@ export interface WorkspaceData {
   trip: Trip
   itinerary: ItineraryItem[]
   expenses: Expense[]
+  people: TripPerson[]
   memberCount: number
+  currentUserId: string
   currentRole: MemberRole
 }
 
 export type ItineraryDraft = Omit<ItineraryItem, 'id' | 'tripId' | 'version'>
 export type ExpenseDraft = Omit<Expense, 'id' | 'tripId' | 'version'>
+
+export interface TripImportEntry<T> {
+  draft: T
+  id?: string
+  version?: number
+}
+
+export interface TripImportDraft {
+  itinerary: TripImportEntry<ItineraryDraft>[]
+  expenses: TripImportEntry<ExpenseDraft>[]
+}
+
+export interface TripImportResult {
+  createdCount: number
+  updatedCount: number
+}

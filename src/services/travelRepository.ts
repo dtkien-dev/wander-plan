@@ -1,13 +1,10 @@
 import { demoWorkspace } from '../data/demoData'
 import { supabase } from '../lib/supabase'
-import type { Expense, ExpenseDraft, ItineraryDraft, ItineraryItem, Trip, TripDraft, TripPerson, WorkspaceData } from '../types'
+import type { Expense, ExpenseDraft, ItineraryDraft, ItineraryItem, Trip, TripDraft, TripImportDraft, TripImportResult, TripPerson, WorkspaceData } from '../types'
 
 const STORAGE_KEY = 'wander-plan-demo-workspace-v1'
 const PEOPLE_STORAGE_KEY = 'wander-plan-demo-people-v1'
-const demoPeople: TripPerson[] = [
-  { userId: 'demo-owner', email: 'ban@example.com', displayName: 'Bạn', role: 'owner', status: 'active', joinedAt: '2026-10-13T00:00:00Z' },
-  { userId: 'demo-editor', email: 'banthan@example.com', displayName: 'Người bạn đồng hành', role: 'editor', status: 'active', joinedAt: '2026-10-13T00:00:00Z' },
-]
+const demoPeople = demoWorkspace.people
 
 export interface TravelRepository {
   loadWorkspace(): Promise<WorkspaceData | null>
@@ -19,6 +16,7 @@ export interface TravelRepository {
   deleteItinerary(item: ItineraryItem): Promise<void>
   saveExpense(draft: ExpenseDraft, tripId: string, existing?: Expense): Promise<void>
   deleteExpense(expense: Expense): Promise<void>
+  importTripData(draft: TripImportDraft, tripId: string): Promise<TripImportResult>
 }
 
 const delay = () => new Promise((resolve) => window.setTimeout(resolve, 180))
@@ -29,6 +27,13 @@ class DemoRepository implements TravelRepository {
     const saved = localStorage.getItem(STORAGE_KEY)
     const data = saved ? (JSON.parse(saved) as WorkspaceData) : cloneDemo()
     data.trip.maxMembers ??= 4
+    data.currentUserId ??= 'demo-owner'
+    data.people ??= [...demoPeople]
+    data.expenses = data.expenses.map((expense) => ({
+      ...expense,
+      paidByUserId: expense.paidByUserId ?? 'demo-owner',
+      participantUserIds: expense.participantUserIds?.length ? expense.participantUserIds : demoPeople.flatMap((person) => person.userId ? [person.userId] : []),
+    }))
     return data
   }
 
@@ -38,7 +43,10 @@ class DemoRepository implements TravelRepository {
 
   async loadWorkspace() {
     await delay()
-    return this.read()
+    const data = this.read()
+    data.people = await this.loadTripPeople()
+    data.memberCount = data.people.length
+    return data
   }
 
   async createDefaultTrip() {
@@ -111,6 +119,38 @@ class DemoRepository implements TravelRepository {
     data.expenses = data.expenses.filter((entry) => entry.id !== expense.id)
     this.write(data)
   }
+
+  async importTripData(draft: TripImportDraft) {
+    const data = this.read()
+    const itineraryUpdates = draft.itinerary.filter((entry) => entry.id)
+    const expenseUpdates = draft.expenses.filter((entry) => entry.id)
+    for (const entry of itineraryUpdates) {
+      const current = data.itinerary.find((item) => item.id === entry.id)
+      if (!current || current.version !== entry.version) throw new Error('Lịch trình đã thay đổi. Hãy xuất file mới rồi thử lại.')
+    }
+    for (const entry of expenseUpdates) {
+      const current = data.expenses.find((expense) => expense.id === entry.id)
+      if (!current || current.version !== entry.version) throw new Error('Chi phí đã thay đổi. Hãy xuất file mới rồi thử lại.')
+    }
+    data.itinerary = data.itinerary.map((item) => {
+      const entry = itineraryUpdates.find((candidate) => candidate.id === item.id)
+      return entry ? { ...item, ...entry.draft, version: item.version + 1 } : item
+    })
+    data.expenses = data.expenses.map((expense) => {
+      const entry = expenseUpdates.find((candidate) => candidate.id === expense.id)
+      return entry ? { ...expense, ...entry.draft, version: expense.version + 1 } : expense
+    })
+    const itineraryCreates = draft.itinerary.filter((entry) => !entry.id)
+    const expenseCreates = draft.expenses.filter((entry) => !entry.id)
+    data.itinerary.push(...itineraryCreates.map((entry) => ({
+      ...entry.draft, id: crypto.randomUUID(), tripId: data.trip.id, version: 1,
+    })))
+    data.expenses.push(...expenseCreates.map((entry) => ({
+      ...entry.draft, id: crypto.randomUUID(), tripId: data.trip.id, version: 1,
+    })))
+    this.write(data)
+    return { createdCount: itineraryCreates.length + expenseCreates.length, updatedCount: itineraryUpdates.length + expenseUpdates.length }
+  }
 }
 
 const mapTrip = (row: any): Trip => ({
@@ -147,6 +187,8 @@ const mapExpense = (row: any): Expense => ({
   expenseDate: row.expense_date,
   estimatedAmountVnd: Number(row.estimated_amount_vnd),
   actualAmountVnd: row.actual_amount_vnd === null ? null : Number(row.actual_amount_vnd),
+  paidByUserId: row.paid_by,
+  participantUserIds: (row.expense_participants ?? []).map((participant: any) => participant.user_id),
   notes: row.notes ?? '',
   version: row.version,
 })
@@ -170,7 +212,7 @@ class SupabaseRepository implements TravelRepository {
     const trip = mapTrip(trips[0])
     const [itineraryResult, expenseResult, memberResult] = await Promise.all([
       supabase.from('itinerary_items').select('id,trip_id,title,visit_date,start_time,end_time,estimated_cost_vnd,address,maps_url,notes,version').eq('trip_id', trip.id).order('visit_date').order('start_time'),
-      supabase.from('expenses').select('id,trip_id,title,category,expense_date,estimated_amount_vnd,actual_amount_vnd,notes,version').eq('trip_id', trip.id).order('expense_date'),
+      supabase.from('expenses').select('id,trip_id,title,category,expense_date,estimated_amount_vnd,actual_amount_vnd,paid_by,notes,version,expense_participants(user_id)').eq('trip_id', trip.id).order('expense_date'),
       supabase.from('trip_members').select('user_id,role').eq('trip_id', trip.id),
     ])
     throwIfError(itineraryResult.error)
@@ -183,7 +225,9 @@ class SupabaseRepository implements TravelRepository {
       trip,
       itinerary: (itineraryResult.data ?? []).map(mapItinerary),
       expenses: (expenseResult.data ?? []).map(mapExpense),
+      people: await this.loadTripPeople(trip.id),
       memberCount: memberResult.data?.length ?? 1,
+      currentUserId: authData.session!.user.id,
       currentRole: currentMembership.role as WorkspaceData['currentRole'],
     }
   }
@@ -280,27 +324,21 @@ class SupabaseRepository implements TravelRepository {
 
   async saveExpense(draft: ExpenseDraft, tripId: string, existing?: Expense) {
     if (!supabase) return
-    const payload = {
-      title: draft.title,
-      category: draft.category,
-      expense_date: draft.expenseDate,
-      estimated_amount_vnd: draft.estimatedAmountVnd,
-      actual_amount_vnd: draft.actualAmountVnd,
-      notes: draft.notes,
-    }
-    if (existing) {
-      const { data, error } = await supabase
-        .from('expenses')
-        .update(payload)
-        .eq('id', existing.id)
-        .eq('version', existing.version)
-        .select('id')
-      throwIfError(error)
-      if (!data?.length) throw new Error('Chi phí đã được người khác cập nhật. Hãy tải lại và thử lại.')
-    } else {
-      const { error } = await supabase.from('expenses').insert({ ...payload, trip_id: tripId })
-      throwIfError(error)
-    }
+    const { data, error } = await supabase.rpc('save_expense_with_participants', {
+      target_trip_id: tripId,
+      target_expense_id: existing?.id ?? null,
+      expected_version: existing?.version ?? null,
+      expense_title: draft.title,
+      expense_category: draft.category,
+      target_expense_date: draft.expenseDate,
+      target_estimated_amount_vnd: draft.estimatedAmountVnd,
+      target_actual_amount_vnd: draft.actualAmountVnd,
+      payer_user_id: draft.paidByUserId,
+      participant_user_ids: draft.participantUserIds,
+      expense_notes: draft.notes,
+    })
+    throwIfError(error)
+    if (!data) throw new Error('Không thể lưu chi phí.')
   }
 
   async deleteExpense(expense: Expense) {
@@ -313,6 +351,42 @@ class SupabaseRepository implements TravelRepository {
       .select('id')
     throwIfError(error)
     if (!data?.length) throw new Error('Không thể xóa vì chi phí đã thay đổi. Hãy tải lại.')
+  }
+
+  async importTripData(draft: TripImportDraft, tripId: string) {
+    if (!supabase) return { createdCount: 0, updatedCount: 0 }
+    const { data, error } = await supabase.rpc('import_trip_data', {
+      target_trip_id: tripId,
+      itinerary_rows: draft.itinerary.map((entry) => ({
+        id: entry.id ?? null,
+        version: entry.version ?? null,
+        title: entry.draft.title,
+        visit_date: entry.draft.visitDate,
+        start_time: entry.draft.startTime,
+        end_time: entry.draft.endTime,
+        estimated_cost_vnd: entry.draft.estimatedCostVnd,
+        address: entry.draft.address,
+        maps_url: entry.draft.mapsUrl || null,
+        notes: entry.draft.notes,
+      })),
+      expense_rows: draft.expenses.map((entry) => ({
+        id: entry.id ?? null,
+        version: entry.version ?? null,
+        title: entry.draft.title,
+        category: entry.draft.category,
+        expense_date: entry.draft.expenseDate,
+        estimated_amount_vnd: entry.draft.estimatedAmountVnd,
+        actual_amount_vnd: entry.draft.actualAmountVnd,
+        paid_by: entry.draft.paidByUserId,
+        participant_ids: entry.draft.participantUserIds,
+        notes: entry.draft.notes,
+      })),
+    })
+    throwIfError(error)
+    return {
+      createdCount: Number(data?.created_count ?? draft.itinerary.filter((entry) => !entry.id).length + draft.expenses.filter((entry) => !entry.id).length),
+      updatedCount: Number(data?.updated_count ?? draft.itinerary.filter((entry) => entry.id).length + draft.expenses.filter((entry) => entry.id).length),
+    }
   }
 }
 

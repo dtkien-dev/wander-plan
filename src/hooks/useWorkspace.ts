@@ -3,7 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../providers/AuthProvider'
 import { travelRepository } from '../services/travelRepository'
-import type { Expense, ExpenseDraft, ItineraryDraft, ItineraryItem, Trip, TripDraft } from '../types'
+import type { Expense, ExpenseDraft, ItineraryDraft, ItineraryItem, Trip, TripDraft, TripImportDraft } from '../types'
 
 const workspaceKey = (identity: string) => ['workspace', identity] as const
 const peopleKey = (tripId: string) => ['trip-people', tripId] as const
@@ -28,6 +28,7 @@ export function useWorkspace() {
       .on('postgres_changes', { event: '*', schema: 'public', table: 'trip_members' }, refresh)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'itinerary_items' }, refresh)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'expenses' }, refresh)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'expense_participants' }, refresh)
       .subscribe()
     return () => { void realtimeClient.removeChannel(channel) }
   }, [client, identity, session])
@@ -71,6 +72,12 @@ export function useWorkspaceMutations() {
     onSuccess: refresh,
   })
 
+  const importTripData = useMutation({
+    mutationFn: ({ draft, tripId }: { draft: TripImportDraft; tripId: string }) =>
+      travelRepository.importTripData(draft, tripId),
+    onSuccess: refresh,
+  })
+
   const createTrip = useMutation({
     mutationFn: () => travelRepository.createDefaultTrip(),
     onSuccess: refresh,
@@ -89,5 +96,5 @@ export function useWorkspaceMutations() {
     ]),
   })
 
-  return { itinerary, deleteItinerary, expense, deleteExpense, createTrip, updateTrip, inviteMember }
+  return { itinerary, deleteItinerary, expense, deleteExpense, importTripData, createTrip, updateTrip, inviteMember }
 }

@@ -33,6 +33,7 @@ a { color: inherit; }
 .section-header h2 { font-size: clamp(26px, 3vw, 36px); }
 .section-header p { margin-bottom: 0; color: var(--color-text-muted); }
 .section-header--page { margin-bottom: 32px; }
+.section-header__actions { display: grid; grid-auto-flow: column; gap: 10px; }
 .button { display: inline-grid; grid-auto-flow: column; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 0 16px; border: 1px solid transparent; border-radius: var(--radius-control); font-weight: 700; text-decoration: none; cursor: pointer; transition: transform 160ms var(--ease-spring), box-shadow 180ms var(--ease-spring), background-color 180ms var(--ease-spring), border-color 180ms var(--ease-spring); }
 .button:hover { transform: translateY(-1px); }
 .button:active { transform: translateY(1px) scale(.98); }
@@ -77,6 +78,11 @@ a { color: inherit; }
 .field input:disabled, .field select:disabled, .field textarea:disabled { color: var(--color-text-muted); background: var(--color-surface-muted); cursor: not-allowed; }
 .field [aria-invalid="true"] { border-color: var(--color-danger); }
 .field > span { color: var(--color-danger); font-size: 12px; font-weight: 600; }
+.participant-field { min-width: 0; margin: 0; padding: 0; border: 0; }
+.participant-field legend { margin-bottom: 7px; padding: 0; }
+.participant-field > div { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 8px; }
+.participant-field label { display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 8px; min-height: 44px; padding: 9px 12px; background: #fbfaf5; border: 1px solid var(--color-border); border-radius: var(--radius-control); cursor: pointer; }
+.participant-field input { width: 18px; height: 18px; accent-color: var(--color-primary); }
 .form__actions { display: grid; grid-auto-flow: column; justify-content: end; gap: 10px; padding-top: 4px; }
 .boot-state { display: grid; place-items: center; min-height: 100dvh; padding: 24px; }
 
@@ -91,6 +97,7 @@ a { color: inherit; }
   .mobile-nav__link.is-active { color: var(--color-surface); background: var(--color-primary); }
   .section-header { grid-template-columns: 1fr; align-items: start; }
   .section-header .button { width: 100%; }
+  .section-header__actions { width: 100%; grid-auto-flow: row; }
   .form { grid-template-columns: 1fr; }
   .field--wide { grid-column: auto; }
   .modal-backdrop { align-items: end; padding: 0; }
