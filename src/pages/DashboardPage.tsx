@@ -2,14 +2,15 @@ import { ArrowRight, CalendarDays, MapPin, ReceiptText, Users } from 'lucide-rea
 import { Link } from 'react-router-dom'
 import { StateView } from '../components/StateView'
 import { formatCurrency, formatDate, totalExpenses } from '../lib/format'
-import { useWorkspace } from '../hooks/useWorkspace'
+import { useWorkspace, useWorkspaceMutations } from '../hooks/useWorkspace'
 import styles from './DashboardPage.module.css'
 
 export function DashboardPage() {
   const workspace = useWorkspace()
+  const { createTrip } = useWorkspaceMutations()
   if (workspace.isLoading) return <StateView state="loading" />
   if (workspace.isError) return <StateView state="error" onAction={() => void workspace.refetch()} />
-  if (!workspace.data) return <StateView state="empty" title="Bạn chưa thuộc chuyến đi nào" message="Nhờ chủ chuyến đi thêm tài khoản Google của bạn vào nhóm." />
+  if (!workspace.data) return <StateView state="empty" title="Bạn chưa thuộc chuyến đi nào" message="Nếu bạn là người tạo nhóm, hãy khởi tạo chuyến Đà Lạt. Thành viên còn lại cần được chủ chuyến đi thêm vào nhóm." actionLabel={createTrip.isPending ? 'Đang khởi tạo…' : 'Khởi tạo chuyến Đà Lạt'} onAction={() => void createTrip.mutateAsync()} />
   const { trip, itinerary, expenses, memberCount } = workspace.data
   const spent = totalExpenses(expenses)
   const upcoming = itinerary.slice(0, 3)

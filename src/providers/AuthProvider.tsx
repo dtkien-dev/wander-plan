@@ -6,7 +6,7 @@ interface AuthContextValue {
   session: Session | null
   loading: boolean
   isDemo: boolean
-  signInWithGoogle: () => Promise<void>
+  signInWithEmail: (email: string) => Promise<void>
   signOut: () => Promise<void>
 }
 
@@ -33,11 +33,11 @@ export function AuthProvider({ children }: PropsWithChildren) {
     session,
     loading,
     isDemo: !isSupabaseConfigured,
-    signInWithGoogle: async () => {
+    signInWithEmail: async (email: string) => {
       if (!supabase) return
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: { redirectTo: window.location.href.split('#')[0] },
+      const { error } = await supabase.auth.signInWithOtp({
+        email,
+        options: { emailRedirectTo: window.location.href.split('#')[0] },
       })
       if (error) throw error
     },
