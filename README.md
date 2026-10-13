@@ -30,10 +30,11 @@ Without environment variables the app uses browser `localStorage` and seeded dem
 4. Copy `.env.example` to `.env.local` and fill in the project URL and publishable key.
 5. For GitHub Pages, create repository variables named `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY`.
 
-> Existing project: never rerun `202610130001_initial_schema.sql`. An error such as
-> `relation "profiles" already exists (SQLSTATE 42P07)` means the initial schema is
-> already present. Stop that run and apply only migration files that have not been
-> applied yet. Rerunning an old migration can replace newer functions or triggers.
+> Existing project: an error such as `relation "profiles" already exists (SQLSTATE
+> 42P07)` means the schema exists but the migration runner does not know that the
+> initial migration was applied. Use the current migration files and rerun the full
+> `001` → `002` → `003` sequence. The files are repeatable; always run the complete
+> sequence so the latest functions and triggers from `002` and `003` are restored.
 
 The publishable key is designed for browser use. Never expose the Supabase secret key or `service_role` key.
 

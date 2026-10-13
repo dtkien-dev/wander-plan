@@ -2,7 +2,7 @@ create extension if not exists pgcrypto;
 
 create schema if not exists private;
 
-create table public.profiles (
+create table if not exists public.profiles (
   id uuid primary key references auth.users(id) on delete cascade,
   display_name text,
   avatar_url text,
@@ -10,7 +10,7 @@ create table public.profiles (
   updated_at timestamptz not null default now()
 );
 
-create table public.trips (
+create table if not exists public.trips (
   id uuid primary key default gen_random_uuid(),
   name text not null check (char_length(name) between 2 and 100),
   destination text not null check (char_length(destination) between 2 and 150),
@@ -24,7 +24,7 @@ create table public.trips (
   constraint valid_trip_dates check (end_date >= start_date)
 );
 
-create table public.trip_members (
+create table if not exists public.trip_members (
   trip_id uuid not null references public.trips(id) on delete cascade,
   user_id uuid not null references auth.users(id) on delete cascade,
   role text not null check (role in ('owner', 'editor')),
@@ -32,7 +32,7 @@ create table public.trip_members (
   primary key (trip_id, user_id)
 );
 
-create table public.itinerary_items (
+create table if not exists public.itinerary_items (
   id uuid primary key default gen_random_uuid(),
   trip_id uuid not null references public.trips(id) on delete cascade,
   title text not null check (char_length(title) between 2 and 150),
@@ -51,7 +51,7 @@ create table public.itinerary_items (
   constraint valid_itinerary_time check (end_time > start_time)
 );
 
-create table public.expenses (
+create table if not exists public.expenses (
   id uuid primary key default gen_random_uuid(),
   trip_id uuid not null references public.trips(id) on delete cascade,
   title text not null check (char_length(title) between 2 and 150),
@@ -67,9 +67,9 @@ create table public.expenses (
   updated_at timestamptz not null default now()
 );
 
-create index itinerary_items_trip_schedule_idx on public.itinerary_items(trip_id, visit_date, start_time);
-create index expenses_trip_date_idx on public.expenses(trip_id, expense_date);
-create index trip_members_user_idx on public.trip_members(user_id, trip_id);
+create index if not exists itinerary_items_trip_schedule_idx on public.itinerary_items(trip_id, visit_date, start_time);
+create index if not exists expenses_trip_date_idx on public.expenses(trip_id, expense_date);
+create index if not exists trip_members_user_idx on public.trip_members(user_id, trip_id);
 
 create or replace function private.is_trip_member(target_trip_id uuid)
 returns boolean
@@ -118,9 +118,11 @@ begin
 end;
 $$;
 
+drop trigger if exists itinerary_items_touch on public.itinerary_items;
 create trigger itinerary_items_touch before update on public.itinerary_items
 for each row execute function public.touch_versioned_row();
 
+drop trigger if exists expenses_touch on public.expenses;
 create trigger expenses_touch before update on public.expenses
 for each row execute function public.touch_versioned_row();
 
@@ -135,9 +137,11 @@ begin
 end;
 $$;
 
+drop trigger if exists profiles_touch on public.profiles;
 create trigger profiles_touch before update on public.profiles
 for each row execute function public.touch_updated_at();
 
+drop trigger if exists trips_touch on public.trips;
 create trigger trips_touch before update on public.trips
 for each row execute function public.touch_updated_at();
 
@@ -159,6 +163,7 @@ begin
 end;
 $$;
 
+drop trigger if exists on_auth_user_created on auth.users;
 create trigger on_auth_user_created
 after insert on auth.users
 for each row execute function public.handle_new_user();
@@ -176,12 +181,26 @@ begin
     raise exception 'Authentication required';
   end if;
 
+  select t.id into new_trip_id
+  from public.trips t
+  left join public.trip_members m on m.trip_id = t.id and m.user_id = auth.uid()
+  where m.user_id is not null or t.created_by = auth.uid()
+  order by t.created_at
+  limit 1;
+  if new_trip_id is not null then return new_trip_id; end if;
+
+  perform pg_advisory_xact_lock(hashtext('wanderplan-single-trip'));
+  if exists (select 1 from public.trips) then
+    raise exception 'Chuyến đi đã được tạo. Hãy nhờ chủ nhóm mời đúng email của bạn.';
+  end if;
+
   insert into public.trips (name, destination, start_date, end_date, timezone, budget_vnd, created_by)
-  values ('Đà Lạt trong sương', 'Đà Lạt, Lâm Đồng', current_date + 30, current_date + 33, 'Asia/Ho_Chi_Minh', 9000000, auth.uid())
+  values ('Đà Lạt trong sương', 'Đà Lạt, Lâm Đồng', date '2026-11-27', date '2026-11-30', 'Asia/Ho_Chi_Minh', 9000000, auth.uid())
   returning id into new_trip_id;
 
   insert into public.trip_members (trip_id, user_id, role)
-  values (new_trip_id, auth.uid(), 'owner');
+  values (new_trip_id, auth.uid(), 'owner')
+  on conflict (trip_id, user_id) do nothing;
 
   return new_trip_id;
 end;
@@ -196,6 +215,7 @@ alter table public.trip_members enable row level security;
 alter table public.itinerary_items enable row level security;
 alter table public.expenses enable row level security;
 
+drop policy if exists "members can view profiles" on public.profiles;
 create policy "members can view profiles"
 on public.profiles for select to authenticated
 using (
@@ -206,70 +226,87 @@ using (
   )
 );
 
+drop policy if exists "users update own profile" on public.profiles;
 create policy "users update own profile"
 on public.profiles for update to authenticated
 using (id = auth.uid()) with check (id = auth.uid());
 
+drop policy if exists "members view trips" on public.trips;
 create policy "members view trips"
 on public.trips for select to authenticated
 using (created_by = auth.uid() or private.is_trip_member(id));
 
+drop policy if exists "users create trips" on public.trips;
 create policy "users create trips"
 on public.trips for insert to authenticated
 with check (created_by = auth.uid());
 
+drop policy if exists "owners update trips" on public.trips;
 create policy "owners update trips"
 on public.trips for update to authenticated
 using (private.is_trip_owner(id)) with check (private.is_trip_owner(id));
 
+drop policy if exists "owners delete trips" on public.trips;
 create policy "owners delete trips"
 on public.trips for delete to authenticated
 using (private.is_trip_owner(id));
 
+drop policy if exists "members view membership" on public.trip_members;
 create policy "members view membership"
 on public.trip_members for select to authenticated
 using (private.is_trip_member(trip_id) or user_id = auth.uid());
 
+drop policy if exists "owners add members" on public.trip_members;
 create policy "owners add members"
 on public.trip_members for insert to authenticated
 with check (private.is_trip_owner(trip_id));
 
+drop policy if exists "owners update members" on public.trip_members;
 create policy "owners update members"
 on public.trip_members for update to authenticated
 using (private.is_trip_owner(trip_id)) with check (private.is_trip_owner(trip_id));
 
+drop policy if exists "owners remove members" on public.trip_members;
 create policy "owners remove members"
 on public.trip_members for delete to authenticated
 using (private.is_trip_owner(trip_id) and role <> 'owner');
 
+drop policy if exists "members view itinerary" on public.itinerary_items;
 create policy "members view itinerary"
 on public.itinerary_items for select to authenticated
 using (private.is_trip_member(trip_id));
 
+drop policy if exists "members add itinerary" on public.itinerary_items;
 create policy "members add itinerary"
 on public.itinerary_items for insert to authenticated
 with check (private.is_trip_member(trip_id) and created_by = auth.uid());
 
+drop policy if exists "members update itinerary" on public.itinerary_items;
 create policy "members update itinerary"
 on public.itinerary_items for update to authenticated
 using (private.is_trip_member(trip_id)) with check (private.is_trip_member(trip_id));
 
+drop policy if exists "members delete itinerary" on public.itinerary_items;
 create policy "members delete itinerary"
 on public.itinerary_items for delete to authenticated
 using (private.is_trip_member(trip_id));
 
+drop policy if exists "members view expenses" on public.expenses;
 create policy "members view expenses"
 on public.expenses for select to authenticated
 using (private.is_trip_member(trip_id));
 
+drop policy if exists "members add expenses" on public.expenses;
 create policy "members add expenses"
 on public.expenses for insert to authenticated
 with check (private.is_trip_member(trip_id) and created_by = auth.uid());
 
+drop policy if exists "members update expenses" on public.expenses;
 create policy "members update expenses"
 on public.expenses for update to authenticated
 using (private.is_trip_member(trip_id)) with check (private.is_trip_member(trip_id));
 
+drop policy if exists "members delete expenses" on public.expenses;
 create policy "members delete expenses"
 on public.expenses for delete to authenticated
 using (private.is_trip_member(trip_id));

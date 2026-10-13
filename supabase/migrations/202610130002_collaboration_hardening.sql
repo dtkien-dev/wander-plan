@@ -19,6 +19,7 @@ create table if not exists public.trip_invitations (
 
 alter table public.trip_invitations enable row level security;
 
+drop policy if exists "owners view invitations" on public.trip_invitations;
 create policy "owners view invitations"
 on public.trip_invitations for select to authenticated
 using (private.is_trip_owner(trip_id));
