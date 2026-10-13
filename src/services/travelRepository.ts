@@ -27,7 +27,9 @@ const cloneDemo = (): WorkspaceData => JSON.parse(JSON.stringify(demoWorkspace))
 class DemoRepository implements TravelRepository {
   private read() {
     const saved = localStorage.getItem(STORAGE_KEY)
-    return saved ? (JSON.parse(saved) as WorkspaceData) : cloneDemo()
+    const data = saved ? (JSON.parse(saved) as WorkspaceData) : cloneDemo()
+    data.trip.maxMembers ??= 4
+    return data
   }
 
   private write(data: WorkspaceData) {
@@ -59,7 +61,7 @@ class DemoRepository implements TravelRepository {
   async inviteMember(_tripId: string, email: string) {
     const people = await this.loadTripPeople()
     if (people.some((person) => person.email === email)) return
-    if (people.length >= 3) throw new Error('Chuyến đi đã đủ 3 thành viên hoặc lời mời.')
+    if (people.length >= this.read().trip.maxMembers) throw new Error('Chuyến đi đã dùng hết số chỗ thành viên và lời mời.')
     people.push({ userId: null, email, displayName: email, role: 'editor', status: 'invited', joinedAt: null })
     localStorage.setItem(PEOPLE_STORAGE_KEY, JSON.stringify(people))
   }
@@ -119,6 +121,7 @@ const mapTrip = (row: any): Trip => ({
   endDate: row.end_date,
   timezone: row.timezone,
   budgetVnd: Number(row.budget_vnd),
+  maxMembers: Number(row.max_members),
   version: row.version,
 })
 
@@ -159,7 +162,7 @@ class SupabaseRepository implements TravelRepository {
     throwIfError(claimError)
     const { data: trips, error } = await supabase
       .from('trips')
-      .select('id,name,destination,start_date,end_date,timezone,budget_vnd,version')
+      .select('id,name,destination,start_date,end_date,timezone,budget_vnd,max_members,version')
       .order('start_date')
       .limit(1)
     throwIfError(error)
@@ -204,6 +207,7 @@ class SupabaseRepository implements TravelRepository {
         start_date: draft.startDate,
         end_date: draft.endDate,
         budget_vnd: draft.budgetVnd,
+        max_members: draft.maxMembers,
       })
       .eq('id', existing.id)
       .eq('version', existing.version)

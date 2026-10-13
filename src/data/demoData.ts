@@ -9,6 +9,7 @@ export const demoWorkspace: WorkspaceData = {
     endDate: '2026-11-30',
     timezone: 'Asia/Ho_Chi_Minh',
     budgetVnd: 9000000,
+    maxMembers: 4,
     version: 1,
   },
   memberCount: 2,
@@ -63,7 +64,7 @@ export const demoWorkspace: WorkspaceData = {
       expenseDate: '2026-11-27',
       estimatedAmountVnd: 2400000,
       actualAmountVnd: 2250000,
-      notes: 'Phòng ba người, đã đặt cọc.',
+      notes: 'Phòng bốn người, đã đặt cọc.',
       version: 1,
     },
     {

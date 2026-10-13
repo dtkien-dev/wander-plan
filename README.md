@@ -29,7 +29,7 @@ Without environment variables the app uses browser `localStorage` and seeded dem
 
 The publishable key is designed for browser use. Never expose the Supabase secret key or `service_role` key.
 
-Users sign in through an email magic link. The first authenticated user creates the single Đà Lạt trip for 27–30 November 2026 and becomes its owner. From the **Nhóm** screen, the owner can invite up to two friends by email before or after they first sign in. Pending invitations are claimed automatically when the matching email logs in.
+Users sign in through an email magic link. The first authenticated user creates the single Đà Lạt trip for 27–30 November 2026 and becomes its owner. From the **Nhóm** screen, the owner can set a group size from 1 to 20 and invite friends by email before or after they first sign in. Pending invitations are claimed automatically when the matching email logs in.
 
 The second migration adds idempotent trip creation, invitations, realtime publication, versioned trip settings and database-level date validation:
 

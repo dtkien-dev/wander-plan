@@ -9,10 +9,11 @@ export interface Trip {
   endDate: string
   timezone: string
   budgetVnd: number
+  maxMembers: number
   version: number
 }
 
-export type TripDraft = Pick<Trip, 'name' | 'destination' | 'startDate' | 'endDate' | 'budgetVnd'>
+export type TripDraft = Pick<Trip, 'name' | 'destination' | 'startDate' | 'endDate' | 'budgetVnd' | 'maxMembers'>
 
 export interface TripPerson {
   userId: string | null
