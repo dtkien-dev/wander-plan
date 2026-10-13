@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
-import { CalendarRange, CheckCircle2, Clock3, Crown, MailPlus, MapPin, UsersRound, WalletCards } from 'lucide-react'
+import { CalendarRange, CheckCircle2, Clock3, Crown, MailPlus, MapPin, UserMinus, UsersRound, WalletCards } from 'lucide-react'
 import { z } from 'zod'
 import { StateView } from '../components/StateView'
 import { useTripPeople, useWorkspace, useWorkspaceMutations } from '../hooks/useWorkspace'
@@ -83,6 +83,16 @@ export function GroupPage() {
     }
   }
 
+  const removeMember = async (userId: string, displayName: string) => {
+    if (!window.confirm(`Loại ${displayName} khỏi nhóm? Người này sẽ mất quyền truy cập chuyến đi.`)) return
+    try {
+      await mutations.removeMember.mutateAsync({ tripId: trip.id, userId })
+      setNotice(`Đã loại ${displayName} khỏi nhóm.`)
+    } catch (error) {
+      setNotice(error instanceof Error ? error.message : 'Không thể loại thành viên khỏi nhóm.')
+    }
+  }
+
   return (
     <div className={styles.page} data-ai-id="group-page">
       <header className="section-header section-header--page">
@@ -121,7 +131,18 @@ export function GroupPage() {
           </form>}
           {people.isLoading ? <div className={styles.peopleLoading} aria-busy="true">Đang tải thành viên…</div> : people.isError ? <div className={styles.peopleError} role="alert"><p>Chưa thể tải danh sách thành viên.</p><button className="button button--ghost" type="button" onClick={() => void people.refetch()}>Thử lại</button></div> : (
             <ul className={styles.peopleList}>
-              {people.data?.map((person) => <li key={`${person.status}-${person.userId ?? person.email}`}><span className={styles.avatar}>{person.displayName.slice(0, 1).toUpperCase()}</span><div><strong>{person.displayName}</strong><small>{person.email}</small></div><span className={`${styles.status} ${person.status === 'invited' ? styles.pending : ''}`}>{person.role === 'owner' ? <Crown size={15} /> : person.status === 'invited' ? <Clock3 size={15} /> : <CheckCircle2 size={15} />}{person.role === 'owner' ? 'Chủ nhóm' : person.status === 'invited' ? 'Đã mời' : 'Thành viên'}</span></li>)}
+              {people.data?.map((person) => {
+                const canRemove = isOwner && person.status === 'active' && person.role !== 'owner' && Boolean(person.userId)
+                const isRemoving = mutations.removeMember.isPending && mutations.removeMember.variables?.userId === person.userId
+                return <li key={`${person.status}-${person.userId ?? person.email}`}>
+                  <span className={styles.avatar}>{person.displayName.slice(0, 1).toUpperCase()}</span>
+                  <div className={styles.identity}><strong>{person.displayName}</strong><small>{person.email}</small></div>
+                  <div className={styles.memberActions}>
+                    <span className={`${styles.status} ${person.status === 'invited' ? styles.pending : ''}`}>{person.role === 'owner' ? <Crown size={15} /> : person.status === 'invited' ? <Clock3 size={15} /> : <CheckCircle2 size={15} />}{person.role === 'owner' ? 'Chủ nhóm' : person.status === 'invited' ? 'Đã mời' : 'Thành viên'}</span>
+                    {canRemove && <button className={styles.removeMember} type="button" disabled={mutations.removeMember.isPending} onClick={() => void removeMember(person.userId!, person.displayName)} aria-label={`Loại ${person.displayName} khỏi nhóm`}><UserMinus size={16} />{isRemoving ? 'Đang loại…' : 'Loại khỏi nhóm'}</button>}
+                  </div>
+                </li>
+              })}
             </ul>
           )}
         </aside>

@@ -22,13 +22,18 @@
 .peopleList { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
 .peopleList li { display: grid; grid-template-columns: 42px minmax(0, 1fr) auto; align-items: center; gap: 10px; padding: 11px; background: rgba(255,253,247,.68); border: 1px solid var(--color-border); border-radius: var(--radius-inset); }
 .avatar { display: grid; place-items: center; width: 42px; height: 42px; color: var(--color-surface); background: var(--color-primary); border-radius: var(--radius-control); font-family: var(--font-heading); font-size: 19px; font-weight: 700; }
-.peopleList li > div { display: grid; min-width: 0; gap: 2px; }
+.identity { display: grid; min-width: 0; gap: 2px; }
 .peopleList strong, .peopleList small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .peopleList small { color: var(--color-text-muted); }
+.memberActions { display: grid; justify-items: end; gap: 6px; }
 .status { display: inline-grid; grid-auto-flow: column; align-items: center; gap: 4px; padding: 6px 8px; color: var(--color-primary); background: var(--color-mint); border-radius: var(--radius-pill); font-size: 11px; font-weight: 700; }
 .pending { color: #75411f; background: #f8e6d2; }
+.removeMember { display: inline-grid; grid-auto-flow: column; align-items: center; gap: 5px; min-height: 32px; padding: 5px 8px; color: var(--color-danger); background: transparent; border: 1px solid color-mix(in srgb, var(--color-danger) 35%, transparent); border-radius: var(--radius-control); font: inherit; font-size: 11px; font-weight: 700; cursor: pointer; }
+.removeMember:hover:not(:disabled) { background: color-mix(in srgb, var(--color-danger) 8%, transparent); }
+.removeMember:focus-visible { outline: 3px solid color-mix(in srgb, var(--color-danger) 24%, transparent); outline-offset: 2px; }
+.removeMember:disabled { cursor: wait; opacity: .6; }
 .peopleLoading, .peopleError { padding: 24px 12px; color: var(--color-text-muted); text-align: center; }
 .peopleError { display: grid; justify-items: center; gap: 8px; }
 .peopleError p { margin: 0; }
 @media (max-width: 900px) { .grid { grid-template-columns: 1fr; } .people { position: static; } }
-@media (max-width: 560px) { .settings, .people { padding: 20px 16px; } .sync { justify-self: start; } .invite > div { grid-template-columns: 1fr; } .invite .button { width: 100%; } .peopleList li { grid-template-columns: 42px minmax(0, 1fr); } .status { grid-column: 2; width: max-content; } }
+@media (max-width: 560px) { .settings, .people { padding: 20px 16px; } .sync { justify-self: start; } .invite > div { grid-template-columns: 1fr; } .invite .button { width: 100%; } .peopleList li { grid-template-columns: 42px minmax(0, 1fr); } .memberActions { grid-column: 2; justify-items: start; } }

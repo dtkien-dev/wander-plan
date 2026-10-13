@@ -12,6 +12,7 @@ export interface TravelRepository {
   updateTrip(draft: TripDraft, existing: Trip): Promise<void>
   loadTripPeople(tripId: string): Promise<TripPerson[]>
   inviteMember(tripId: string, email: string): Promise<void>
+  removeMember(tripId: string, userId: string): Promise<void>
   saveItinerary(draft: ItineraryDraft, tripId: string, existing?: ItineraryItem): Promise<void>
   deleteItinerary(item: ItineraryItem): Promise<void>
   saveExpense(draft: ExpenseDraft, tripId: string, existing?: Expense): Promise<void>
@@ -72,6 +73,14 @@ class DemoRepository implements TravelRepository {
     if (people.length >= this.read().trip.maxMembers) throw new Error('Chuyến đi đã dùng hết số chỗ thành viên và lời mời.')
     people.push({ userId: null, email, displayName: email, role: 'editor', status: 'invited', joinedAt: null })
     localStorage.setItem(PEOPLE_STORAGE_KEY, JSON.stringify(people))
+  }
+
+  async removeMember(_tripId: string, userId: string) {
+    const people = await this.loadTripPeople()
+    const member = people.find((person) => person.userId === userId)
+    if (!member) throw new Error('Không tìm thấy thành viên trong chuyến đi.')
+    if (member.role === 'owner') throw new Error('Không thể loại chủ nhóm khỏi chuyến đi.')
+    localStorage.setItem(PEOPLE_STORAGE_KEY, JSON.stringify(people.filter((person) => person.userId !== userId)))
   }
 
   async saveItinerary(draft: ItineraryDraft, _tripId: string, existing?: ItineraryItem) {
@@ -279,6 +288,15 @@ class SupabaseRepository implements TravelRepository {
     const { error } = await supabase.rpc('invite_trip_member', {
       target_trip_id: tripId,
       target_email: email,
+    })
+    throwIfError(error)
+  }
+
+  async removeMember(tripId: string, userId: string) {
+    if (!supabase) return
+    const { error } = await supabase.rpc('remove_trip_member', {
+      target_trip_id: tripId,
+      target_user_id: userId,
     })
     throwIfError(error)
   }

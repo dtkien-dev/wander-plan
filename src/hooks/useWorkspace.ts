@@ -96,5 +96,13 @@ export function useWorkspaceMutations() {
     ]),
   })
 
-  return { itinerary, deleteItinerary, expense, deleteExpense, importTripData, createTrip, updateTrip, inviteMember }
+  const removeMember = useMutation({
+    mutationFn: ({ tripId, userId }: { tripId: string; userId: string }) => travelRepository.removeMember(tripId, userId),
+    onSuccess: (_, variables) => Promise.all([
+      client.invalidateQueries({ queryKey: workspaceKey(identity) }),
+      client.invalidateQueries({ queryKey: peopleKey(variables.tripId) }),
+    ]),
+  })
+
+  return { itinerary, deleteItinerary, expense, deleteExpense, importTripData, createTrip, updateTrip, inviteMember, removeMember }
 }
