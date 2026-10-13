@@ -1,0 +1,12 @@
+.page { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(360px, .65fr); min-height: 100dvh; background: var(--color-primary); }
+.story { display: grid; align-content: end; padding: clamp(40px, 8vw, 120px); color: var(--color-surface); background: radial-gradient(circle at 18% 20%, rgba(79,128,103,.66), transparent 35%), linear-gradient(135deg, var(--color-primary-strong), var(--color-primary)); }
+.story :global(.brand) { position: absolute; top: 32px; color: var(--color-surface); }
+.story :global(.brand small) { color: rgba(255,253,247,.7); }
+.story h1 { max-width: 11ch; margin-bottom: 24px; font-size: clamp(48px, 7vw, 94px); line-height: 1.02; }
+.story > p:last-child { max-width: 55ch; color: rgba(255,253,247,.76); font-size: 18px; line-height: 1.7; }
+.eyebrow { color: #b7d6bf; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; }
+.card { align-self: center; margin: 32px; padding: 36px; background: var(--color-surface); border-radius: var(--radius-surface); box-shadow: var(--shadow-surface); }
+.card h2 { margin: 24px 0 12px; font-size: 34px; }
+.card p { margin-bottom: 28px; color: var(--color-text-muted); line-height: 1.6; }
+.index { color: var(--color-secondary); font-size: 12px; font-weight: 700; letter-spacing: .12em; }
+@media (max-width: 760px) { .page { grid-template-columns: 1fr; } .story { min-height: 48dvh; align-content: end; padding: 80px 24px 36px; } .story :global(.brand) { top: 22px; } .story h1 { font-size: clamp(38px, 12vw, 58px); } .card { margin: -16px 16px 24px; padding: 26px 22px; z-index: 1; } }

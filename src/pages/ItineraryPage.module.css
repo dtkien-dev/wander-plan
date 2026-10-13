@@ -1,0 +1,20 @@
+.page { display: grid; }
+.days { display: grid; gap: 24px; }
+.day { display: grid; grid-template-columns: 210px 1fr; gap: 28px; padding: 28px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-surface); box-shadow: var(--shadow-surface); }
+.day > header { display: grid; align-content: start; gap: 8px; padding-right: 24px; border-right: 1px solid var(--color-border); }
+.day > header time { font-family: var(--font-heading); font-size: 22px; font-weight: 700; text-transform: capitalize; }
+.day > header span { color: var(--color-text-muted); font-size: 13px; }
+.day ol { display: grid; gap: 0; margin: 0; padding: 0; list-style: none; }
+.item { display: grid; grid-template-columns: 100px 1fr; gap: 20px; padding: 0 0 26px; }
+.item + .item { padding-top: 26px; border-top: 1px solid var(--color-border); }
+.item:last-child { padding-bottom: 0; }
+.time { display: grid; grid-template-columns: 20px 1fr; align-content: start; gap: 4px 7px; color: var(--color-secondary); }
+.time svg { grid-row: span 2; }
+.time span { color: var(--color-text-muted); font-size: 13px; }
+.itemTitle { display: grid; grid-template-columns: 1fr auto; align-items: start; gap: 16px; }
+.itemTitle h2 { margin-bottom: 8px; font-size: 21px; }
+.itemTitle strong { color: var(--color-primary); font-size: 14px; }
+.item article > p { display: grid; grid-template-columns: 18px 1fr; align-items: start; gap: 7px; margin-bottom: 8px; color: var(--color-text-muted); }
+.item .note { display: block; padding: 12px; background: var(--color-bg); border-radius: var(--radius-inset); font-size: 14px; line-height: 1.55; }
+.actions { display: grid; grid-auto-flow: column; justify-content: start; gap: 8px; margin-top: 14px; }
+@media (max-width: 760px) { .day { grid-template-columns: 1fr; gap: 18px; padding: 20px 18px; } .day > header { padding: 0 0 16px; border-right: 0; border-bottom: 1px solid var(--color-border); } .item { grid-template-columns: 70px 1fr; gap: 12px; } .itemTitle { grid-template-columns: 1fr; gap: 0; } .actions { grid-template-columns: 1fr auto auto; grid-auto-flow: initial; } }

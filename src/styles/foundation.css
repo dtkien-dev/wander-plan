@@ -1,0 +1,31 @@
+/* FROZEN FOUNDATION TOKENS — DO NOT MODIFY */
+:root {
+  --color-primary: #18392b;
+  --color-primary-strong: #10291f;
+  --color-secondary: #4f8067;
+  --color-accent: #c9783f;
+  --color-mint: #dfece2;
+  --color-bg: #f5f0e6;
+  --color-surface: #fffdf7;
+  --color-surface-muted: #ebe6da;
+  --color-text: #18241e;
+  --color-text-muted: #5d6c63;
+  --color-danger: #a33b32;
+  --color-border: rgba(24, 57, 43, 0.16);
+  --font-heading: 'Libre Baskerville', Georgia, 'Times New Roman', serif;
+  --font-body: 'Work Sans', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --space-base: 8px;
+  --radius-1: 6px;
+  --radius-2: 10px;
+  --radius-3: 12px;
+  --radius-4: 16px;
+  --radius-5: 24px;
+  --radius-shell: var(--radius-5);
+  --radius-surface: var(--radius-4);
+  --radius-inset: var(--radius-3);
+  --radius-control: var(--radius-2);
+  --radius-tight: var(--radius-1);
+  --radius-pill: 9999px;
+  --ease-spring: cubic-bezier(0.25, 1, 0.5, 1);
+  --shadow-surface: 0 1px 0 rgba(255,255,255,.8) inset, 0 12px 18px -18px rgba(24,57,43,.36), 0 2px 7px rgba(24,57,43,.06);
+}

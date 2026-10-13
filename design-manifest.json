@@ -1,0 +1,14 @@
+{
+  "app": "wander-plan",
+  "platforms": ["mobile", "desktop"],
+  "style": "forest-green-grid",
+  "palette": "pine-and-mist",
+  "screens": ["login", "dashboard", "itinerary", "expenses"],
+  "sharedCss": ["src/styles/foundation.css", "src/styles/shared.css"],
+  "screenCss": [
+    "src/pages/LoginPage.module.css",
+    "src/pages/DashboardPage.module.css",
+    "src/pages/ItineraryPage.module.css",
+    "src/pages/ExpensesPage.module.css"
+  ]
+}
