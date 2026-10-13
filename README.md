@@ -22,22 +22,24 @@ Without environment variables the app uses browser `localStorage` and seeded dem
 ## Connect Supabase
 
 1. Create a Supabase project.
-2. Run `supabase/migrations/202610130001_initial_schema.sql` in the SQL editor.
+2. For a new project, run these files **once**, in filename order, in the SQL editor:
+   - `supabase/migrations/202610130001_initial_schema.sql`
+   - `supabase/migrations/202610130002_collaboration_hardening.sql`
+   - `supabase/migrations/202610130003_flexible_group_size.sql`
 3. Keep Email Auth enabled and set the Site URL/redirect URL to `https://dtkien-dev.github.io/wander-plan/`.
 4. Copy `.env.example` to `.env.local` and fill in the project URL and publishable key.
 5. For GitHub Pages, create repository variables named `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY`.
+
+> Existing project: never rerun `202610130001_initial_schema.sql`. An error such as
+> `relation "profiles" already exists (SQLSTATE 42P07)` means the initial schema is
+> already present. Stop that run and apply only migration files that have not been
+> applied yet. Rerunning an old migration can replace newer functions or triggers.
 
 The publishable key is designed for browser use. Never expose the Supabase secret key or `service_role` key.
 
 Users sign in through an email magic link. The first authenticated user creates the single Đà Lạt trip for 27–30 November 2026 and becomes its owner. From the **Nhóm** screen, the owner can set a group size from 1 to 20 and invite friends by email before or after they first sign in. Pending invitations are claimed automatically when the matching email logs in.
 
-The second migration adds idempotent trip creation, invitations, realtime publication, versioned trip settings and database-level date validation:
-
-```text
-supabase/migrations/202610130002_collaboration_hardening.sql
-```
-
-Run migrations in filename order for a new Supabase project. Production fails closed when Supabase variables are missing; local demo mode is enabled automatically in development and can be set explicitly with `VITE_DEMO_MODE=true`.
+The second migration adds idempotent trip creation, invitations, realtime publication, versioned trip settings and database-level date validation. The third migration makes the group capacity configurable from 1 to 20. Production fails closed when Supabase variables are missing; local demo mode is enabled automatically in development and can be set explicitly with `VITE_DEMO_MODE=true`.
 
 ## Quality checks
 
