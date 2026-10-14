@@ -1,64 +1,55 @@
 # WanderPlan
 
-Collaborative travel planner for a small group planning a trip to Đà Lạt.
+Collaborative travel planning: create and select trips, build itineraries, manage shared expenses, and invite your group.
 
-## Stack
+## Development
 
-- React 19, TypeScript, Vite 6
-- Tailwind CSS 4 pipeline with project-specific CSS tokens/modules
-- TanStack Query, React Hook Form, Zod
-- Supabase Auth, PostgreSQL and Row Level Security
-- GitHub Pages and GitHub Actions
+React/TypeScript/Vite, TanStack Query, Supabase Auth/PostgreSQL/RLS; hosted frontend on GitHub Pages.
 
-## Local development
-
-```bash
-npm install
+```sh
+npm ci
 npm run dev
-```
-
-Without environment variables the app uses browser `localStorage` and seeded demo data. Demo changes are private to that browser and are not collaborative.
-
-To run the complete Supabase stack locally with Docker Desktop:
-
-```bash
-npm run supabase:start
-npm run test:db
-```
-
-Supabase Studio is then available at `http://127.0.0.1:54323`. Run `npm run supabase:stop` when the local stack is no longer needed. The project-pinned CLI version is used by every command.
-
-## Connect Supabase
-
-1. Create a Supabase project.
-2. For a new project, run these files **once**, in filename order, in the SQL editor:
-   - `supabase/migrations/202610130001_initial_schema.sql`
-   - `supabase/migrations/202610130002_collaboration_hardening.sql`
-   - `supabase/migrations/202610130003_flexible_group_size.sql`
-   - `supabase/migrations/202610130004_excel_import.sql`
-   - `supabase/migrations/202610140001_expense_splitting.sql`
-   - `supabase/migrations/202610140002_repair_trip_owner_membership.sql`
-3. Keep Email Auth enabled and set the Site URL/redirect URL to `https://dtkien-dev.github.io/wander-plan/`.
-4. Copy `.env.example` to `.env.local` and fill in the project URL and publishable key.
-5. For GitHub Pages, create repository variables named `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY`.
-
-> Existing project: an error such as `relation "profiles" already exists (SQLSTATE
-> 42P07)` means the schema exists but the migration runner does not know that the
-> initial migration was applied. Use the current migration files and rerun the full
-> `001` → `002` → `003` → `004` → `202610140001` → `202610140002` sequence. The files are repeatable; always run the complete
-> sequence so the latest functions, triggers and import RPC are restored.
-
-The publishable key is designed for browser use. Never expose the Supabase secret key or `service_role` key.
-
-Users sign in through an email magic link. The first authenticated user creates the single Đà Lạt trip for 27–30 November 2026 and becomes its owner. From the **Nhóm** screen, the owner can set a group size from 1 to 20 and invite friends by email before or after they first sign in. Pending invitations are claimed automatically when the matching email logs in.
-
-The second migration adds idempotent trip creation, invitations, realtime publication, versioned trip settings and database-level date validation. The third migration makes the group capacity configurable from 1 to 20. The fourth migration adds transactional Excel create/update imports with optimistic version checks. The fifth migration records who paid and the selected participants for each expense, and saves both in one transaction. Exported reports include stable `ID` and `Version` columns so users can edit and import them back safely; deleting a spreadsheet row does not delete application data. Production fails closed when Supabase variables are missing; local demo mode is enabled automatically in development and can be set explicitly with `VITE_DEMO_MODE=true`.
-
-## Quality checks
-
-```bash
-npm run lint
 npm test
-npm run test:db
+npm run lint
 npm run build
 ```
+
+Use Node 20.19+ or a supported newer LTS for all development tools. Without Supabase configuration, development uses browser-local demo data. `VITE_DEMO_MODE=true` explicitly selects demo even when Supabase variables exist. Demo data is private to that browser; no emails or collaboration. Existing demo data is preserved when first writing the multi-trip storage format.
+
+## Database setup and upgrades
+
+Fresh database: apply migrations once in filename order through `202610140004_invitations_and_trips.sql`. Existing databases: inspect applied migration history and apply only missing forward migrations. Do not rerun all historical migrations: earlier functions restore obsolete single-trip/auto-accept behavior and the latest migration is intended to run once. Keep a backup and rehearse upgrades before production.
+
+The new `202610140004` migration supports explicit invitation responses, revocation, reserved capacity, and idempotent multi-trip creation. Preserve `202610140003_remove_trip_member.sql` as part of the upgrade chain too. Deploy the new schema before the matching frontend; an older frontend cannot display incoming invitations once automatic claiming is disabled. Coordinate the rollout and verify sign-in, acceptance, revocation, trip selection and expenses before inviting real users.
+
+With Docker Desktop available:
+
+```sh
+npm run supabase:start
+npm run test:db
+npm run supabase:stop
+```
+
+Without Docker, an ephemeral embedded PostgreSQL runner applies the unchanged migrations and runs all pgTAP suites:
+
+```sh
+npm run test:db:embedded
+```
+
+This verifies SQL and RLS with a minimal Supabase identity bootstrap. It does not verify email delivery, Supabase Realtime delivery or concurrent database sessions; those require the full Supabase stack/staging verification.
+
+## Supabase Auth and deployment
+
+Keep Email Auth enabled. Set Site URL and allowed redirect URL to `https://dtkien-dev.github.io/wander-plan/`; also allow the exact local development URL when testing sign-in locally. Copy `.env.example` to `.env.local` and set the project URL and publishable key. Configure the same `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` repository variables for GitHub Pages. Never expose a secret/service-role key. Production fails closed if configuration is missing unless demo mode is explicitly enabled.
+
+Users sign in with an email link. Sign-in does not accept invitations. The recipient sees pending invitations and chooses accept or decline after authenticating with the matching email. Existing accepted memberships are preserved. Creating an invitation stores it inside WanderPlan; it does not send an invitation email. The owner shares the website link and asks the recipient to sign in with the invited address. Login-link delivery is handled by Supabase Auth; verify the configured mail sender separately before public use.
+
+Pending invitations reserve places: 3 active members plus 1 pending invitation fill a group of 4. The owner can revoke the pending invitation to free its place. A declined invitation also frees its place. There is no automatic expiry policy in this version.
+
+## Trips and reminders
+
+The trip selector scopes queries, edits and realtime subscriptions to the selected trip; changing trips resets open edit forms. Each new trip has its own membership, itinerary and expenses. Trip creation uses a request key to prevent duplicates on retries.
+
+Dashboard reminders use the trip timezone and show upcoming/ongoing/completed status. Calendar export creates an all-day `.ics` event for the inclusive trip range. Add it to your calendar and configure alerts there; WanderPlan does not send background push or reminder emails.
+
+Excel imports preserve stable ID/version checks, payer and participant data; deleting a spreadsheet row does not delete app data. Expense settlement remains an accounting view, not a payment service.
