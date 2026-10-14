@@ -289,6 +289,7 @@ create table private.trip_creation_requests (
   primary key (owner_id, request_id)
 );
 revoke all on private.trip_creation_requests from public, anon, authenticated;
+alter table private.trip_creation_requests enable row level security;
 
 create or replace function public.create_trip(
   trip_name text, trip_destination text, trip_start_date date, trip_end_date date,
