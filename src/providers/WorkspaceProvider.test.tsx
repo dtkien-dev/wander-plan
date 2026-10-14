@@ -9,7 +9,7 @@ import { useWorkspace, useWorkspaceMutations } from '../hooks/useWorkspace'
 import type { Trip, TripInvitation, WorkspaceData } from '../types'
 
 const authState = vi.hoisted(() => ({ session: { user: { id: 'alice' } } as Session, isDemo: false }))
-const repository = vi.hoisted(() => ({ listTrips: vi.fn(), loadInvitations: vi.fn(), loadWorkspace: vi.fn(), respondInvitation: vi.fn() }))
+const repository = vi.hoisted(() => ({ listTrips: vi.fn(), loadInvitations: vi.fn(), loadWorkspace: vi.fn(), respondInvitation: vi.fn(), updateTrip: vi.fn() }))
 const realtime = vi.hoisted(() => ({ channel: vi.fn(), removeChannel: vi.fn() }))
 vi.mock('./AuthProvider', () => ({ useAuth: () => authState }))
 vi.mock('../services/travelRepository', () => ({ travelRepository: repository }))
@@ -99,10 +99,18 @@ describe('WorkspaceProvider integration', () => {
     rerender(tree(client))
     expect(realtime.channel).toHaveBeenCalledOnce()
     repository.loadInvitations.mockResolvedValue([])
-    act(() => channel.handlers.find((handler) => handler.table === 'trip_invitations')!.callback())
+    act(() => {
+      channel.handlers.find((handler) => handler.table === 'trip_invitations')!.callback()
+      channel.handlers.find((handler) => handler.table === 'expenses')!.callback()
+    })
     await waitFor(() => expect(screen.getByLabelText('invitations-second')).toHaveTextContent('0'))
     expect(repository.loadInvitations).toHaveBeenCalledTimes(2)
     expect(repository.listTrips).toHaveBeenCalledOnce()
+    await waitFor(() => expect(repository.loadWorkspace).toHaveBeenCalledTimes(2))
+    act(() => channel.handlers.find((handler) => handler.table === 'expenses')!.callback())
+    await waitFor(() => expect(repository.loadWorkspace).toHaveBeenCalledTimes(3))
+    expect(repository.listTrips).toHaveBeenCalledOnce()
+    expect(repository.loadInvitations).toHaveBeenCalledTimes(2)
     unmount()
     expect(activeChannels.size).toBe(0)
   })
@@ -167,5 +175,43 @@ describe('WorkspaceProvider integration', () => {
     expect(screen.getByLabelText('draft-first')).toHaveValue('')
     expect(screen.getByLabelText('trip-first')).toHaveTextContent('trip-b')
     expect(activeChannels.size).toBe(1)
+  })
+
+  it('refreshes a completed save after its trip editor unmounts during a trip switch', async () => {
+    const pendingSave = deferred<void>()
+    let saved = false
+    let save: Promise<void> | undefined
+    repository.updateTrip.mockReturnValue(pendingSave.promise)
+    repository.loadWorkspace.mockImplementation(async (id: string) => {
+      const data = workspace(id)
+      if (id === 'trip-a' && saved) data.trip.name = 'Saved trip A'
+      return data
+    })
+    function Editor() {
+      const query = useWorkspace()
+      const { updateTrip } = useWorkspaceMutations()
+      return <><output aria-label="saved-trip-name">{query.data?.trip.name ?? 'empty'}</output>
+        <button onClick={() => {
+          const current = query.data!.trip
+          save = updateTrip.mutateAsync({ existing: current, draft: { name: 'Saved trip A', destination: current.destination, startDate: current.startDate, endDate: current.endDate, budgetVnd: current.budgetVnd, maxMembers: current.maxMembers } })
+          void save.catch(() => {})
+        }}>Save current trip</button></>
+    }
+    function Selection() {
+      const { tripId, selectTrip } = useWorkspaceContext()
+      return <><button onClick={() => selectTrip('trip-a')}>Select A</button><button onClick={() => selectTrip('trip-b')}>Select B</button><Editor key={tripId} /></>
+    }
+    const client = new QueryClient({ defaultOptions: { queries: { retry: false, staleTime: 30_000 } } })
+    client.setQueryData(['trips', 'alice'], [trip('trip-a'), trip('trip-b')])
+    render(<QueryClientProvider client={client}><WorkspaceProvider><Selection /></WorkspaceProvider></QueryClientProvider>)
+    await waitFor(() => expect(screen.getByLabelText('saved-trip-name')).toHaveTextContent('trip-a'))
+    fireEvent.click(screen.getByText('Save current trip'))
+    await waitFor(() => expect(repository.updateTrip).toHaveBeenCalledOnce())
+    fireEvent.click(screen.getByText('Select B'))
+    await waitFor(() => expect(screen.getByLabelText('saved-trip-name')).toHaveTextContent('trip-b'))
+    await act(async () => { saved = true; pendingSave.resolve(); await save })
+    fireEvent.click(screen.getByText('Select A'))
+    await waitFor(() => expect(screen.getByLabelText('saved-trip-name')).toHaveTextContent('Saved trip A'))
+    expect(repository.loadWorkspace.mock.calls.filter(([id]) => id === 'trip-a')).toHaveLength(2)
   })
 })

@@ -80,6 +80,9 @@ export function downloadTripCalendarEvent(trip: Pick<Trip, 'id' | 'name' | 'dest
   const anchor = document.createElement('a')
   anchor.href = url
   anchor.download = 'chuyen-di.ics'
+  document.body.append(anchor)
   anchor.click()
-  URL.revokeObjectURL(url)
+  anchor.remove()
+  // Let the browser start reading the download before releasing the URL.
+  window.setTimeout(() => URL.revokeObjectURL(url), 1000)
 }

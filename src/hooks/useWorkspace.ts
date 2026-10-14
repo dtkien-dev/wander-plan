@@ -1,8 +1,8 @@
 import { useEffect, useRef } from 'react'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { travelRepository } from '../services/travelRepository'
 import { singleFlight } from '../lib/singleFlight'
-import { invitationsKey, peopleKey, tripsKey, useWorkspaceContext, workspaceKey } from '../providers/WorkspaceProvider'
+import { invitationsKey, tripsKey, useWorkspaceContext, workspaceKey } from '../providers/WorkspaceProvider'
 import type { Expense, ExpenseDraft, ItineraryDraft, ItineraryItem, Trip, TripDraft, TripImportDraft } from '../types'
 
 export function useWorkspace() {
@@ -12,14 +12,13 @@ export function useWorkspace() {
 }
 
 export function useTripPeople(tripId?: string) {
-  const { identity, workspace } = useWorkspaceContext()
-  return useQuery({
-    queryKey: peopleKey(identity, tripId ?? 'none'),
-    queryFn: () => travelRepository.loadTripPeople(tripId!),
-    enabled: Boolean(tripId),
-    initialData: workspace.data && workspace.data.trip.id === tripId ? workspace.data.people : undefined,
-    initialDataUpdatedAt: workspace.dataUpdatedAt,
-  })
+  const { workspace } = useWorkspaceContext()
+  return {
+    data: workspace.data?.trip.id === tripId ? workspace.data?.people : undefined,
+    isLoading: workspace.isLoading,
+    isError: workspace.isError,
+    refetch: workspace.refetch,
+  }
 }
 
 export function useWorkspaceMutations() {
@@ -34,38 +33,37 @@ export function useWorkspaceMutations() {
     if (!isCurrent(identity)) throw new Error('Phiên đăng nhập đã thay đổi. Hãy thử lại.')
     return action()
   })
-  const refresh = async (id = tripId) => {
+  const refresh = async (id = tripId, includeTrips = false) => {
     await Promise.all([
       client.invalidateQueries({ queryKey: workspaceKey(identity, id) }),
-      client.invalidateQueries({ queryKey: tripsKey(identity) }),
-      ...(id ? [client.invalidateQueries({ queryKey: peopleKey(identity, id) })] : []),
+      ...(includeTrips ? [client.invalidateQueries({ queryKey: tripsKey(identity) })] : []),
     ])
   }
   const capture = () => ({ identity, refresh, selectTrip })
   const itinerary = useMutation({
     onMutate: capture,
     mutationFn: ({ draft, tripId: id, existing }: { draft: ItineraryDraft; tripId: string; existing?: ItineraryItem }) => write(`itinerary:${id}:${existing?.id ?? 'new'}`, () => travelRepository.saveItinerary(draft, id, existing)),
-    onSuccess: (_, variables, origin) => origin && isCurrent(origin.identity) ? origin.refresh(variables.tripId) : undefined,
+    onSuccess: (_, variables, origin) => origin?.refresh(variables.tripId),
   })
-  const deleteItinerary = useMutation({ onMutate: capture, mutationFn: (item: ItineraryItem) => write(`delete-itinerary:${item.id}`, () => travelRepository.deleteItinerary(item)), onSuccess: (_, item, origin) => origin && isCurrent(origin.identity) ? origin.refresh(item.tripId) : undefined })
+  const deleteItinerary = useMutation({ onMutate: capture, mutationFn: (item: ItineraryItem) => write(`delete-itinerary:${item.id}`, () => travelRepository.deleteItinerary(item)), onSuccess: (_, item, origin) => origin?.refresh(item.tripId) })
   const expense = useMutation({ onMutate: capture,
     mutationFn: ({ draft, tripId: id, existing }: { draft: ExpenseDraft; tripId: string; existing?: Expense }) => write(`expense:${id}:${existing?.id ?? 'new'}`, () => travelRepository.saveExpense(draft, id, existing)),
-    onSuccess: (_, variables, origin) => origin && isCurrent(origin.identity) ? origin.refresh(variables.tripId) : undefined,
+    onSuccess: (_, variables, origin) => origin?.refresh(variables.tripId),
   })
-  const deleteExpense = useMutation({ onMutate: capture, mutationFn: (item: Expense) => write(`delete-expense:${item.id}`, () => travelRepository.deleteExpense(item)), onSuccess: (_, item, origin) => origin && isCurrent(origin.identity) ? origin.refresh(item.tripId) : undefined })
-  const importTripData = useMutation({ onMutate: capture, mutationFn: ({ draft, tripId: id }: { draft: TripImportDraft; tripId: string }) => write(`import:${id}`, () => travelRepository.importTripData(draft, id)), onSuccess: (_, variables, origin) => origin && isCurrent(origin.identity) ? origin.refresh(variables.tripId) : undefined })
+  const deleteExpense = useMutation({ onMutate: capture, mutationFn: (item: Expense) => write(`delete-expense:${item.id}`, () => travelRepository.deleteExpense(item)), onSuccess: (_, item, origin) => origin?.refresh(item.tripId) })
+  const importTripData = useMutation({ onMutate: capture, mutationFn: ({ draft, tripId: id }: { draft: TripImportDraft; tripId: string }) => write(`import:${id}`, () => travelRepository.importTripData(draft, id)), onSuccess: (_, variables, origin) => origin?.refresh(variables.tripId) })
   const createTrip = useMutation({ onMutate: capture,
     mutationFn: ({ draft, requestId }: { draft: TripDraft; requestId: string }) => write(`create:${requestId}`, () => travelRepository.createTrip(draft, requestId)),
-    onSuccess: async (id, _, origin) => { if (!origin || !isCurrent(origin.identity)) return; await origin.refresh(id); if (isCurrent(origin.identity)) origin.selectTrip(id) },
+    onSuccess: async (id, _, origin) => { if (!origin) return; await origin.refresh(id, true); if (isCurrent(origin.identity)) origin.selectTrip(id) },
   })
-  const updateTrip = useMutation({ onMutate: capture, mutationFn: ({ draft, existing }: { draft: TripDraft; existing: Trip }) => write(`trip:${existing.id}`, () => travelRepository.updateTrip(draft, existing)), onSuccess: (_, variables, origin) => origin && isCurrent(origin.identity) ? origin.refresh(variables.existing.id) : undefined })
-  const inviteMember = useMutation({ onMutate: capture, mutationFn: ({ tripId: id, email }: { tripId: string; email: string }) => write(`invite:${id}:${email.trim().toLowerCase()}`, () => travelRepository.inviteMember(id, email)), onSuccess: (_, variables, origin) => origin && isCurrent(origin.identity) ? origin.refresh(variables.tripId) : undefined })
-  const revokeInvitation = useMutation({ onMutate: capture, mutationFn: ({ tripId: id, email }: { tripId: string; email: string }) => write(`revoke:${id}:${email}`, () => travelRepository.revokeInvitation(id, email)), onSuccess: (_, variables, origin) => origin && isCurrent(origin.identity) ? origin.refresh(variables.tripId) : undefined })
-  const removeMember = useMutation({ onMutate: capture, mutationFn: ({ tripId: id, userId }: { tripId: string; userId: string }) => write(`remove:${id}:${userId}`, () => travelRepository.removeMember(id, userId)), onSuccess: (_, variables, origin) => origin && isCurrent(origin.identity) ? origin.refresh(variables.tripId) : undefined })
+  const updateTrip = useMutation({ onMutate: capture, mutationFn: ({ draft, existing }: { draft: TripDraft; existing: Trip }) => write(`trip:${existing.id}`, () => travelRepository.updateTrip(draft, existing)), onSuccess: (_, variables, origin) => origin?.refresh(variables.existing.id, true) })
+  const inviteMember = useMutation({ onMutate: capture, mutationFn: ({ tripId: id, email }: { tripId: string; email: string }) => write(`invite:${id}:${email.trim().toLowerCase()}`, () => travelRepository.inviteMember(id, email)), onSuccess: (_, variables, origin) => origin?.refresh(variables.tripId) })
+  const revokeInvitation = useMutation({ onMutate: capture, mutationFn: ({ tripId: id, email }: { tripId: string; email: string }) => write(`revoke:${id}:${email}`, () => travelRepository.revokeInvitation(id, email)), onSuccess: (_, variables, origin) => origin?.refresh(variables.tripId) })
+  const removeMember = useMutation({ onMutate: capture, mutationFn: ({ tripId: id, userId }: { tripId: string; userId: string }) => write(`remove:${id}:${userId}`, () => travelRepository.removeMember(id, userId)), onSuccess: (_, variables, origin) => origin?.refresh(variables.tripId) })
   const respondInvitation = useMutation({ onMutate: capture,
     mutationFn: ({ tripId: id, accept }: { tripId: string; accept: boolean }) => write(`respond:${id}`, () => travelRepository.respondInvitation(id, accept)),
-    onSuccess: async (_, variables, origin) => { if (!origin || !isCurrent(origin.identity)) return; await Promise.all([origin.refresh(variables.tripId), client.invalidateQueries({ queryKey: invitationsKey(origin.identity) })]); if (variables.accept && isCurrent(origin.identity)) origin.selectTrip(variables.tripId) },
-    onError: (_, __, origin) => { if (origin && isCurrent(origin.identity)) void client.invalidateQueries({ queryKey: invitationsKey(origin.identity) }) },
+    onSuccess: async (_, variables, origin) => { if (!origin) return; await Promise.all([origin.refresh(variables.tripId, true), client.invalidateQueries({ queryKey: invitationsKey(origin.identity) })]); if (variables.accept && isCurrent(origin.identity)) origin.selectTrip(variables.tripId) },
+    onError: (_, __, origin) => { if (origin) void client.invalidateQueries({ queryKey: invitationsKey(origin.identity) }) },
   })
   return { itinerary, deleteItinerary, expense, deleteExpense, importTripData, createTrip, updateTrip, inviteMember, revokeInvitation, removeMember, respondInvitation }
 }

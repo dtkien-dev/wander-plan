@@ -7,7 +7,6 @@ import { useAuth } from './AuthProvider'
 export const workspaceKey = (identity: string, tripId?: string) => ['workspace', identity, tripId ?? 'none'] as const
 export const tripsKey = (identity: string) => ['trips', identity] as const
 export const invitationsKey = (identity: string) => ['invitations', identity] as const
-export const peopleKey = (identity: string, tripId: string) => ['trip-people', identity, tripId] as const
 
 function readSelection(key: string) {
   try { return localStorage.getItem(key) }
@@ -40,24 +39,28 @@ function useWorkspaceState() {
   useEffect(() => {
     if (!supabase || !session) return
     let timer: ReturnType<typeof setTimeout> | undefined
-    const refresh = () => {
+    let metadataDirty = false
+    const refresh = (metadataChanged = true) => {
+      metadataDirty ||= metadataChanged
       clearTimeout(timer)
       timer = setTimeout(() => {
-        void client.invalidateQueries({ queryKey: tripsKey(identity) })
-        void client.invalidateQueries({ queryKey: invitationsKey(identity) })
+        if (metadataDirty) {
+          void client.invalidateQueries({ queryKey: tripsKey(identity) })
+          void client.invalidateQueries({ queryKey: invitationsKey(identity) })
+        }
+        metadataDirty = false
         void client.invalidateQueries({ queryKey: workspaceKey(identity, tripId) })
-        if (tripId) void client.invalidateQueries({ queryKey: peopleKey(identity, tripId) })
       }, 100)
     }
     const channel = supabase.channel(`workspace-${identity}-${tripId ?? 'none'}`)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'trip_members', filter: `user_id=eq.${identity}` }, refresh)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'trip_invitations' }, refresh)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'trip_members', filter: `user_id=eq.${identity}` }, () => refresh())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'trip_invitations' }, () => refresh())
     if (tripId) {
-      channel.on('postgres_changes', { event: '*', schema: 'public', table: 'trips', filter: `id=eq.${tripId}` }, refresh)
+      channel.on('postgres_changes', { event: '*', schema: 'public', table: 'trips', filter: `id=eq.${tripId}` }, () => refresh())
       for (const table of ['trip_members', 'itinerary_items', 'expenses']) {
-        channel.on('postgres_changes', { event: '*', schema: 'public', table, filter: `trip_id=eq.${tripId}` }, refresh)
+        channel.on('postgres_changes', { event: '*', schema: 'public', table, filter: `trip_id=eq.${tripId}` }, () => refresh(table === 'trip_members'))
       }
-      channel.on('postgres_changes', { event: '*', schema: 'public', table: 'expense_participants' }, refresh)
+      channel.on('postgres_changes', { event: '*', schema: 'public', table: 'expense_participants' }, () => refresh(false))
     }
     channel.subscribe()
     return () => { clearTimeout(timer); void supabase?.removeChannel(channel) }
