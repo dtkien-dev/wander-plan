@@ -1,6 +1,5 @@
-import { useMemo, useState } from 'react'
+import { lazy, Suspense, useMemo, useRef, useState } from 'react'
 import { ArrowRight, Download, FileUp, HandCoins, Pencil, Plus, Trash2, WalletCards } from 'lucide-react'
-import { ExcelImportModal } from '../components/ExcelImportModal'
 import { ExpenseForm } from '../components/ExpenseForm'
 import { Modal } from '../components/Modal'
 import { StateView } from '../components/StateView'
@@ -13,6 +12,8 @@ import styles from './ExpensesPage.module.css'
 
 const labels: Record<ExpenseCategory, string> = { food: 'Ăn uống', transport: 'Di chuyển', stay: 'Lưu trú', ticket: 'Vé tham quan', other: 'Khác' }
 
+const ExcelImportModal = lazy(() => import('../components/ExcelImportModal').then((module) => ({ default: module.ExcelImportModal })))
+
 export function ExpensesPage() {
   const workspace = useWorkspace()
   const mutations = useWorkspaceMutations()
@@ -21,6 +22,7 @@ export function ExpensesPage() {
   const [formError, setFormError] = useState('')
   const [importOpen, setImportOpen] = useState(false)
   const [exporting, setExporting] = useState(false)
+  const exportPending = useRef(false)
   const grouped = useMemo(() => {
     const result = new Map<ExpenseCategory, number>()
     workspace.data?.expenses.forEach((expense) => result.set(expense.category, (result.get(expense.category) ?? 0) + actualOrEstimated(expense)))
@@ -70,6 +72,8 @@ export function ExpensesPage() {
   }
 
   const exportData = async () => {
+    if (exportPending.current) return
+    exportPending.current = true
     try {
       setExporting(true)
       await downloadTravelExcelReport(data)
@@ -77,6 +81,7 @@ export function ExpensesPage() {
     } catch (error) {
       setFeedback(error instanceof Error ? error.message : 'Không thể xuất báo cáo Excel.')
     } finally {
+      exportPending.current = false
       setExporting(false)
     }
   }
@@ -104,7 +109,7 @@ export function ExpensesPage() {
         {formError && <div className="form-error-banner" role="alert">{formError}</div>}
         <ExpenseForm expense={editing ?? undefined} tripStart={trip.startDate} tripEnd={trip.endDate} pending={mutations.expense.isPending} people={people} currentUserId={currentUserId} onSubmit={save} onCancel={() => setEditing(undefined)} />
       </Modal>
-      <ExcelImportModal open={importOpen} trip={trip} itinerary={data.itinerary} expenses={expenses} people={people} pending={mutations.importTripData.isPending} onClose={() => setImportOpen(false)} onSubmit={importData} />
+      {importOpen && <Suspense fallback={<StateView state="loading" />}><ExcelImportModal open={importOpen} trip={trip} itinerary={data.itinerary} expenses={expenses} people={people} pending={mutations.importTripData.isPending} onClose={() => setImportOpen(false)} onSubmit={importData} /></Suspense>}
     </div>
   )
 }

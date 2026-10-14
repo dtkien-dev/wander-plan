@@ -3,6 +3,8 @@ import { CalendarDays, LayoutDashboard, ReceiptText, LogOut, UsersRound } from '
 import { NavLink, Outlet } from 'react-router-dom'
 import { Brand } from './Brand'
 import { useAuth } from '../providers/AuthProvider'
+import { useWorkspaceContext } from '../providers/WorkspaceProvider'
+import { TripManager } from './TripManager'
 
 const navItems = [
   { to: '/', label: 'Tổng quan', icon: LayoutDashboard },
@@ -13,10 +15,15 @@ const navItems = [
 
 export function AppShell() {
   const { isDemo, session, signOut } = useAuth()
+  const { identity, tripId } = useWorkspaceContext()
   const [signOutError, setSignOutError] = useState('')
+  const [signingOut, setSigningOut] = useState(false)
   const logout = async () => {
+    if (signingOut) return
+    setSigningOut(true)
     setSignOutError('')
     try { await signOut() } catch { setSignOutError('Chưa thể đăng xuất. Hãy kiểm tra kết nối và thử lại.') }
+    finally { setSigningOut(false) }
   }
   return (
     <div className="app-shell" data-ai-id="app-shell">
@@ -33,7 +40,7 @@ export function AppShell() {
         <div className="user-area">
           <span className={`mode-badge ${isDemo ? 'mode-badge--demo' : ''}`}>{isDemo ? 'Bản xem thử' : 'Đã đồng bộ'}</span>
           {session && (
-            <button className="icon-button" type="button" onClick={() => void logout()} aria-label="Đăng xuất">
+            <button className="icon-button" type="button" disabled={signingOut} onClick={() => void logout()} aria-label="Đăng xuất">
               <LogOut size={20} strokeWidth={1.8} />
             </button>
           )}
@@ -41,7 +48,8 @@ export function AppShell() {
       </header>
       {signOutError && <div className="shell-alert" role="alert">{signOutError}<button type="button" onClick={() => setSignOutError('')}>Đóng</button></div>}
       <main className="page" data-ai-id="page-content">
-        <Outlet />
+        <TripManager />
+        <div key={`${identity}-${tripId ?? 'none'}`}><Outlet /></div>
       </main>
       <nav className="mobile-nav" aria-label="Điều hướng chính trên điện thoại" data-ai-id="mobile-navigation">
         {navItems.map(({ to, label, icon: Icon }) => (

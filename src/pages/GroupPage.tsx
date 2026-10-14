@@ -4,6 +4,8 @@ import { useForm } from 'react-hook-form'
 import { CalendarRange, CheckCircle2, Clock3, Crown, MailPlus, MapPin, UserMinus, UsersRound, WalletCards } from 'lucide-react'
 import { z } from 'zod'
 import { StateView } from '../components/StateView'
+import { Modal } from '../components/Modal'
+import { useAuth } from '../providers/AuthProvider'
 import { useTripPeople, useWorkspace, useWorkspaceMutations } from '../hooks/useWorkspace'
 import { formatCurrency, formatDate } from '../lib/format'
 import type { TripDraft } from '../types'
@@ -23,11 +25,13 @@ const inviteSchema = z.object({ email: z.email('Nhập email hợp lệ.').trans
 type InviteValues = z.infer<typeof inviteSchema>
 
 export function GroupPage() {
+  const { isDemo } = useAuth()
   const workspace = useWorkspace()
   const people = useTripPeople(workspace.data?.trip.id)
   const mutations = useWorkspaceMutations()
   const [notice, setNotice] = useState('')
   const [formError, setFormError] = useState('')
+  const [revokingEmail, setRevokingEmail] = useState<string | null>(null)
   const trip = workspace.data?.trip
   const isOwner = workspace.data?.currentRole === 'owner'
   const tripForm = useForm<TripDraft>({
@@ -39,7 +43,7 @@ export function GroupPage() {
       endDate: trip.endDate,
       budgetVnd: trip.budgetVnd,
       maxMembers: trip.maxMembers,
-    } : { name: '', destination: '', startDate: '2026-11-27', endDate: '2026-11-30', budgetVnd: 0, maxMembers: 4 },
+    } : { name: '', destination: '', startDate: '', endDate: '', budgetVnd: 0, maxMembers: 4 },
   })
   const inviteForm = useForm<InviteValues>({ resolver: zodResolver(inviteSchema), defaultValues: { email: '' } })
   const resetTripForm = tripForm.reset
@@ -62,6 +66,8 @@ export function GroupPage() {
   const occupiedSeats = people.data?.length ?? workspace.data.memberCount
   const pendingInvitations = people.data?.filter((person) => person.status === 'invited').length ?? 0
   const isFull = occupiedSeats >= trip.maxMembers
+  const membersLoading = !people.data || people.isError
+  const activeMembers = people.data?.filter((person) => person.status === 'active').length ?? workspace.data.memberCount
 
   const saveTrip = async (draft: TripDraft) => {
     setFormError('')
@@ -77,9 +83,19 @@ export function GroupPage() {
     try {
       await mutations.inviteMember.mutateAsync({ tripId: trip.id, email })
       inviteForm.reset()
-      setNotice('Đã thêm lời mời. Người bạn sẽ tự tham gia sau khi đăng nhập bằng email này.')
+      setNotice('Đã tạo lời mời và giữ một chỗ. Hãy chia sẻ đường dẫn trang web; người nhận đăng nhập đúng email để nhận lời mời. Hệ thống chưa gửi email mời tự động.')
     } catch (error) {
       inviteForm.setError('email', { message: error instanceof Error ? error.message : 'Không thể gửi lời mời.' })
+    }
+  }
+
+  const revokeInvitation = async (email: string) => {
+    try {
+      await mutations.revokeInvitation.mutateAsync({ tripId: trip.id, email })
+      setRevokingEmail(null)
+      setNotice('Đã huỷ lời mời và giải phóng chỗ.')
+    } catch (error) {
+      setNotice(error instanceof Error ? error.message : 'Không thể huỷ lời mời.')
     }
   }
 
@@ -97,7 +113,7 @@ export function GroupPage() {
     <div className={styles.page} data-ai-id="group-page">
       <header className="section-header section-header--page">
         <div><p className="eyebrow">Nhóm {trip.maxMembers} người</p><h1>Chuyến đi & thành viên</h1><p>Một nơi để chốt ngày đi, ngân sách và những người được phép chỉnh sửa.</p></div>
-        <div className={styles.sync}><CheckCircle2 size={18} aria-hidden="true" /><span>Đồng bộ realtime</span></div>
+        <div className={styles.sync}><CheckCircle2 size={18} aria-hidden="true" /><span>{isDemo ? 'Lưu trên trình duyệt này' : 'Cập nhật cùng nhóm'}</span></div>
       </header>
       {notice && <div className="feedback" role="status">{notice}<button type="button" onClick={() => setNotice('')}>Đóng</button></div>}
       <div className={styles.grid}>
@@ -122,11 +138,11 @@ export function GroupPage() {
         </section>
 
         <aside className={styles.people} aria-labelledby="people-title">
-          <header><span className={styles.sectionIcon}><UsersRound size={24} /></span><p className="eyebrow">Quyền truy cập</p><h2 id="people-title">Thành viên</h2><p>{workspace.data.memberCount}/{trip.maxMembers} người đã tham gia{pendingInvitations > 0 ? ` · ${pendingInvitations} lời mời đang chờ` : ''}</p></header>
+          <header><span className={styles.sectionIcon}><UsersRound size={24} /></span><p className="eyebrow">Quyền truy cập</p><h2 id="people-title">Thành viên</h2><p>{activeMembers}/{trip.maxMembers} người đã tham gia{pendingInvitations > 0 ? ` · ${pendingInvitations} chỗ đang giữ cho lời mời` : ''}</p></header>
           {isOwner && <form className={styles.invite} onSubmit={inviteForm.handleSubmit(invite)}>
             <label htmlFor="invite-email">Mời bằng email</label>
-            <div><input id="invite-email" type="email" autoComplete="email" placeholder="ban@example.com" disabled={isFull} {...inviteForm.register('email')} aria-invalid={Boolean(inviteForm.formState.errors.email)} /><button className="button button--primary" type="submit" disabled={isFull || mutations.inviteMember.isPending}><MailPlus size={18} />{mutations.inviteMember.isPending ? 'Đang thêm…' : 'Thêm'}</button></div>
-            {isFull && <span role="status">Nhóm đã dùng đủ {trip.maxMembers} chỗ. Tăng số người tối đa để mời thêm.</span>}
+            <div><input id="invite-email" type="email" autoComplete="email" placeholder="ban@example.com" disabled={isFull || membersLoading || mutations.inviteMember.isPending} {...inviteForm.register('email')} aria-invalid={Boolean(inviteForm.formState.errors.email)} /><button className="button button--primary" type="submit" disabled={isFull || membersLoading || mutations.inviteMember.isPending}><MailPlus size={18} />{mutations.inviteMember.isPending ? 'Đang thêm…' : 'Thêm'}</button></div>
+            {isFull && <span role="status">Nhóm đã dùng đủ {trip.maxMembers} chỗ: {activeMembers} thành viên và {pendingInvitations} lời mời đang chờ. Huỷ lời mời hoặc tăng giới hạn để mời thêm.</span>}
             {inviteForm.formState.errors.email && <span role="alert">{inviteForm.formState.errors.email.message}</span>}
           </form>}
           {people.isLoading ? <div className={styles.peopleLoading} aria-busy="true">Đang tải thành viên…</div> : people.isError ? <div className={styles.peopleError} role="alert"><p>Chưa thể tải danh sách thành viên.</p><button className="button button--ghost" type="button" onClick={() => void people.refetch()}>Thử lại</button></div> : (
@@ -136,9 +152,10 @@ export function GroupPage() {
                 const isRemoving = mutations.removeMember.isPending && mutations.removeMember.variables?.userId === person.userId
                 return <li key={`${person.status}-${person.userId ?? person.email}`}>
                   <span className={styles.avatar}>{person.displayName.slice(0, 1).toUpperCase()}</span>
-                  <div className={styles.identity}><strong>{person.displayName}</strong><small>{person.email}</small></div>
+                  <div className={styles.identity}><strong title={person.displayName}>{person.displayName}</strong><small title={person.email}>{person.email}</small></div>
                   <div className={styles.memberActions}>
                     <span className={`${styles.status} ${person.status === 'invited' ? styles.pending : ''}`}>{person.role === 'owner' ? <Crown size={15} /> : person.status === 'invited' ? <Clock3 size={15} /> : <CheckCircle2 size={15} />}{person.role === 'owner' ? 'Chủ nhóm' : person.status === 'invited' ? 'Đã mời' : 'Thành viên'}</span>
+                    {isOwner && person.status === 'invited' && <button className={styles.removeMember} type="button" disabled={mutations.revokeInvitation.isPending} onClick={() => setRevokingEmail(person.email)} aria-label={`Huỷ lời mời ${person.email}`}>Huỷ lời mời</button>}
                     {canRemove && <button className={styles.removeMember} type="button" disabled={mutations.removeMember.isPending} onClick={() => void removeMember(person.userId!, person.displayName)} aria-label={`Loại ${person.displayName} khỏi nhóm`}><UserMinus size={16} />{isRemoving ? 'Đang loại…' : 'Loại khỏi nhóm'}</button>}
                   </div>
                 </li>
@@ -147,6 +164,10 @@ export function GroupPage() {
           )}
         </aside>
       </div>
+      <Modal open={revokingEmail !== null} title="Huỷ lời mời" onClose={() => { if (!mutations.revokeInvitation.isPending) setRevokingEmail(null) }}>
+        <p className={styles.invitationConfirm}>Huỷ lời mời gửi đến {revokingEmail}? Chỗ đang giữ sẽ được giải phóng.</p>
+        <div className="form__actions"><button className="button button--ghost" type="button" disabled={mutations.revokeInvitation.isPending} onClick={() => setRevokingEmail(null)}>Giữ lời mời</button><button className="button button--primary" type="button" disabled={mutations.revokeInvitation.isPending} onClick={() => revokingEmail && void revokeInvitation(revokingEmail)}>{mutations.revokeInvitation.isPending ? 'Đang huỷ…' : 'Xác nhận huỷ'}</button></div>
+      </Modal>
     </div>
   )
 }

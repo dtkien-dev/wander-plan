@@ -1,6 +1,5 @@
-import { useState } from 'react'
+import { lazy, Suspense, useRef, useState } from 'react'
 import { Clock3, Download, ExternalLink, FileUp, MapPin, Pencil, Plus, Trash2 } from 'lucide-react'
-import { ExcelImportModal } from '../components/ExcelImportModal'
 import { ItineraryForm } from '../components/ItineraryForm'
 import { Modal } from '../components/Modal'
 import { StateView } from '../components/StateView'
@@ -10,6 +9,8 @@ import { useWorkspace, useWorkspaceMutations } from '../hooks/useWorkspace'
 import type { ItineraryDraft, ItineraryItem, TripImportDraft } from '../types'
 import styles from './ItineraryPage.module.css'
 
+const ExcelImportModal = lazy(() => import('../components/ExcelImportModal').then((module) => ({ default: module.ExcelImportModal })))
+
 export function ItineraryPage() {
   const workspace = useWorkspace()
   const mutations = useWorkspaceMutations()
@@ -18,6 +19,7 @@ export function ItineraryPage() {
   const [formError, setFormError] = useState('')
   const [importOpen, setImportOpen] = useState(false)
   const [exporting, setExporting] = useState(false)
+  const exportPending = useRef(false)
   if (workspace.isLoading) return <StateView state="loading" />
   if (workspace.isError) return <StateView state="error" onAction={() => void workspace.refetch()} />
   if (!workspace.data) return <StateView state="empty" title="Chưa có chuyến đi" />
@@ -58,6 +60,8 @@ export function ItineraryPage() {
   }
 
   const exportData = async () => {
+    if (exportPending.current) return
+    exportPending.current = true
     try {
       setExporting(true)
       await downloadTravelExcelReport(data)
@@ -65,13 +69,14 @@ export function ItineraryPage() {
     } catch (error) {
       setFeedback(error instanceof Error ? error.message : 'Không thể xuất báo cáo Excel.')
     } finally {
+      exportPending.current = false
       setExporting(false)
     }
   }
 
   return (
     <div className={styles.page} data-ai-id="itinerary-page">
-      <header className="section-header section-header--page"><div><p className="eyebrow">Từng ngày một</p><h1>Lịch trình Đà Lạt</h1><p>Sắp xếp theo giờ để cả nhóm không bỏ lỡ điều hay.</p></div><div className="section-header__actions"><button className="button button--ghost" type="button" onClick={() => setImportOpen(true)}><FileUp size={19} /> Nhập Excel</button><button className="button button--soft" type="button" disabled={exporting} onClick={() => void exportData()}><Download size={19} /> {exporting ? 'Đang xuất…' : 'Xuất Excel'}</button><button className="button button--primary" type="button" onClick={() => { setFormError(''); setEditing(null) }}><Plus size={19} /> Thêm địa điểm</button></div></header>
+      <header className="section-header section-header--page"><div><p className="eyebrow">Từng ngày một</p><h1>Lịch trình {trip.name}</h1><p>Sắp xếp theo giờ để cả nhóm không bỏ lỡ điều hay.</p></div><div className="section-header__actions"><button className="button button--ghost" type="button" onClick={() => setImportOpen(true)}><FileUp size={19} /> Nhập Excel</button><button className="button button--soft" type="button" disabled={exporting} onClick={() => void exportData()}><Download size={19} /> {exporting ? 'Đang xuất…' : 'Xuất Excel'}</button><button className="button button--primary" type="button" onClick={() => { setFormError(''); setEditing(null) }}><Plus size={19} /> Thêm địa điểm</button></div></header>
       {feedback && <div className="feedback" role="status">{feedback}<button type="button" onClick={() => setFeedback('')}>Đóng</button></div>}
       {itinerary.length === 0 ? <StateView state="empty" actionLabel="Thêm địa điểm đầu tiên" onAction={() => { setFormError(''); setEditing(null) }} /> : (
         <div className={styles.days}>
@@ -94,7 +99,7 @@ export function ItineraryPage() {
         {formError && <div className="form-error-banner" role="alert">{formError}</div>}
         <ItineraryForm item={editing ?? undefined} tripStart={trip.startDate} tripEnd={trip.endDate} pending={mutations.itinerary.isPending} onSubmit={save} onCancel={() => setEditing(undefined)} />
       </Modal>
-      <ExcelImportModal open={importOpen} trip={trip} itinerary={itinerary} expenses={data.expenses} people={data.people} pending={mutations.importTripData.isPending} onClose={() => setImportOpen(false)} onSubmit={importData} />
+      {importOpen && <Suspense fallback={<StateView state="loading" />}><ExcelImportModal open={importOpen} trip={trip} itinerary={itinerary} expenses={data.expenses} people={data.people} pending={mutations.importTripData.isPending} onClose={() => setImportOpen(false)} onSubmit={importData} /></Suspense>}
     </div>
   )
 }

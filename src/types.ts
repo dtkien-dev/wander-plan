@@ -15,6 +15,14 @@ export interface Trip {
 
 export type TripDraft = Pick<Trip, 'name' | 'destination' | 'startDate' | 'endDate' | 'budgetVnd' | 'maxMembers'>
 
+export interface TripInvitation {
+  tripId: string
+  tripName: string
+  destination: string
+  startDate: string
+  endDate: string
+}
+
 export interface TripPerson {
   userId: string | null
   email: string

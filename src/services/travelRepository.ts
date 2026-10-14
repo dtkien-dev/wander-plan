@@ -1,14 +1,18 @@
 import { demoWorkspace } from '../data/demoData'
 import { supabase } from '../lib/supabase'
-import type { Expense, ExpenseDraft, ItineraryDraft, ItineraryItem, Trip, TripDraft, TripImportDraft, TripImportResult, TripPerson, WorkspaceData } from '../types'
+import type { Expense, ExpenseDraft, ItineraryDraft, ItineraryItem, Trip, TripDraft, TripImportDraft, TripImportResult, TripPerson, TripInvitation, WorkspaceData } from '../types'
 
 const STORAGE_KEY = 'wander-plan-demo-workspace-v1'
 const PEOPLE_STORAGE_KEY = 'wander-plan-demo-people-v1'
 const demoPeople = demoWorkspace.people
 
 export interface TravelRepository {
-  loadWorkspace(): Promise<WorkspaceData | null>
-  createDefaultTrip(): Promise<WorkspaceData>
+  loadWorkspace(tripId?: string): Promise<WorkspaceData | null>
+  listTrips(): Promise<Trip[]>
+  createTrip(draft: TripDraft, requestId: string): Promise<string>
+  loadInvitations(): Promise<TripInvitation[]>
+  respondInvitation(tripId: string, accept: boolean): Promise<void>
+  revokeInvitation(tripId: string, email: string): Promise<void>
   updateTrip(draft: TripDraft, existing: Trip): Promise<void>
   loadTripPeople(tripId: string): Promise<TripPerson[]>
   inviteMember(tripId: string, email: string): Promise<void>
@@ -24,67 +28,95 @@ const delay = () => new Promise((resolve) => window.setTimeout(resolve, 180))
 const cloneDemo = (): WorkspaceData => JSON.parse(JSON.stringify(demoWorkspace)) as WorkspaceData
 
 class DemoRepository implements TravelRepository {
-  private read() {
+  private readAll(): WorkspaceData[] {
+    const all = localStorage.getItem('wander-plan-demo-trips-v2')
+    if (all) return JSON.parse(all) as WorkspaceData[]
     const saved = localStorage.getItem(STORAGE_KEY)
     const data = saved ? (JSON.parse(saved) as WorkspaceData) : cloneDemo()
+    const people = localStorage.getItem(PEOPLE_STORAGE_KEY)
+    data.people = people ? JSON.parse(people) as TripPerson[] : data.people ?? [...demoPeople]
     data.trip.maxMembers ??= 4
     data.currentUserId ??= 'demo-owner'
-    data.people ??= [...demoPeople]
     data.expenses = data.expenses.map((expense) => ({
       ...expense,
       paidByUserId: expense.paidByUserId ?? 'demo-owner',
       participantUserIds: expense.participantUserIds?.length ? expense.participantUserIds : demoPeople.flatMap((person) => person.userId ? [person.userId] : []),
     }))
+    data.memberCount = data.people.filter((person) => person.status === 'active').length
+    return [data]
+  }
+
+  private read(tripId?: string) {
+    const data = this.readAll().find((entry) => !tripId || entry.trip.id === tripId)
+    if (!data) throw new Error('Không tìm thấy chuyến đi.')
     return data
   }
 
   private write(data: WorkspaceData) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data))
+    const all = this.readAll()
+    const index = all.findIndex((entry) => entry.trip.id === data.trip.id)
+    if (index >= 0) all[index] = data
+    else all.push(data)
+    localStorage.setItem('wander-plan-demo-trips-v2', JSON.stringify(all))
   }
 
-  async loadWorkspace() {
+  async listTrips() { return this.readAll().map((data) => data.trip) }
+
+  async loadWorkspace(tripId?: string) {
     await delay()
-    const data = this.read()
-    data.people = await this.loadTripPeople()
-    data.memberCount = data.people.length
+    const data = this.read(tripId)
+    data.memberCount = data.people.filter((person) => person.status === 'active').length
     return data
   }
 
-  async createDefaultTrip() {
-    const data = cloneDemo()
-    this.write(data)
-    return data
+  async createTrip(draft: TripDraft, requestId: string) {
+    const previous = this.readAll().find((data) => data.trip.id === requestId)
+    if (previous) return previous.trip.id
+    const owner = { ...demoPeople[0], userId: 'demo-owner', role: 'owner' as const, status: 'active' as const }
+    this.write({ trip: { ...draft, id: requestId, timezone: 'Asia/Ho_Chi_Minh', version: 1 }, people: [owner], memberCount: 1, currentUserId: 'demo-owner', currentRole: 'owner', itinerary: [], expenses: [] })
+    return requestId
   }
 
-  async updateTrip(draft: TripDraft) {
-    const data = this.read()
+  async loadInvitations(): Promise<TripInvitation[]> { return [] }
+  async respondInvitation(): Promise<void> { throw new Error('Lời mời cần chế độ cộng tác để xác nhận.') }
+
+  async updateTrip(draft: TripDraft, existing: Trip) {
+    const data = this.read(existing.id)
+    if (draft.maxMembers < data.people.length) throw new Error('Giới hạn không thể thấp hơn số thành viên và chỗ đang giữ.')
+    if (data.itinerary.some((item) => item.visitDate < draft.startDate || item.visitDate > draft.endDate) || data.expenses.some((item) => item.expenseDate < draft.startDate || item.expenseDate > draft.endDate)) throw new Error('Ngày chuyến đi phải bao gồm lịch trình và chi phí hiện có.')
+    if (data.trip.version !== existing.version) throw new Error('Thông tin chuyến đi đã thay đổi. Hãy tải lại.')
     data.trip = { ...data.trip, ...draft, version: data.trip.version + 1 }
     this.write(data)
   }
 
-  async loadTripPeople() {
-    const saved = localStorage.getItem(PEOPLE_STORAGE_KEY)
-    return saved ? (JSON.parse(saved) as TripPerson[]) : [...demoPeople]
+  async loadTripPeople(tripId: string) { return this.read(tripId).people }
+
+  async inviteMember(tripId: string, email: string) {
+    const data = this.read(tripId)
+    const normalized = email.trim().toLowerCase()
+    if (data.people.some((person) => person.email.toLowerCase() === normalized)) return
+    if (data.people.length >= data.trip.maxMembers) throw new Error('Chuyến đi đã dùng hết số chỗ thành viên và lời mời.')
+    data.people.push({ userId: null, email: normalized, displayName: normalized, role: 'editor', status: 'invited', joinedAt: null })
+    this.write(data)
   }
 
-  async inviteMember(_tripId: string, email: string) {
-    const people = await this.loadTripPeople()
-    if (people.some((person) => person.email === email)) return
-    if (people.length >= this.read().trip.maxMembers) throw new Error('Chuyến đi đã dùng hết số chỗ thành viên và lời mời.')
-    people.push({ userId: null, email, displayName: email, role: 'editor', status: 'invited', joinedAt: null })
-    localStorage.setItem(PEOPLE_STORAGE_KEY, JSON.stringify(people))
+  async revokeInvitation(tripId: string, email: string) {
+    const data = this.read(tripId)
+    data.people = data.people.filter((person) => person.status !== 'invited' || person.email !== email)
+    this.write(data)
   }
 
-  async removeMember(_tripId: string, userId: string) {
-    const people = await this.loadTripPeople()
-    const member = people.find((person) => person.userId === userId)
+  async removeMember(tripId: string, userId: string) {
+    const data = this.read(tripId)
+    const member = data.people.find((person) => person.userId === userId)
     if (!member) throw new Error('Không tìm thấy thành viên trong chuyến đi.')
     if (member.role === 'owner') throw new Error('Không thể loại chủ nhóm khỏi chuyến đi.')
-    localStorage.setItem(PEOPLE_STORAGE_KEY, JSON.stringify(people.filter((person) => person.userId !== userId)))
+    data.people = data.people.filter((person) => person.userId !== userId)
+    this.write(data)
   }
 
-  async saveItinerary(draft: ItineraryDraft, _tripId: string, existing?: ItineraryItem) {
-    const data = this.read()
+  async saveItinerary(draft: ItineraryDraft, tripId: string, existing?: ItineraryItem) {
+    const data = this.read(tripId)
     if (existing) {
       data.itinerary = data.itinerary.map((item) =>
         item.id === existing.id ? { ...item, ...draft, version: item.version + 1 } : item,
@@ -101,13 +133,13 @@ class DemoRepository implements TravelRepository {
   }
 
   async deleteItinerary(item: ItineraryItem) {
-    const data = this.read()
+    const data = this.read(item.tripId)
     data.itinerary = data.itinerary.filter((entry) => entry.id !== item.id)
     this.write(data)
   }
 
-  async saveExpense(draft: ExpenseDraft, _tripId: string, existing?: Expense) {
-    const data = this.read()
+  async saveExpense(draft: ExpenseDraft, tripId: string, existing?: Expense) {
+    const data = this.read(tripId)
     if (existing) {
       data.expenses = data.expenses.map((expense) =>
         expense.id === existing.id ? { ...expense, ...draft, version: expense.version + 1 } : expense,
@@ -124,13 +156,13 @@ class DemoRepository implements TravelRepository {
   }
 
   async deleteExpense(expense: Expense) {
-    const data = this.read()
+    const data = this.read(expense.tripId)
     data.expenses = data.expenses.filter((entry) => entry.id !== expense.id)
     this.write(data)
   }
 
-  async importTripData(draft: TripImportDraft) {
-    const data = this.read()
+  async importTripData(draft: TripImportDraft, tripId: string) {
+    const data = this.read(tripId)
     const itineraryUpdates = draft.itinerary.filter((entry) => entry.id)
     const expenseUpdates = draft.expenses.filter((entry) => entry.id)
     for (const entry of itineraryUpdates) {
@@ -207,15 +239,35 @@ const throwIfError = (error: { message: string } | null) => {
 }
 
 class SupabaseRepository implements TravelRepository {
-  async loadWorkspace() {
-    if (!supabase) return null
-    const { error: claimError } = await supabase.rpc('claim_trip_invitations')
-    throwIfError(claimError)
-    const { data: trips, error } = await supabase
-      .from('trips')
-      .select('id,name,destination,start_date,end_date,timezone,budget_vnd,max_members,version')
-      .order('start_date')
-      .limit(1)
+  async listTrips() {
+    if (!supabase) return []
+    const { data, error } = await supabase.from('trips').select('id,name,destination,start_date,end_date,timezone,budget_vnd,max_members,version').order('start_date')
+    throwIfError(error)
+    return (data ?? []).map(mapTrip)
+  }
+
+  async loadInvitations() {
+    if (!supabase) return []
+    const { data, error } = await supabase.rpc('get_my_trip_invitations')
+    throwIfError(error)
+    return (data ?? []).map((row: any): TripInvitation => ({ tripId: row.trip_id, tripName: row.trip_name, destination: row.destination, startDate: row.start_date, endDate: row.end_date }))
+  }
+
+  async respondInvitation(tripId: string, accept: boolean) {
+    if (!supabase) return
+    const { error } = await supabase.rpc('respond_trip_invitation', { target_trip_id: tripId, accept_invitation: accept })
+    throwIfError(error)
+  }
+
+  async revokeInvitation(tripId: string, email: string) {
+    if (!supabase) return
+    const { error } = await supabase.rpc('revoke_trip_invitation', { target_trip_id: tripId, target_email: email })
+    throwIfError(error)
+  }
+
+  async loadWorkspace(tripId?: string) {
+    if (!supabase || !tripId) return null
+    const { data: trips, error } = await supabase.from('trips').select('id,name,destination,start_date,end_date,timezone,budget_vnd,max_members,version').eq('id', tripId).limit(1)
     throwIfError(error)
     if (!trips?.length) return null
     const trip = mapTrip(trips[0])
@@ -241,13 +293,16 @@ class SupabaseRepository implements TravelRepository {
     }
   }
 
-  async createDefaultTrip() {
+  async createTrip(draft: TripDraft, requestId: string) {
     if (!supabase) throw new Error('Supabase chưa được cấu hình.')
-    const { data, error } = await supabase.rpc('create_default_trip')
+    const { data, error } = await supabase.rpc('create_trip', {
+      trip_name: draft.name, trip_destination: draft.destination,
+      trip_start_date: draft.startDate, trip_end_date: draft.endDate,
+      trip_budget_vnd: draft.budgetVnd, trip_max_members: draft.maxMembers, request_id: requestId,
+    })
     throwIfError(error)
-    const workspace = await this.loadWorkspace()
-    if (!workspace) throw new Error(`Không thể tải chuyến đi vừa tạo: ${String(data)}`)
-    return workspace
+    if (!data) throw new Error('Không thể tạo chuyến đi.')
+    return String(data)
   }
 
   async updateTrip(draft: TripDraft, existing: Trip) {
