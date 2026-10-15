@@ -73,4 +73,51 @@ describe('ExpenseForm', () => {
     await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1))
     expect(onSubmit.mock.calls[0][0]).toMatchObject({ estimatedAmountVnd: 200000, actualAmountVnd: null })
   })
+
+  it('saves a round trip as one expense with its return date', async () => {
+    const onSubmit = vi.fn().mockResolvedValue(undefined)
+    render(<ExpenseForm tripStart="2026-11-27" tripEnd="2026-11-30" pending={false} people={people} currentUserId="owner" onSubmit={onSubmit} onCancel={vi.fn()} />)
+
+    fireEvent.change(screen.getByLabelText('Khoản chi'), { target: { value: 'Xe khứ hồi' } })
+    fireEvent.change(screen.getByLabelText('Phân loại'), { target: { value: 'transport' } })
+    expect(screen.queryByLabelText('Ngày về')).not.toBeInTheDocument()
+    fireEvent.click(screen.getByRole('checkbox', { name: /Khứ hồi/ }))
+    fireEvent.click(screen.getByRole('button', { name: 'Thêm chi phí' }))
+    expect(await screen.findByText('Chọn ngày về.')).toBeInTheDocument()
+
+    fireEvent.change(screen.getByLabelText(/^Ngày về/), { target: { value: '2026-11-30' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Thêm chi phí' }))
+    await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1))
+    expect(onSubmit.mock.calls[0][0]).toMatchObject({ category: 'transport', expenseDate: '2026-11-27', endDate: '2026-11-30' })
+  })
+
+  it('requires a later check-out for stays and shows nights with a nightly estimate', async () => {
+    const onSubmit = vi.fn().mockResolvedValue(undefined)
+    render(<ExpenseForm tripStart="2026-11-27" tripEnd="2026-11-30" pending={false} people={people} currentUserId="owner" onSubmit={onSubmit} onCancel={vi.fn()} />)
+
+    fireEvent.change(screen.getByLabelText('Khoản chi'), { target: { value: 'Khách sạn' } })
+    fireEvent.change(screen.getByLabelText('Phân loại'), { target: { value: 'stay' } })
+    fireEvent.change(screen.getByLabelText('Dự kiến (tổng)'), { target: { value: '1800000' } })
+    fireEvent.change(screen.getByLabelText('Ngày trả phòng'), { target: { value: '2026-11-27' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Thêm chi phí' }))
+    expect(await screen.findByText('Ngày trả phòng phải sau ngày nhận phòng.')).toBeInTheDocument()
+
+    fireEvent.change(screen.getByLabelText(/^Ngày trả phòng/), { target: { value: '2026-11-30' } })
+    expect(await screen.findByRole('status')).toHaveTextContent('3 đêm')
+    fireEvent.click(screen.getByRole('button', { name: 'Thêm chi phí' }))
+    await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1))
+    expect(onSubmit.mock.calls[0][0]).toMatchObject({ category: 'stay', endDate: '2026-11-30', estimatedAmountVnd: 1800000 })
+  })
+
+  it('drops a return date when a round trip becomes another category', async () => {
+    const onSubmit = vi.fn().mockResolvedValue(undefined)
+    const expense = { id: 'e', tripId: 't', title: 'Xe khứ hồi', category: 'transport' as const, expenseDate: '2026-11-27', endDate: '2026-11-30', estimatedAmountVnd: 1000, actualAmountVnd: null, paidByUserId: 'owner', participantUserIds: ['owner'], notes: '', version: 1 }
+    render(<ExpenseForm expense={expense} tripStart="2026-11-27" tripEnd="2026-11-30" pending={false} people={people} currentUserId="owner" onSubmit={onSubmit} onCancel={vi.fn()} />)
+
+    expect(screen.getByRole('checkbox', { name: /Khứ hồi/ })).toBeChecked()
+    fireEvent.change(screen.getByLabelText('Phân loại'), { target: { value: 'other' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Lưu thay đổi' }))
+    await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1))
+    expect(onSubmit.mock.calls[0][0]).toMatchObject({ category: 'other', endDate: null })
+  })
 })

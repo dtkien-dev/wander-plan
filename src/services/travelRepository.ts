@@ -30,7 +30,10 @@ const cloneDemo = (): WorkspaceData => JSON.parse(JSON.stringify(demoWorkspace))
 class DemoRepository implements TravelRepository {
   private readAll(): WorkspaceData[] {
     const all = localStorage.getItem('wander-plan-demo-trips-v2')
-    if (all) return JSON.parse(all) as WorkspaceData[]
+    if (all) return (JSON.parse(all) as WorkspaceData[]).map((data) => ({
+      ...data,
+      expenses: data.expenses.map((expense) => ({ ...expense, endDate: expense.endDate ?? null })),
+    }))
     const saved = localStorage.getItem(STORAGE_KEY)
     const data = saved ? (JSON.parse(saved) as WorkspaceData) : cloneDemo()
     const people = localStorage.getItem(PEOPLE_STORAGE_KEY)
@@ -39,6 +42,7 @@ class DemoRepository implements TravelRepository {
     data.currentUserId ??= 'demo-owner'
     data.expenses = data.expenses.map((expense) => ({
       ...expense,
+      endDate: expense.endDate ?? null,
       paidByUserId: expense.paidByUserId ?? 'demo-owner',
       participantUserIds: expense.participantUserIds?.length ? expense.participantUserIds : demoPeople.flatMap((person) => person.userId ? [person.userId] : []),
     }))
@@ -83,7 +87,7 @@ class DemoRepository implements TravelRepository {
   async updateTrip(draft: TripDraft, existing: Trip) {
     const data = this.read(existing.id)
     if (draft.maxMembers < data.people.length) throw new Error('Giới hạn không thể thấp hơn số thành viên và chỗ đang giữ.')
-    if (data.itinerary.some((item) => item.visitDate < draft.startDate || item.visitDate > draft.endDate) || data.expenses.some((item) => item.expenseDate < draft.startDate || item.expenseDate > draft.endDate)) throw new Error('Ngày chuyến đi phải bao gồm lịch trình và chi phí hiện có.')
+    if (data.itinerary.some((item) => item.visitDate < draft.startDate || item.visitDate > draft.endDate) || data.expenses.some((item) => item.expenseDate < draft.startDate || (item.endDate ?? item.expenseDate) > draft.endDate)) throw new Error('Ngày chuyến đi phải bao gồm lịch trình và chi phí hiện có.')
     if (data.trip.version !== existing.version) throw new Error('Thông tin chuyến đi đã thay đổi. Hãy tải lại.')
     data.trip = { ...data.trip, ...draft, version: data.trip.version + 1 }
     this.write(data)
@@ -226,6 +230,7 @@ const mapExpense = (row: any): Expense => ({
   title: row.title,
   category: row.category,
   expenseDate: row.expense_date,
+  endDate: row.end_date ?? null,
   estimatedAmountVnd: Number(row.estimated_amount_vnd),
   actualAmountVnd: row.actual_amount_vnd === null ? null : Number(row.actual_amount_vnd),
   paidByUserId: row.paid_by,
@@ -273,7 +278,7 @@ class SupabaseRepository implements TravelRepository {
     const trip = mapTrip(trips[0])
     const [itineraryResult, expenseResult, memberResult] = await Promise.all([
       supabase.from('itinerary_items').select('id,trip_id,title,visit_date,start_time,end_time,estimated_cost_vnd,address,maps_url,notes,version').eq('trip_id', trip.id).order('visit_date').order('start_time'),
-      supabase.from('expenses').select('id,trip_id,title,category,expense_date,estimated_amount_vnd,actual_amount_vnd,paid_by,notes,version,expense_participants(user_id)').eq('trip_id', trip.id).order('expense_date'),
+      supabase.from('expenses').select('id,trip_id,title,category,expense_date,end_date,estimated_amount_vnd,actual_amount_vnd,paid_by,notes,version,expense_participants(user_id)').eq('trip_id', trip.id).order('expense_date'),
       supabase.from('trip_members').select('user_id,role').eq('trip_id', trip.id),
     ])
     throwIfError(itineraryResult.error)
@@ -404,6 +409,7 @@ class SupabaseRepository implements TravelRepository {
       expense_title: draft.title,
       expense_category: draft.category,
       target_expense_date: draft.expenseDate,
+      target_end_date: draft.endDate,
       target_estimated_amount_vnd: draft.estimatedAmountVnd,
       target_actual_amount_vnd: draft.actualAmountVnd,
       payer_user_id: draft.paidByUserId,
@@ -448,6 +454,7 @@ class SupabaseRepository implements TravelRepository {
         title: entry.draft.title,
         category: entry.draft.category,
         expense_date: entry.draft.expenseDate,
+        end_date: entry.draft.endDate,
         estimated_amount_vnd: entry.draft.estimatedAmountVnd,
         actual_amount_vnd: entry.draft.actualAmountVnd,
         paid_by: entry.draft.paidByUserId,

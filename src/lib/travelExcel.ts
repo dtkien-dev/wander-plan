@@ -31,6 +31,7 @@ const MAX_FILE_BYTES = 5 * 1024 * 1024
 const MAX_IMPORT_ROWS = 1000
 const itineraryHeaders = ['Tên địa điểm', 'Ngày', 'Bắt đầu', 'Kết thúc', 'Chi phí dự kiến', 'Địa chỉ', 'Google Maps URL', 'Ghi chú']
 const expenseHeaders = ['Khoản chi', 'Phân loại', 'Ngày', 'Dự kiến', 'Thực tế', 'Người thanh toán', 'Người tham gia', 'Ghi chú']
+const expenseEndDateHeader = 'Đến ngày'
 const idHeader = 'ID'
 const versionHeader = 'Version'
 const categoryLabels: Record<ExpenseCategory, string> = {
@@ -112,6 +113,7 @@ const sameItinerary = (draft: ItineraryDraft, existing: ItineraryItem) =>
   draft.address === existing.address && draft.mapsUrl === existing.mapsUrl && draft.notes === existing.notes
 const sameExpense = (draft: ExpenseDraft, existing: Expense) =>
   draft.title === existing.title && draft.category === existing.category && draft.expenseDate === existing.expenseDate &&
+  draft.endDate === existing.endDate &&
   draft.estimatedAmountVnd === existing.estimatedAmountVnd && draft.actualAmountVnd === existing.actualAmountVnd &&
   draft.paidByUserId === existing.paidByUserId && [...draft.participantUserIds].sort().join('|') === [...existing.participantUserIds].sort().join('|') &&
   draft.notes === existing.notes
@@ -187,6 +189,7 @@ const parseExpenseSheet = (data: SheetData, trip: Trip, existing: Expense[], peo
   if (missing.length) throw new Error(`Sheet ChiPhi thiếu cột: ${missing.join(', ')}.`)
   const idIndex = getOptionalHeaderIndex(data[0], idHeader)
   const versionIndex = getOptionalHeaderIndex(data[0], versionHeader)
+  const endDateIndex = getOptionalHeaderIndex(data[0], expenseEndDateHeader)
   const existingById = new Map(existing.map((expense) => [expense.id, expense]))
   const existingKeyOwners = new Map(existing.map((expense) => [expenseKey(expense), expense.id]))
   const fileKeys = new Map<string, string>()
@@ -203,8 +206,11 @@ const parseExpenseSheet = (data: SheetData, trip: Trip, existing: Expense[], peo
     const participantEmails = [...new Set(toText(values[6]).split(/[;,]/).map((email) => email.trim().toLocaleLowerCase()).filter(Boolean))]
     const paidByUserId = userIdByEmail.get(payerEmail) ?? ''
     const participantUserIds = participantEmails.flatMap((email) => userIdByEmail.get(email) ?? [])
+    // Files without the optional end-date column keep the saved range of updated rows.
+    const rawEndDate = endDateIndex === -1 ? undefined : toText(row[endDateIndex])
+    const endDate = rawEndDate === undefined ? existingById.get(id)?.endDate ?? null : rawEndDate ? toDateValue(row[endDateIndex]) : null
     const draft: ExpenseDraft = {
-      title: toText(values[0]), category: category ?? 'other', expenseDate: toDateValue(values[2]),
+      title: toText(values[0]), category: category ?? 'other', expenseDate: toDateValue(values[2]), endDate,
       estimatedAmountVnd: toMoney(values[3]) as number, actualAmountVnd: toMoney(values[4], true) as number | null,
       paidByUserId, participantUserIds, notes: toText(values[7]),
     }
@@ -213,6 +219,12 @@ const parseExpenseSheet = (data: SheetData, trip: Trip, existing: Expense[], peo
     if (!category) errors.push('Phân loại không hợp lệ')
     if (!draft.expenseDate) errors.push('Ngày không hợp lệ')
     else if (draft.expenseDate < trip.startDate || draft.expenseDate > trip.endDate) errors.push('Ngày nằm ngoài chuyến đi')
+    if (rawEndDate && !endDate) errors.push('Đến ngày không hợp lệ')
+    else if (endDate) {
+      if (draft.category !== 'transport' && draft.category !== 'stay') errors.push('Chỉ Di chuyển khứ hồi và Lưu trú mới có Đến ngày')
+      else if (draft.category === 'stay' ? endDate <= draft.expenseDate : endDate < draft.expenseDate) errors.push(draft.category === 'stay' ? 'Ngày trả phòng phải sau ngày nhận phòng' : 'Ngày về phải từ ngày đi trở đi')
+      else if (endDate > trip.endDate) errors.push('Đến ngày nằm ngoài chuyến đi')
+    }
     if (!Number.isInteger(draft.estimatedAmountVnd) || draft.estimatedAmountVnd < 0) errors.push('Số tiền dự kiến phải là số nguyên không âm')
     if (draft.actualAmountVnd !== null && (!Number.isInteger(draft.actualAmountVnd) || draft.actualAmountVnd < 0)) errors.push('Số tiền thực tế phải là số nguyên không âm')
     if (!payerEmail || !paidByUserId) errors.push('Người thanh toán phải là email của thành viên đang hoạt động')
@@ -285,7 +297,7 @@ export const downloadTravelExcelTemplate = async () => {
   const headerRow = (headers: string[]) => headers.map((value) => ({ value, ...headerStyle }))
   const workbook = writeXlsxFile([
     { sheet: 'LichTrinh', data: [headerRow(itineraryHeaders)], stickyRowsCount: 1, showGridLines: false, columns: [{ width: 28 }, { width: 14 }, { width: 12 }, { width: 12 }, { width: 20 }, { width: 34 }, { width: 36 }, { width: 36 }] },
-    { sheet: 'ChiPhi', data: [headerRow(expenseHeaders)], stickyRowsCount: 1, showGridLines: false, columns: [{ width: 28 }, { width: 18 }, { width: 14 }, { width: 18 }, { width: 18 }, { width: 28 }, { width: 42 }, { width: 36 }] },
+    { sheet: 'ChiPhi', data: [headerRow([...expenseHeaders, expenseEndDateHeader])], stickyRowsCount: 1, showGridLines: false, columns: [{ width: 28 }, { width: 18 }, { width: 14 }, { width: 18 }, { width: 18 }, { width: 28 }, { width: 42 }, { width: 36 }, { width: 14 }] },
   ], { fontFamily: 'Arial', fontSize: 10 })
   await workbook.toFile('wander-plan-mau-import.xlsx')
 }
@@ -354,13 +366,14 @@ export const buildTravelExcelReportSheets = (workspace: WorkspaceData, exportedA
       ]),
   ]
   const expenseData = [
-    reportHeaderRow([...expenseHeaders, 'Đang tính', 'Trạng thái', idHeader, versionHeader]),
+    reportHeaderRow([...expenseHeaders, expenseEndDateHeader, 'Đang tính', 'Trạng thái', idHeader, versionHeader]),
     ...[...workspace.expenses]
       .sort((a, b) => a.expenseDate.localeCompare(b.expenseDate))
       .map((expense) => [
         expense.title, categoryLabels[expense.category], reportDateCell(expense.expenseDate),
         reportMoneyCell(expense.estimatedAmountVnd), reportMoneyCell(expense.actualAmountVnd), memberEmail(expense.paidByUserId),
         expense.participantUserIds.map(memberEmail).filter(Boolean).join(', '), expense.notes,
+        expense.endDate ? reportDateCell(expense.endDate) : null,
         reportMoneyCell(actualOrEstimated(expense)), expense.actualAmountVnd === null ? 'Dự kiến' : 'Thực tế', expense.id, expense.version,
       ]),
   ]
@@ -368,7 +381,7 @@ export const buildTravelExcelReportSheets = (workspace: WorkspaceData, exportedA
   return [
     { sheet: 'TongQuan', data: summaryData, showGridLines: false, columns: [{ width: 30 }, { width: 24 }, { width: 3 }, { width: 22 }, { width: 20 }] },
     { sheet: 'LichTrinh', data: itineraryData, stickyRowsCount: 1, showGridLines: false, columns: [{ width: 28 }, { width: 14 }, { width: 12 }, { width: 12 }, { width: 20 }, { width: 34 }, { width: 36 }, { width: 36 }, { width: 38 }, { width: 12 }] },
-    { sheet: 'ChiPhi', data: expenseData, stickyRowsCount: 1, showGridLines: false, columns: [{ width: 28 }, { width: 18 }, { width: 14 }, { width: 18 }, { width: 18 }, { width: 28 }, { width: 42 }, { width: 36 }, { width: 18 }, { width: 14 }, { width: 38 }, { width: 12 }] },
+    { sheet: 'ChiPhi', data: expenseData, stickyRowsCount: 1, showGridLines: false, columns: [{ width: 28 }, { width: 18 }, { width: 14 }, { width: 18 }, { width: 18 }, { width: 28 }, { width: 42 }, { width: 36 }, { width: 14 }, { width: 18 }, { width: 14 }, { width: 38 }, { width: 12 }] },
   ]
 }
 

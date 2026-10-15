@@ -20,7 +20,7 @@ const preview: TravelExcelPreview = {
   expenses: [{
     sheet: 'ChiPhi', rowNumber: 2, label: 'Ăn sáng', errors: [], action: 'create',
     data: {
-      title: 'Ăn sáng', category: 'food', expenseDate: '2026-11-27',
+      title: 'Ăn sáng', category: 'food', expenseDate: '2026-11-27', endDate: null,
       estimatedAmountVnd: 100_000, actualAmountVnd: null, paidByUserId: 'demo-owner', participantUserIds: ['demo-owner'], notes: '',
     },
   }],

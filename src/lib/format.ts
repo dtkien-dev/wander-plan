@@ -14,9 +14,23 @@ const dateFormatter = new Intl.DateTimeFormat('vi-VN', {
 
 export const formatCurrency = (value: number) => currencyFormatter.format(value)
 
-export const formatDate = (value: string) => {
+const dateParts = (value: string): [number, number, number] => {
   const [year, month, day] = value.split('-').map(Number)
-  return dateFormatter.format(new Date(year, month - 1, day))
+  return [year, month - 1, day]
+}
+
+export const formatDate = (value: string) => dateFormatter.format(new Date(...dateParts(value)))
+
+const formatDayMonth = (value: string) => `${value.slice(8, 10)}/${value.slice(5, 7)}`
+
+export const countNights = (checkIn: string, checkOut: string) =>
+  Math.round((Date.UTC(...dateParts(checkOut)) - Date.UTC(...dateParts(checkIn))) / 86_400_000)
+
+// Ranged expenses still count on their start date; the range is descriptive.
+export const describeExpenseDates = (expense: Pick<Expense, 'category' | 'expenseDate' | 'endDate'>) => {
+  if (!expense.endDate) return formatDate(expense.expenseDate)
+  const range = `${formatDayMonth(expense.expenseDate)} → ${formatDayMonth(expense.endDate)}`
+  return expense.category === 'stay' ? `${range} · ${countNights(expense.expenseDate, expense.endDate)} đêm` : `${range} · Khứ hồi`
 }
 
 export const actualOrEstimated = (expense: Expense) =>

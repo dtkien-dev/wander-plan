@@ -9,7 +9,7 @@ const people: TripPerson[] = [
 ]
 
 const expense = (overrides: Partial<Expense>): Expense => ({
-  id: 'e', tripId: 't', title: 'Bữa tối', category: 'food', expenseDate: '2026-11-27',
+  id: 'e', tripId: 't', title: 'Bữa tối', category: 'food', expenseDate: '2026-11-27', endDate: null,
   estimatedAmountVnd: 0, actualAmountVnd: 100, paidByUserId: 'a', participantUserIds: ['a', 'b', 'c'],
   notes: '', version: 1, ...overrides,
 })

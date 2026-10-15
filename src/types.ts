@@ -52,6 +52,7 @@ export interface Expense {
   title: string
   category: ExpenseCategory
   expenseDate: string
+  endDate: string | null
   estimatedAmountVnd: number
   actualAmountVnd: number | null
   paidByUserId: string

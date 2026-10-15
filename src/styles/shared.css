@@ -87,6 +87,10 @@ a { color: inherit; }
 .participant-field label { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 8px; min-width: 0; min-height: 44px; padding: 9px 12px; background: #fbfaf5; border: 1px solid var(--color-border); border-radius: var(--radius-control); cursor: pointer; }
 .participant-field label span { min-width: 0; overflow-wrap: anywhere; }
 .participant-field input { width: 18px; height: 18px; accent-color: var(--color-primary); }
+.field--check { grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 10px; min-height: 44px; padding: 9px 12px; background: #fbfaf5; border: 1px solid var(--color-border); border-radius: var(--radius-control); font-weight: 600; cursor: pointer; }
+.field--check input { width: 18px; height: 18px; min-height: 0; padding: 0; accent-color: var(--color-primary); }
+.field--check > span { min-width: 0; color: var(--color-text); font-size: 14px; overflow-wrap: anywhere; }
+.field-hint { margin: 0; color: var(--color-secondary); font-size: 13px; font-weight: 600; }
 .form__actions { display: grid; grid-auto-flow: column; justify-content: end; gap: 10px; padding-top: 4px; }
 .boot-state { display: grid; place-items: center; min-height: 100dvh; padding: 24px; }
 

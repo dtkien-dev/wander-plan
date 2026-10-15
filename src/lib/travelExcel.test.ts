@@ -11,6 +11,29 @@ const trip: Trip = {
 }
 
 describe('travel Excel import', () => {
+  it('reads optional end dates and keeps saved ranges when the column is absent', () => {
+    const header = ['Khoản chi', 'Phân loại', 'Ngày', 'Dự kiến', 'Thực tế', 'Người thanh toán', 'Người tham gia', 'Ghi chú']
+    const ranged = buildTravelExcelPreview('trip.xlsx', [{ sheet: 'ChiPhi', data: [
+      [...header, 'Đến ngày'],
+      ['Khách sạn', 'Lưu trú', '2026-11-27', 1800000, '', 'ban@example.com', 'ban@example.com', '', '2026-11-30'],
+      ['Ăn tối', 'Ăn uống', '2026-11-27', 200000, '', 'ban@example.com', 'ban@example.com', '', '2026-11-28'],
+      ['Phòng 0 đêm', 'Lưu trú', '2026-11-28', 1, '', 'ban@example.com', 'ban@example.com', '', '2026-11-28'],
+    ] }], trip, [], [], demoWorkspace.people)
+    expect(ranged.expenses[0]).toMatchObject({ errors: [], data: { endDate: '2026-11-30' } })
+    expect(ranged.expenses[1].errors).toContain('Chỉ Di chuyển khứ hồi và Lưu trú mới có Đến ngày')
+    expect(ranged.expenses[2].errors).toContain('Ngày trả phòng phải sau ngày nhận phòng')
+
+    const existing = {
+      id: 'bus', tripId: trip.id, title: 'Xe khứ hồi', category: 'transport' as const, expenseDate: '2026-11-27', endDate: '2026-11-30',
+      estimatedAmountVnd: 500000, actualAmountVnd: null, paidByUserId: 'demo-owner', participantUserIds: ['demo-owner'], notes: '', version: 2,
+    }
+    const legacyFile = buildTravelExcelPreview('trip.xlsx', [{ sheet: 'ChiPhi', data: [
+      [...header, 'ID', 'Version'],
+      ['Xe khứ hồi', 'Di chuyển', '2026-11-27', 500000, '', 'ban@example.com', 'ban@example.com', '', 'bus', 2],
+    ] }], trip, [], [existing], demoWorkspace.people)
+    expect(legacyFile.expenses[0]).toMatchObject({ action: 'skip', data: { endDate: '2026-11-30' } })
+  })
+
   it('parses Vietnamese template rows and maps expense categories', () => {
     const preview = buildTravelExcelPreview('trip.xlsx', [
       { sheet: 'LichTrinh', data: [
@@ -40,7 +63,7 @@ describe('travel Excel import', () => {
       ['Homestay', 'Lưu trú', '2026-11-27', 2400000, 2250000, 'ban@example.com', 'ban@example.com, banthan@example.com', ''],
       ['Taxi', 'Không rõ', '2026-12-01', -1, '', 'ban@example.com', 'ban@example.com', ''],
     ] }], trip, [], [{
-      id: 'e1', tripId: trip.id, title: 'Homestay', category: 'stay', expenseDate: '2026-11-27',
+      id: 'e1', tripId: trip.id, title: 'Homestay', category: 'stay', expenseDate: '2026-11-27', endDate: null,
       estimatedAmountVnd: 2400000, actualAmountVnd: 2250000, paidByUserId: 'demo-owner', participantUserIds: ['demo-owner', 'demo-editor'], notes: '', version: 1,
     }], demoWorkspace.people)
 
@@ -65,7 +88,7 @@ describe('travel Excel import', () => {
 
   it('recognizes edited exported rows as optimistic updates', () => {
     const existing = {
-      id: 'expense-1', tripId: trip.id, title: 'Homestay', category: 'stay' as const, expenseDate: '2026-11-27',
+      id: 'expense-1', tripId: trip.id, title: 'Homestay', category: 'stay' as const, expenseDate: '2026-11-27', endDate: null,
       estimatedAmountVnd: 2400000, actualAmountVnd: null, paidByUserId: 'demo-owner', participantUserIds: ['demo-owner'], notes: '', version: 4,
     }
     const preview = buildTravelExcelPreview('trip.xlsx', [{ sheet: 'ChiPhi', data: [
@@ -82,7 +105,7 @@ describe('travel Excel import', () => {
 
   it('skips unchanged exported rows and reports stale versions as conflicts', () => {
     const existing = {
-      id: 'expense-1', tripId: trip.id, title: 'Homestay', category: 'stay' as const, expenseDate: '2026-11-27',
+      id: 'expense-1', tripId: trip.id, title: 'Homestay', category: 'stay' as const, expenseDate: '2026-11-27', endDate: null,
       estimatedAmountVnd: 2400000, actualAmountVnd: null, paidByUserId: 'demo-owner', participantUserIds: ['demo-owner'], notes: '', version: 4,
     }
     const header = ['Khoản chi', 'Phân loại', 'Ngày', 'Dự kiến', 'Thực tế', 'Người thanh toán', 'Người tham gia', 'Ghi chú', 'ID', 'Version']

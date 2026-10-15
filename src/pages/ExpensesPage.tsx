@@ -3,7 +3,7 @@ import { ArrowRight, Download, FileUp, HandCoins, Pencil, Plus, Trash2, WalletCa
 import { ExpenseForm } from '../components/ExpenseForm'
 import { Modal } from '../components/Modal'
 import { StateView } from '../components/StateView'
-import { actualOrEstimated, formatCurrency, formatDate, safePercent, totalExpenses } from '../lib/format'
+import { actualOrEstimated, describeExpenseDates, formatCurrency, formatDate, safePercent, totalExpenses } from '../lib/format'
 import { calculateExpenseSettlement } from '../lib/expenseSettlement'
 import { downloadTravelExcelReport } from '../lib/travelExcel'
 import { useWorkspace, useWorkspaceMutations } from '../hooks/useWorkspace'
@@ -102,7 +102,7 @@ export function ExpensesPage() {
       </section>
       {expenses.length === 0 ? <StateView state="empty" title="Chưa có khoản chi nào" message="Thêm khoản chi đầu tiên để theo dõi ngân sách và chia tiền cùng nhóm." actionLabel="Thêm khoản chi đầu tiên" onAction={() => { setFormError(''); setEditing(null) }} /> : (
         <section className={styles.list} aria-label="Danh sách chi phí">
-          {expenses.map((expense) => <article className={styles.expense} key={expense.id}><span className={styles.category}>{labels[expense.category]}</span><div><h2>{expense.title}</h2><p>{formatDate(expense.expenseDate)} · {expense.notes || 'Không có ghi chú'}</p><p className={styles.splitMeta}>Trả bởi {personName(expense.paidByUserId)} · Chia cho {expense.participantUserIds.map(personName).join(', ')}</p></div><div className={styles.amount}><strong>{formatCurrency(actualOrEstimated(expense))}</strong><small>{expense.actualAmountVnd === null ? 'Dự kiến' : 'Thực tế'}</small></div><div className={styles.actions}><button className="icon-button" type="button" onClick={() => { setFormError(''); setEditing(expense) }} aria-label={`Sửa ${expense.title}`}><Pencil size={18} /></button><button className="icon-button icon-button--danger" type="button" disabled={mutations.deleteExpense.isPending} onClick={() => void remove(expense)} aria-label={`Xóa ${expense.title}`}><Trash2 size={18} /></button></div></article>)}
+          {expenses.map((expense) => <article className={styles.expense} key={expense.id}><span className={styles.category}>{labels[expense.category]}</span><div><h2>{expense.title}</h2><p>{describeExpenseDates(expense)} · {expense.notes || 'Không có ghi chú'}</p><p className={styles.splitMeta}>Trả bởi {personName(expense.paidByUserId)} · Chia cho {expense.participantUserIds.map(personName).join(', ')}</p></div><div className={styles.amount}><strong>{formatCurrency(actualOrEstimated(expense))}</strong><small>{expense.actualAmountVnd === null ? 'Dự kiến' : 'Thực tế'}</small></div><div className={styles.actions}><button className="icon-button" type="button" onClick={() => { setFormError(''); setEditing(expense) }} aria-label={`Sửa ${expense.title}`}><Pencil size={18} /></button><button className="icon-button icon-button--danger" type="button" disabled={mutations.deleteExpense.isPending} onClick={() => void remove(expense)} aria-label={`Xóa ${expense.title}`}><Trash2 size={18} /></button></div></article>)}
         </section>
       )}
       <Modal open={editing !== undefined} title={editing ? 'Chỉnh sửa chi phí' : 'Thêm chi phí'} onClose={() => setEditing(undefined)}>
