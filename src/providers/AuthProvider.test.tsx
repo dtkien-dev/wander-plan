@@ -5,7 +5,7 @@ import type { AuthChangeEvent, Session } from '@supabase/supabase-js'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { AuthProvider, useAuth } from './AuthProvider'
 
-const auth = vi.hoisted(() => ({ initialize: vi.fn(), getSession: vi.fn(), onAuthStateChange: vi.fn(), signInWithOtp: vi.fn(), signOut: vi.fn() }))
+const auth = vi.hoisted(() => ({ initialize: vi.fn(), getSession: vi.fn(), onAuthStateChange: vi.fn(), signInWithOtp: vi.fn(), signInWithOAuth: vi.fn(), signOut: vi.fn() }))
 vi.mock('../lib/supabase', () => ({ supabase: { auth }, isSupabaseConfigured: true, isDemoMode: false, configurationError: null }))
 
 let notify: (event: AuthChangeEvent, session: Session | null) => void
@@ -19,13 +19,14 @@ function deferred<T>() {
 }
 
 function Consumer() {
-  const { session, loading, authError, signInWithEmail, signOut } = useAuth()
+  const { session, loading, authError, signInWithEmail, signInWithGoogle, signOut } = useAuth()
   const location = useLocation()
   return <>
     <output aria-label="identity">{loading ? 'loading' : session?.user.id ?? 'anonymous'}</output>
     <output aria-label="route">{location.pathname}</output>
     {authError && <p role="alert">{authError}</p>}
     <button onClick={() => void signInWithEmail('  FRIEND@Example.COM ').catch(() => {})}>Send</button>
+    <button onClick={() => void signInWithGoogle().catch(() => {})}>Google</button>
     <button onClick={() => void signOut()}>Logout</button>
   </>
 }
@@ -64,6 +65,28 @@ describe('AuthProvider', () => {
     await waitFor(() => expect(screen.getByLabelText('identity')).toHaveTextContent('anonymous'))
     expect(screen.getByRole('alert')).toHaveTextContent('hết hạn hoặc không còn hợp lệ')
     expect(screen.getByRole('alert')).not.toHaveTextContent('private')
+  })
+
+  it('shows the closed-registration message from the sign-up hook but not other callback text', async () => {
+    const closed = 'WanderPlan đang tạm dừng nhận tài khoản mới. Hãy nhờ chủ nhóm gửi lời mời đến email của bạn rồi thử lại.'
+    window.history.replaceState(null, '', `/wander-plan/#error=access_denied&error_code=unexpected_failure&error_description=${encodeURIComponent(closed)}`)
+    mount()
+    await waitFor(() => expect(screen.getByRole('alert')).toHaveTextContent(closed))
+
+    cleanup()
+    window.history.replaceState(null, '', '/wander-plan/#error=server_error&error_description=Call%20this%20number')
+    mount()
+    await waitFor(() => expect(screen.getByRole('alert')).toBeInTheDocument())
+    expect(screen.getByRole('alert')).not.toHaveTextContent('Call this number')
+  })
+
+  it('starts Google sign-in back to the deployed base and keeps the return route', async () => {
+    auth.signInWithOAuth.mockResolvedValue({ data: {}, error: null })
+    mount()
+    await waitFor(() => expect(screen.getByLabelText('identity')).toHaveTextContent('anonymous'))
+    fireEvent.click(screen.getByRole('button', { name: 'Google' }))
+    await waitFor(() => expect(auth.signInWithOAuth).toHaveBeenCalledWith({ provider: 'google', options: { redirectTo: `${window.location.origin}/wander-plan/` } }))
+    expect(window.sessionStorage.getItem('wander-plan:auth-return-route')).toBe('#/expenses')
   })
 
   it('surfaces a failed callback token exchange from initialization', async () => {

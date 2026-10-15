@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useRef, useState, type PropsWithChildren } from 'react'
 import type { Session } from '@supabase/supabase-js'
 import { useQueryClient } from '@tanstack/react-query'
+import { newAccountsClosedMessage } from '../lib/accessConfig'
 import { configurationError, isDemoMode, isSupabaseConfigured, supabase } from '../lib/supabase'
 
 interface AuthContextValue {
@@ -10,6 +11,7 @@ interface AuthContextValue {
   configurationError: string | null
   authError: string | null
   signInWithEmail: (email: string) => Promise<void>
+  signInWithGoogle: () => Promise<void>
   signOut: () => Promise<void>
 }
 
@@ -18,6 +20,8 @@ const returnRouteKey = 'wander-plan:auth-return-route'
 
 function authenticationMessage(error: unknown, fallback: string) {
   const details = error && typeof error === 'object' ? error as { code?: string; status?: number; message?: string } : {}
+  // The sign-up hook message is shown only when it matches exactly, never arbitrary callback text.
+  if (details.message?.includes(newAccountsClosedMessage)) return newAccountsClosedMessage
   const description = `${details.code ?? ''} ${details.message ?? ''}`.toLowerCase()
   if (/otp_expired|invalid.*(token|link|code)|expired|access_denied/.test(description)) {
     return 'Liên kết đăng nhập đã hết hạn hoặc không còn hợp lệ. Hãy gửi một liên kết mới và mở email mới nhất.'
@@ -40,6 +44,13 @@ function callbackError() {
     }
   }
   return null
+}
+
+function rememberReturnRoute() {
+  try {
+    const route = window.location.hash
+    if (route.startsWith('#/') && !route.startsWith('#//')) window.sessionStorage.setItem(returnRouteKey, route)
+  } catch { /* Storage may be blocked by browser privacy settings. */ }
 }
 
 function restoreReturnRoute() {
@@ -121,10 +132,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
       if (emailRequest.current) return emailRequest.current
       emailRequest.current = (async () => {
         if (!supabase) throw new Error(configurationError ?? 'Supabase chưa được cấu hình.')
-        try {
-          const route = window.location.hash
-          if (route.startsWith('#/') && !route.startsWith('#//')) window.sessionStorage.setItem(returnRouteKey, route)
-        } catch { /* Storage may be blocked by browser privacy settings. */ }
+        rememberReturnRoute()
         try {
           const { error } = await supabase.auth.signInWithOtp({
             email: email.trim().toLowerCase(),
@@ -137,6 +145,16 @@ export function AuthProvider({ children }: PropsWithChildren) {
         }
       })().finally(() => { emailRequest.current = null })
       return emailRequest.current
+    },
+    signInWithGoogle: async () => {
+      if (!supabase) throw new Error(configurationError ?? 'Supabase chưa được cấu hình.')
+      rememberReturnRoute()
+      // Success leaves the page for Google; the callback is handled like the email link.
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: { redirectTo: `${window.location.origin}${window.location.pathname}` },
+      })
+      if (error) throw new Error(authenticationMessage(error, 'Chưa thể mở đăng nhập Google. Hãy thử lại hoặc dùng liên kết email.'))
     },
     signOut: async () => {
       if (!supabase) return
