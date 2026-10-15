@@ -5,7 +5,6 @@ import { CalendarRange, CheckCircle2, Clock3, Crown, MailPlus, MapPin, UserMinus
 import { z } from 'zod'
 import { StateView } from '../components/StateView'
 import { Modal } from '../components/Modal'
-import { useAuth } from '../providers/AuthProvider'
 import { useTripPeople, useWorkspace, useWorkspaceMutations } from '../hooks/useWorkspace'
 import { formatCurrency, formatDate } from '../lib/format'
 import type { TripDraft } from '../types'
@@ -25,7 +24,6 @@ const inviteSchema = z.object({ email: z.email('Nhập email hợp lệ.').trans
 type InviteValues = z.infer<typeof inviteSchema>
 
 export function GroupPage() {
-  const { isDemo } = useAuth()
   const workspace = useWorkspace()
   const people = useTripPeople(workspace.data?.trip.id)
   const mutations = useWorkspaceMutations()
@@ -115,7 +113,6 @@ export function GroupPage() {
     <div className={styles.page} data-ai-id="group-page">
       <header className="section-header section-header--page">
         <div><p className="eyebrow">Nhóm {trip.maxMembers} người</p><h1>Chuyến đi & thành viên</h1><p>Một nơi để chốt ngày đi, ngân sách và những người được phép chỉnh sửa.</p></div>
-        <div className={styles.sync}><CheckCircle2 size={18} aria-hidden="true" /><span>{isDemo ? 'Lưu trên trình duyệt này' : 'Cập nhật cùng nhóm'}</span></div>
       </header>
       {notice && <div className="feedback" role="status">{notice}<button type="button" onClick={() => setNotice('')}>Đóng</button></div>}
       <div className={styles.grid}>

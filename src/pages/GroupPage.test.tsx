@@ -4,13 +4,11 @@ import { GroupPage } from './GroupPage'
 import type { TripPerson, WorkspaceData } from '../types'
 
 const mocks = vi.hoisted(() => ({
-  useAuth: vi.fn(),
   useWorkspace: vi.fn(),
   useTripPeople: vi.fn(),
   useWorkspaceMutations: vi.fn(),
 }))
 
-vi.mock('../providers/AuthProvider', () => ({ useAuth: mocks.useAuth }))
 vi.mock('../hooks/useWorkspace', () => ({
   useWorkspace: mocks.useWorkspace,
   useTripPeople: mocks.useTripPeople,
@@ -37,7 +35,6 @@ function workspace(role: WorkspaceData['currentRole']): WorkspaceData {
 }
 
 function setup(role: WorkspaceData['currentRole'], revokeInvitation = vi.fn().mockResolvedValue(undefined)) {
-  mocks.useAuth.mockReturnValue({ isDemo: true })
   mocks.useWorkspace.mockReturnValue({ data: workspace(role), isLoading: false, isError: false, refetch: vi.fn() })
   mocks.useTripPeople.mockReturnValue({ data: people, isLoading: false, isError: false, refetch: vi.fn() })
   mocks.useWorkspaceMutations.mockReturnValue({
