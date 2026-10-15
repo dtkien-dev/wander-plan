@@ -1,4 +1,4 @@
 {
   "allowNewAccounts": false,
-  "googleSignIn": false
+  "googleSignIn": true
 }
