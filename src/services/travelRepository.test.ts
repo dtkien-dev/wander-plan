@@ -16,6 +16,16 @@ beforeEach(() => {
 })
 
 describe('demo travel repository', () => {
+  it('reads saved demo expenses from before date ranges as single-day expenses', async () => {
+    const saved = structuredClone(demoWorkspace)
+    saved.expenses.forEach((expense) => { delete (expense as Partial<typeof expense>).endDate })
+    localStorage.setItem('wander-plan-demo-trips-v2', JSON.stringify([saved]))
+
+    const workspace = await travelRepository.loadWorkspace(saved.trip.id)
+
+    expect(workspace.expenses.every((expense) => expense.endDate === null)).toBe(true)
+  })
+
   it('preserves the legacy saved trip when creating a trip in the new multi-trip store', async () => {
     const legacy = structuredClone(demoWorkspace)
     legacy.trip.name = 'Legacy plan'

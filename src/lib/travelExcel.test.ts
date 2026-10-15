@@ -140,6 +140,11 @@ describe('travel Excel import', () => {
     expect(cellValue(itinerary.data[1][1])).toBeInstanceOf(Date)
     expect(cellValue(itinerary.data[1][0])).toBe('Cà phê bên đồi thông')
     expect(itinerary.data[0].map(cellValue)).toEqual(expect.arrayContaining(['ID', 'Version']))
+    const expenses = sheets.find((sheet) => sheet.sheet === 'ChiPhi')!
+    const endDateColumn = expenses.data[0].map(cellValue).indexOf('Đến ngày')
+    const homestay = expenses.data.find((row) => cellValue(row[0]) === 'Homestay 3 đêm')!
+    expect(endDateColumn).toBeGreaterThan(-1)
+    expect(cellValue(homestay[endDateColumn])).toBeInstanceOf(Date)
   })
 
   it('serializes the report as a readable three-sheet xlsx workbook', async () => {
