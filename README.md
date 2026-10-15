@@ -18,7 +18,7 @@ Use Node 20.19+ or a supported newer LTS for all development tools. Without Supa
 
 ## Database setup and upgrades
 
-Fresh database: apply migrations once in filename order through `202610160003_new_account_access.sql`. Existing databases: inspect applied migration history and apply only missing forward migrations. Do not rerun all historical migrations: earlier functions restore obsolete single-trip/auto-accept behavior. Keep a backup and rehearse upgrades before production.
+Fresh database: apply migrations once in filename order through `202610160004_security_hardening.sql`. Existing databases: inspect applied migration history and apply only missing forward migrations. Do not rerun all historical migrations: earlier functions restore obsolete single-trip/auto-accept behavior. Keep a backup and rehearse upgrades before production.
 
 The `202610150001` security migration removes direct membership INSERT privileges from public API roles. Trip creation and recipient acceptance still create memberships through their authorized RPCs; existing memberships and business data are unchanged. Apply this forward migration to databases already running the `202610140004` contract. Do not restore the old direct INSERT grant when reverting frontend code.
 
@@ -63,6 +63,8 @@ This verifies SQL and RLS with a minimal Supabase identity bootstrap. It does no
 Keep Email Auth enabled. Set Site URL and allowed redirect URL to `https://dtkien-dev.github.io/wander-plan/`; also allow the exact local development URL when testing sign-in locally. Copy `.env.example` to `.env.local` and set the project URL and publishable key. Configure the same `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` repository variables for GitHub Pages. Never expose a secret/service-role key. Production fails closed if configuration is missing unless demo mode is explicitly enabled.
 
 Users sign in with an email link. Sign-in does not accept invitations. The recipient sees pending invitations and chooses accept or decline after authenticating with the matching email. Existing accepted memberships are preserved. Creating an invitation stores it inside WanderPlan; it does not send an invitation email. The owner shares the website link and asks the recipient to sign in with the invited address. Login-link delivery is handled by Supabase Auth; verify the configured mail sender separately before public use.
+
+The `202610160004` migration accepts only https Google Maps links in itinerary items (existing rows must already comply; check before applying), removes EXECUTE on application functions from signed-out callers and makes new functions private by default. Grant EXECUTE to `authenticated` explicitly for any new RPC.
 
 ### New-account switch and Google sign-in
 

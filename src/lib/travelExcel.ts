@@ -1,4 +1,5 @@
 import { actualOrEstimated, isGoogleMapsUrl, totalExpenses } from './format'
+import { inspectXlsxArchive } from './xlsxGuard'
 import type { Expense, ExpenseCategory, ExpenseDraft, ItineraryDraft, ItineraryItem, Trip, TripImportDraft, TripPerson, WorkspaceData } from '../types'
 
 type CellValue = string | number | boolean | Date | null
@@ -279,6 +280,7 @@ export const buildTravelExcelPreview = (fileName: string, sheets: WorkbookSheet[
 export const parseTravelExcel = async (file: File, trip: Trip, itinerary: ItineraryItem[], expenses: Expense[], people: TripPerson[]) => {
   if (!file.name.toLocaleLowerCase().endsWith('.xlsx')) throw new Error('Chỉ hỗ trợ file Excel .xlsx.')
   if (file.size > MAX_FILE_BYTES) throw new Error('File Excel không được lớn hơn 5 MB.')
+  inspectXlsxArchive(await file.arrayBuffer())
   const { default: readXlsxFile } = await import('read-excel-file/browser')
   const sheets = await readXlsxFile(file)
   return buildTravelExcelPreview(file.name, sheets as WorkbookSheet[], trip, itinerary, expenses, people)

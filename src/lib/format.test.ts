@@ -12,6 +12,8 @@ describe('travel format helpers', () => {
   it('accepts only known Google Maps hosts', () => {
     expect(isGoogleMapsUrl('https://maps.app.goo.gl/abc')).toBe(true)
     expect(isGoogleMapsUrl('https://example.com/maps')).toBe(false)
+    expect(isGoogleMapsUrl('http://maps.app.goo.gl/abc')).toBe(false)
+    expect(isGoogleMapsUrl('javascript:alert(1)')).toBe(false)
   })
 
   it('keeps progress percentages finite for zero or invalid budgets', () => {

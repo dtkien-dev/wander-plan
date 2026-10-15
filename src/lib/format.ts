@@ -48,7 +48,8 @@ export const isGoogleMapsUrl = (value: string) => {
   if (!value) return true
   try {
     const url = new URL(value)
-    return ['google.com', 'www.google.com', 'maps.google.com', 'maps.app.goo.gl'].includes(url.hostname)
+    // Keep in sync with itinerary_items_maps_url_google in the database.
+    return url.protocol === 'https:' && ['google.com', 'www.google.com', 'maps.google.com', 'maps.app.goo.gl'].includes(url.hostname)
   } catch {
     return false
   }
