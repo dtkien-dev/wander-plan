@@ -3,6 +3,7 @@
 Read `package.json` and `package-lock.json` for current tooling; `README.md` owns setup and upgrade instructions.
 
 - For sign-in/session changes, read `src/providers/AuthProvider.tsx`, `src/pages/LoginPage.tsx`, and their tests. Authentication does not accept trip invitations.
+- For who may create accounts or the Google button, read `config/access.json`, `src/lib/accessConfig.ts` and `supabase/migrations/202610160003_new_account_access.sql`. The sign-up hook enforces the switch; a push alone does not apply it — follow the README runbook.
 - For routing, read `src/App.tsx` and `src/components/AppShell.tsx`. The account key resets the workspace; the identity/trip key resets route forms. Preserve lazy loading and `src/components/PageErrorBoundary.tsx` recovery.
 - For trip selection, queries or realtime, start at `src/providers/WorkspaceProvider.tsx`. It owns the single channel and identity/trip cache keys. Consumers in `src/hooks/useWorkspace.ts` must not add subscriptions. Late writes refresh their originating trip cache; only active-account UI may change selection.
 - For persistence, read `src/services/travelRepository.ts` and `src/types.ts`; invitation/trip methods must match the SQL RPC signatures. Preserve legacy demo data when changing browser storage.

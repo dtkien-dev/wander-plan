@@ -18,7 +18,7 @@ Use Node 20.19+ or a supported newer LTS for all development tools. Without Supa
 
 ## Database setup and upgrades
 
-Fresh database: apply migrations once in filename order through `202610160002_expense_date_ranges.sql`. Existing databases: inspect applied migration history and apply only missing forward migrations. Do not rerun all historical migrations: earlier functions restore obsolete single-trip/auto-accept behavior. Keep a backup and rehearse upgrades before production.
+Fresh database: apply migrations once in filename order through `202610160003_new_account_access.sql`. Existing databases: inspect applied migration history and apply only missing forward migrations. Do not rerun all historical migrations: earlier functions restore obsolete single-trip/auto-accept behavior. Keep a backup and rehearse upgrades before production.
 
 The `202610150001` security migration removes direct membership INSERT privileges from public API roles. Trip creation and recipient acceptance still create memberships through their authorized RPCs; existing memberships and business data are unchanged. Apply this forward migration to databases already running the `202610140004` contract. Do not restore the old direct INSERT grant when reverting frontend code.
 
@@ -63,6 +63,28 @@ This verifies SQL and RLS with a minimal Supabase identity bootstrap. It does no
 Keep Email Auth enabled. Set Site URL and allowed redirect URL to `https://dtkien-dev.github.io/wander-plan/`; also allow the exact local development URL when testing sign-in locally. Copy `.env.example` to `.env.local` and set the project URL and publishable key. Configure the same `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` repository variables for GitHub Pages. Never expose a secret/service-role key. Production fails closed if configuration is missing unless demo mode is explicitly enabled.
 
 Users sign in with an email link. Sign-in does not accept invitations. The recipient sees pending invitations and chooses accept or decline after authenticating with the matching email. Existing accepted memberships are preserved. Creating an invitation stores it inside WanderPlan; it does not send an invitation email. The owner shares the website link and asks the recipient to sign in with the invited address. Login-link delivery is handled by Supabase Auth; verify the configured mail sender separately before public use.
+
+### New-account switch and Google sign-in
+
+`config/access.json` holds two switches:
+
+- `allowNewAccounts`: `false` lets only existing accounts and emails with a pending invitation create an account; `true` lets anyone sign up. Supabase enforces it through the `before-user-created` hook (`public.hook_before_user_created`, migration `202610160003`) for both email links and Google. Existing accounts are never blocked.
+- `googleSignIn`: shows the "Đăng nhập với Google" button. It does not enable the provider; turn it on only after Google is configured in Supabase.
+
+Changing `allowNewAccounts`: edit the file, commit and push, then apply it to the database (the CLI must be logged in to the project):
+
+```sh
+npm run access:apply -- --project-ref rpwchohopxvqsftrould
+```
+
+Use `--local` for the local stack. The script prints the stored value; a push alone does not change the database.
+
+One-time project setup by the owner in the Supabase dashboard:
+
+1. Authentication → Auth Hooks → Before User Created → Postgres function `public.hook_before_user_created`. Until this hook is enabled the switch is stored but not enforced.
+2. For Google: create an OAuth client (type Web application) in Google Cloud Console with authorized JavaScript origin `https://dtkien-dev.github.io` and authorized redirect URI `https://rpwchohopxvqsftrould.supabase.co/auth/v1/callback`. Then enable Authentication → Providers → Google with its client ID and secret. Keep `https://dtkien-dev.github.io/wander-plan/` in the allowed redirect URLs. Never commit the client secret.
+
+Locally, `supabase/config.toml` enables the same hook. Google stays disabled there unless `SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_ID` and `SUPABASE_AUTH_EXTERNAL_GOOGLE_SECRET` are set and `enabled` is switched on before `supabase start`.
 
 Pending invitations reserve places: 3 active members plus 1 pending invitation fill a group of 4. The owner can revoke the pending invitation to free its place. A declined invitation also frees its place. There is no automatic expiry policy in this version.
 
