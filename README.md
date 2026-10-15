@@ -22,6 +22,20 @@ Fresh database: apply migrations once in filename order through `202610150001_re
 
 The `202610150001` security migration removes direct membership INSERT privileges from public API roles. Trip creation and recipient acceptance still create memberships through their authorized RPCs; existing memberships and business data are unchanged. Apply this forward migration to databases already running the `202610140004` contract. Do not restore the old direct INSERT grant when reverting frontend code.
 
+### Existing column error after a manual deployment
+
+`42701: column "revoked_at" already exists` while applying `202610140004` can mean its SQL was applied through SQL Editor but its version is absent from `supabase_migrations.schema_migrations`. Check `npx supabase migration list` against the intended project and compare the entire migration's functions, columns, constraints, policies, triggers and privileges with the deployed database. An existing column alone does not prove the migration is complete.
+
+For the verified WanderPlan production database, the missing history entries were repaired on 15 October 2026 with:
+
+```sh
+npx supabase migration repair 202610140004 202610150001 --status applied --project-ref rpwchohopxvqsftrould
+npx supabase migration list --project-ref rpwchohopxvqsftrould
+npx supabase db push --linked --project-ref rpwchohopxvqsftrould --dry-run --skip-vault
+```
+
+These repair commands record already-applied versions without rerunning their SQL. Do not run them against another database unless both migrations are fully verified there. Do not drop existing columns, reset the database, or add only `IF NOT EXISTS` to bypass this error. If a migration was only partly applied, reconcile that difference before marking it applied. Prefer the normal migration runner for future releases; after any manual SQL deployment, verify and reconcile its history before the next push. See the [official migration repair reference](https://supabase.com/docs/reference/cli/supabase-migration-repair).
+
 The new `202610140004` migration supports explicit invitation responses, revocation, reserved capacity, and idempotent multi-trip creation. Preserve `202610140003_remove_trip_member.sql` as part of the upgrade chain too. Deploy the new schema before the matching frontend; an older frontend cannot display incoming invitations once automatic claiming is disabled. Coordinate the rollout and verify sign-in, acceptance, revocation, trip selection and expenses before inviting real users.
 
 With Docker Desktop available:
