@@ -2,7 +2,15 @@
 .toolbar { display: flex; align-items: end; justify-content: space-between; gap: 16px; }
 .toolbar p { color: var(--color-text-muted); }
 .select { display: grid; gap: 6px; min-width: 0; width: min(100%, 420px); font-size: 13px; font-weight: 600; }
-.select select { min-width: 0; width: 100%; min-height: 44px; padding: 8px 12px; color: var(--color-text); background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-control); font: inherit; font-size: 16px; }
+.selectControl { position: relative; display: block; min-width: 0; }
+.select select { appearance: none; min-width: 0; width: 100%; min-height: 44px; padding: 10px 44px 10px 14px; color: var(--color-primary); background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-control); font: inherit; font-size: 16px; cursor: pointer; text-overflow: ellipsis; transition: border-color 180ms var(--ease-spring), background-color 180ms var(--ease-spring), box-shadow 180ms var(--ease-spring); }
+.select select:hover:not(:disabled) { background: var(--color-mint); border-color: var(--color-primary); }
+.select select:focus-visible { outline: 3px solid color-mix(in srgb, var(--color-primary) 24%, transparent); outline-offset: 2px; border-color: var(--color-primary); box-shadow: 0 4px 12px -8px var(--color-primary); }
+.select select:disabled { opacity: .56; cursor: wait; }
+.select option { color: var(--color-text); background: var(--color-surface); }
+.selectChevron { position: absolute; right: 14px; top: calc(50% - 9px); color: var(--color-secondary); pointer-events: none; transition: transform 160ms var(--ease-spring), color 160ms var(--ease-spring); }
+.selectControl:focus-within .selectChevron { color: var(--color-primary); }
+.selectControl:active .selectChevron { transform: translateY(2px); }
 .invitations { display: grid; gap: 10px; padding: 16px; background: var(--color-mint); border: 1px solid var(--color-border); border-radius: var(--radius-inset); }
 .invitations h2 { margin: 0; font-size: 20px; }
 .invitations article { display: flex; align-items: center; justify-content: space-between; gap: 12px; }

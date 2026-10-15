@@ -38,6 +38,7 @@ function fillCreateForm(overrides: Partial<Record<string, string>> = {}) {
 
 beforeEach(() => {
   vi.clearAllMocks()
+  mocks.context.tripId = null
   setInvitations()
   mocks.mutations.createTrip = { mutateAsync: vi.fn().mockResolvedValue('created-trip'), isPending: false }
   mocks.mutations.respondInvitation = { mutateAsync: vi.fn().mockResolvedValue(undefined), isPending: false }
@@ -46,6 +47,18 @@ beforeEach(() => {
 afterEach(() => { cleanup(); vi.restoreAllMocks() })
 
 describe('TripManager', () => {
+  it('keeps the labeled trip selector wired to trip IDs and disabled during an invitation response', () => {
+    mocks.context.tripId = 'trip-a'
+    mocks.context.trips = { data: [{ id: 'trip-a', name: 'Đà Lạt' }, { id: 'trip-b', name: 'Huế' }] }
+    const { rerender } = render(<TripManager />)
+    const selector = screen.getByRole('combobox', { name: 'Chuyến đang xem' })
+    expect(selector).toHaveValue('trip-a')
+    fireEvent.change(selector, { target: { value: 'trip-b' } })
+    expect(mocks.context.selectTrip).toHaveBeenCalledWith('trip-b')
+    mocks.mutations.respondInvitation.isPending = true
+    rerender(<TripManager />)
+    expect(selector).toBeDisabled()
+  })
   it('accepts and declines incoming invitations through the mutation contract', async () => {
     render(<TripManager />)
     fireEvent.click(screen.getByRole('button', { name: 'Nhận lời mời' }))
