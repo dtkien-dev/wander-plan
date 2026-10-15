@@ -37,4 +37,4 @@ $$;
 
 -- New functions must be granted explicitly (see AGENTS.md).
 alter default privileges revoke execute on functions from public;
-alter default privileges in schema public revoke execute on functions from anon;
+alter default privileges in schema public revoke execute on functions from anon, authenticated;
