@@ -2,12 +2,12 @@ import { useRef, useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
-import { ChevronDown } from 'lucide-react'
 import { useWorkspaceContext } from '../providers/WorkspaceProvider'
 import { useWorkspaceMutations } from '../hooks/useWorkspace'
 import { formatDate } from '../lib/format'
 import type { TripDraft } from '../types'
 import { Modal } from './Modal'
+import { TripSelect } from './TripSelect'
 import styles from './TripManager.module.css'
 
 const schema = z.object({
@@ -52,7 +52,7 @@ export function TripManager() {
   }
   return <section className={styles.manager} aria-label="Chọn chuyến đi và lời mời">
     <div className={styles.toolbar}>
-      {trips.data?.length ? <label className={styles.select}>Chuyến đang xem<span className={styles.selectControl}><select value={tripId ?? ''} onChange={(event) => selectTrip(event.target.value)} disabled={respondInvitation.isPending}>{trips.data.map((trip) => <option value={trip.id} key={trip.id}>{trip.name}</option>)}</select><ChevronDown className={styles.selectChevron} size={18} aria-hidden="true" /></span></label> : <p>{trips.isLoading ? 'Đang tải chuyến đi…' : trips.isError ? 'Chưa thể tải chuyến đi.' : 'Tạo chuyến đi hoặc nhận lời mời để bắt đầu.'}</p>}
+      {trips.data?.length ? <TripSelect label="Chuyến đang xem" trips={trips.data} value={tripId} disabled={respondInvitation.isPending} onChange={selectTrip} /> : <p>{trips.isLoading ? 'Đang tải chuyến đi…' : trips.isError ? 'Chưa thể tải chuyến đi.' : 'Tạo chuyến đi hoặc nhận lời mời để bắt đầu.'}</p>}
       <button className="button button--soft" type="button" onClick={() => setCreating(true)}>Tạo chuyến mới</button>
     </div>
     {notice && <div className="feedback" role="status">{notice}<button type="button" onClick={() => setNotice('')}>Đóng</button></div>}

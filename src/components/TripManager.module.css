@@ -1,16 +1,26 @@
 .manager { display: grid; gap: 12px; margin-bottom: 24px; min-width: 0; }
 .toolbar { display: flex; align-items: end; justify-content: space-between; gap: 16px; }
 .toolbar p { color: var(--color-text-muted); }
-.select { display: grid; gap: 6px; min-width: 0; width: min(100%, 420px); font-size: 13px; font-weight: 600; }
-.selectControl { position: relative; display: block; min-width: 0; }
-.select select { appearance: none; min-width: 0; width: 100%; min-height: 44px; padding: 10px 44px 10px 14px; color: var(--color-primary); background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-control); font: inherit; font-size: 16px; cursor: pointer; text-overflow: ellipsis; transition: border-color 180ms var(--ease-spring), background-color 180ms var(--ease-spring), box-shadow 180ms var(--ease-spring); }
-.select select:hover:not(:disabled) { background: var(--color-mint); border-color: var(--color-primary); }
-.select select:focus-visible { outline: 3px solid color-mix(in srgb, var(--color-primary) 24%, transparent); outline-offset: 2px; border-color: var(--color-primary); box-shadow: 0 4px 12px -8px var(--color-primary); }
-.select select:disabled { opacity: .56; cursor: wait; }
-.select option { color: var(--color-text); background: var(--color-surface); }
+.select { position: relative; display: grid; gap: 6px; min-width: 0; width: min(100%, 420px); font-size: 13px; font-weight: 600; }
+.selectControl { position: relative; display: flex; align-items: center; min-width: 0; min-height: 44px; padding: 10px 44px 10px 14px; color: var(--color-primary); background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-control); font-size: 16px; cursor: pointer; user-select: none; transition: border-color 180ms var(--ease-spring), background-color 180ms var(--ease-spring), box-shadow 180ms var(--ease-spring); }
+.selectControl:hover:not([aria-disabled]) { background: var(--color-mint); border-color: var(--color-primary); }
+.selectControl:focus-visible { outline: 3px solid color-mix(in srgb, var(--color-primary) 24%, transparent); outline-offset: 2px; border-color: var(--color-primary); box-shadow: 0 4px 12px -8px var(--color-primary); }
+.selectControl[data-open] { border-color: var(--color-primary); }
+.selectControl[aria-disabled] { opacity: .56; cursor: wait; }
+.selectValue { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .selectChevron { position: absolute; right: 14px; top: calc(50% - 9px); color: var(--color-secondary); pointer-events: none; transition: transform 160ms var(--ease-spring), color 160ms var(--ease-spring); }
-.selectControl:focus-within .selectChevron { color: var(--color-primary); }
-.selectControl:active .selectChevron { transform: translateY(2px); }
+.selectControl:focus-visible .selectChevron, .selectControl[data-open] .selectChevron { color: var(--color-primary); }
+.selectControl[data-open] .selectChevron { transform: rotate(180deg); }
+.selectList { position: absolute; top: calc(100% + 6px); left: 0; right: 0; z-index: 20; display: grid; gap: 2px; max-height: min(320px, 60vh); margin: 0; padding: 6px; overflow-y: auto; list-style: none; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-inset); box-shadow: var(--shadow-surface), 0 18px 32px -18px rgba(24,57,43,.45); animation: selectListIn 160ms var(--ease-spring); }
+.selectList[hidden] { display: none; }
+.selectList li { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 48px; padding: 8px 10px; color: var(--color-text); border-radius: var(--radius-control); cursor: pointer; transition: background-color 120ms var(--ease-spring); }
+.selectList li[data-active] { background: var(--color-mint); }
+.selectList li[aria-selected="true"] strong { color: var(--color-primary); }
+.optionText { display: grid; gap: 2px; min-width: 0; }
+.optionText strong { overflow: hidden; font-size: 15px; text-overflow: ellipsis; white-space: nowrap; }
+.optionText small { overflow: hidden; color: var(--color-text-muted); font-size: 12px; font-weight: 500; text-overflow: ellipsis; white-space: nowrap; }
+.optionCheck { flex-shrink: 0; color: var(--color-primary); }
+@keyframes selectListIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
 .invitations { display: grid; gap: 10px; padding: 16px; background: var(--color-mint); border: 1px solid var(--color-border); border-radius: var(--radius-inset); }
 .invitations h2 { margin: 0; font-size: 20px; }
 .invitations article { display: flex; align-items: center; justify-content: space-between; gap: 12px; }

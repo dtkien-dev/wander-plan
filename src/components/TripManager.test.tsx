@@ -47,18 +47,55 @@ beforeEach(() => {
 afterEach(() => { cleanup(); vi.restoreAllMocks() })
 
 describe('TripManager', () => {
-  it('keeps the labeled trip selector wired to trip IDs and disabled during an invitation response', () => {
+  it('lists trips with destination and dates and selects one by pointer', () => {
     mocks.context.tripId = 'trip-a'
-    mocks.context.trips = { data: [{ id: 'trip-a', name: 'Đà Lạt' }, { id: 'trip-b', name: 'Huế' }] }
+    mocks.context.trips = { data: [
+      { id: 'trip-a', name: 'Đà Lạt tôi yêu', destination: 'Đà Lạt', startDate: '2026-11-27', endDate: '2026-11-30' },
+      { id: 'trip-b', name: 'Huế', destination: 'Huế', startDate: '2027-02-10', endDate: '2027-02-12' },
+    ] }
+    render(<TripManager />)
+    const selector = screen.getByRole('combobox', { name: 'Chuyến đang xem' })
+    expect(selector).toHaveTextContent('Đà Lạt tôi yêu')
+    expect(selector).toHaveAttribute('aria-expanded', 'false')
+
+    fireEvent.click(selector)
+    const options = screen.getAllByRole('option')
+    expect(options).toHaveLength(2)
+    expect(options[0]).toHaveAttribute('aria-selected', 'true')
+    expect(options[1]).toHaveTextContent('Huế · ')
+    fireEvent.click(options[1])
+    expect(mocks.context.selectTrip).toHaveBeenCalledWith('trip-b')
+    expect(selector).toHaveAttribute('aria-expanded', 'false')
+  })
+
+  it('supports keyboard selection, Escape and disables during an invitation response', () => {
+    mocks.context.tripId = 'trip-a'
+    mocks.context.trips = { data: [
+      { id: 'trip-a', name: 'Đà Lạt', destination: 'Đà Lạt', startDate: '2026-11-27', endDate: '2026-11-30' },
+      { id: 'trip-b', name: 'Huế', destination: 'Huế', startDate: '2027-02-10', endDate: '2027-02-12' },
+    ] }
     const { rerender } = render(<TripManager />)
     const selector = screen.getByRole('combobox', { name: 'Chuyến đang xem' })
-    expect(selector).toHaveValue('trip-a')
-    fireEvent.change(selector, { target: { value: 'trip-b' } })
+
+    fireEvent.keyDown(selector, { key: 'ArrowDown' })
+    expect(selector).toHaveAttribute('aria-expanded', 'true')
+    fireEvent.keyDown(selector, { key: 'Escape' })
+    expect(selector).toHaveAttribute('aria-expanded', 'false')
+    expect(mocks.context.selectTrip).not.toHaveBeenCalled()
+
+    fireEvent.keyDown(selector, { key: 'ArrowDown' })
+    fireEvent.keyDown(selector, { key: 'ArrowDown' })
+    expect(selector.getAttribute('aria-activedescendant')).toBe(screen.getAllByRole('option', { hidden: true })[1].id)
+    fireEvent.keyDown(selector, { key: 'Enter' })
     expect(mocks.context.selectTrip).toHaveBeenCalledWith('trip-b')
+
     mocks.mutations.respondInvitation.isPending = true
     rerender(<TripManager />)
-    expect(selector).toBeDisabled()
+    expect(selector).toHaveAttribute('aria-disabled', 'true')
+    fireEvent.keyDown(selector, { key: 'ArrowDown' })
+    expect(selector).toHaveAttribute('aria-expanded', 'false')
   })
+
   it('accepts and declines incoming invitations through the mutation contract', async () => {
     render(<TripManager />)
     fireEvent.click(screen.getByRole('button', { name: 'Nhận lời mời' }))
