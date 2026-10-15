@@ -13,7 +13,7 @@ const refIndex = args.indexOf('--project-ref')
 const target = args.includes('--local')
   ? ['--local']
   : refIndex !== -1 && /^[a-z0-9]{20}$/.test(args[refIndex + 1] ?? '')
-    ? ['--project-ref', args[refIndex + 1]]
+    ? ['--linked', '--project-ref', args[refIndex + 1]]
     : null
 if (!target) {
   console.error('Chọn đích: --local hoặc --project-ref <project-ref>.')
