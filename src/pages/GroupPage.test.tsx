@@ -58,9 +58,48 @@ describe('GroupPage invitations', () => {
     render(<GroupPage />)
 
     expect(screen.getByText(/3\/4 người đã tham gia · 1 chỗ đang giữ cho lời mời/)).toBeInTheDocument()
-    expect(screen.getByRole('status')).toHaveTextContent('Nhóm đã dùng đủ 4 chỗ: 3 thành viên và 1 lời mời đang chờ.')
+    expect(screen.queryByRole('status')).not.toBeInTheDocument()
+    expect(screen.getByText(/Bạn có thể huỷ lời mời đang chờ để giải phóng chỗ/)).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /Thêm/ })).toBeDisabled()
     expect(screen.getByLabelText('Mời bằng email')).toBeDisabled()
+  })
+
+  it('treats a full group without pending invitations as normal and offers a useful capacity action', async () => {
+    setup('owner')
+    const fullGroup = [...people.slice(0, 3), { ...people[1], userId: 'member-3', email: 'three@example.com' }]
+    mocks.useTripPeople.mockReturnValue({ data: fullGroup, isLoading: false, isError: false })
+    render(<GroupPage />)
+
+    expect(screen.getByText('Nhóm đã đủ 4 thành viên.')).toBeInTheDocument()
+    expect(screen.queryByText(/Huỷ lời mời hoặc/)).not.toBeInTheDocument()
+    expect(screen.queryByText(/0 lời mời/)).not.toBeInTheDocument()
+    expect(screen.queryByRole('status')).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Thêm', exact: true })).toBeDisabled()
+    fireEvent.click(await screen.findByRole('button', { name: 'Tăng số người tối đa' }))
+    expect(screen.getByLabelText('Số người tối đa')).toHaveFocus()
+  })
+
+  it('does not suggest increasing capacity beyond the supported limit', () => {
+    setup('owner')
+    const fullGroup = Array.from({ length: 20 }, (_, index) => ({ ...people[1], userId: `member-${index}`, email: `member-${index}@example.com` }))
+    mocks.useWorkspace.mockReturnValue({ data: { ...workspace('owner'), trip: { ...trip, maxMembers: 20 }, people: fullGroup, memberCount: 20 }, isLoading: false, isError: false })
+    mocks.useTripPeople.mockReturnValue({ data: fullGroup, isLoading: false, isError: false })
+    render(<GroupPage />)
+
+    expect(screen.getByText('Nhóm đã đủ 20 thành viên.')).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Tăng số người tối đa' })).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Thêm', exact: true })).toBeDisabled()
+  })
+
+  it('enables invitations and removes full-group guidance when a place is available', () => {
+    setup('owner')
+    mocks.useTripPeople.mockReturnValue({ data: people.slice(0, 3), isLoading: false, isError: false })
+    render(<GroupPage />)
+
+    expect(screen.getByRole('button', { name: 'Thêm', exact: true })).toBeEnabled()
+    expect(screen.getByLabelText('Mời bằng email')).toBeEnabled()
+    expect(screen.queryByRole('button', { name: 'Tăng số người tối đa' })).not.toBeInTheDocument()
+    expect(screen.queryByText(/Nhóm đã đủ/)).not.toBeInTheDocument()
   })
 
   it('confirms revoke for the selected invitation and keeps an actionable retry after failure', async () => {

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { CalendarRange, CheckCircle2, Clock3, Crown, MailPlus, MapPin, UserMinus, UsersRound, WalletCards } from 'lucide-react'
@@ -32,6 +32,7 @@ export function GroupPage() {
   const [notice, setNotice] = useState('')
   const [formError, setFormError] = useState('')
   const [revokingEmail, setRevokingEmail] = useState<string | null>(null)
+  const capacityInput = useRef<HTMLInputElement | null>(null)
   const trip = workspace.data?.trip
   const isOwner = workspace.data?.currentRole === 'owner'
   const tripForm = useForm<TripDraft>({
@@ -47,6 +48,7 @@ export function GroupPage() {
   })
   const inviteForm = useForm<InviteValues>({ resolver: zodResolver(inviteSchema), defaultValues: { email: '' } })
   const resetTripForm = tripForm.reset
+  const capacityField = tripForm.register('maxMembers', { valueAsNumber: true })
 
   useEffect(() => {
     if (!notice) return
@@ -132,7 +134,7 @@ export function GroupPage() {
             <label className="field">Ngày bắt đầu<input type="date" disabled={!isOwner} {...tripForm.register('startDate')} aria-invalid={Boolean(tripForm.formState.errors.startDate)} />{tripForm.formState.errors.startDate && <span>{tripForm.formState.errors.startDate.message}</span>}</label>
             <label className="field">Ngày kết thúc<input type="date" disabled={!isOwner} {...tripForm.register('endDate')} aria-invalid={Boolean(tripForm.formState.errors.endDate)} />{tripForm.formState.errors.endDate && <span>{tripForm.formState.errors.endDate.message}</span>}</label>
             <label className="field">Ngân sách dự kiến<input type="number" min="0" step="100000" inputMode="numeric" disabled={!isOwner} {...tripForm.register('budgetVnd', { valueAsNumber: true })} aria-invalid={Boolean(tripForm.formState.errors.budgetVnd)} />{tripForm.formState.errors.budgetVnd && <span>{tripForm.formState.errors.budgetVnd.message}</span>}</label>
-            <label className="field">Số người tối đa<input type="number" min={occupiedSeats} max="20" step="1" inputMode="numeric" disabled={!isOwner} {...tripForm.register('maxMembers', { valueAsNumber: true })} aria-invalid={Boolean(tripForm.formState.errors.maxMembers)} />{tripForm.formState.errors.maxMembers && <span>{tripForm.formState.errors.maxMembers.message}</span>}</label>
+            <label className="field">Số người tối đa<input type="number" min={occupiedSeats} max="20" step="1" inputMode="numeric" disabled={!isOwner} {...capacityField} ref={(input) => { capacityField.ref(input); capacityInput.current = input }} aria-invalid={Boolean(tripForm.formState.errors.maxMembers)} />{tripForm.formState.errors.maxMembers && <span>{tripForm.formState.errors.maxMembers.message}</span>}</label>
             {isOwner && <div className="form__actions field--wide"><button className="button button--primary" type="submit" disabled={mutations.updateTrip.isPending || !tripForm.formState.isDirty}>{mutations.updateTrip.isPending ? 'Đang lưu…' : 'Lưu thông tin'}</button></div>}
           </form>
         </section>
@@ -142,7 +144,13 @@ export function GroupPage() {
           {isOwner && <form className={styles.invite} onSubmit={inviteForm.handleSubmit(invite)}>
             <label htmlFor="invite-email">Mời bằng email</label>
             <div><input id="invite-email" type="email" autoComplete="email" placeholder="ban@example.com" disabled={isFull || membersLoading || mutations.inviteMember.isPending} {...inviteForm.register('email')} aria-invalid={Boolean(inviteForm.formState.errors.email)} /><button className="button button--primary" type="submit" disabled={isFull || membersLoading || mutations.inviteMember.isPending}><MailPlus size={18} />{mutations.inviteMember.isPending ? 'Đang thêm…' : 'Thêm'}</button></div>
-            {isFull && <span role="status">Nhóm đã dùng đủ {trip.maxMembers} chỗ: {activeMembers} thành viên và {pendingInvitations} lời mời đang chờ. Huỷ lời mời hoặc tăng giới hạn để mời thêm.</span>}
+            {isFull && !membersLoading && <>
+              <p className={styles.capacity}>{pendingInvitations > 0
+                ? `Đã giữ đủ ${trip.maxMembers} chỗ, gồm ${activeMembers} thành viên và ${pendingInvitations} lời mời đang chờ.`
+                : `Nhóm đã đủ ${activeMembers} thành viên.`}</p>
+              {pendingInvitations > 0 && <p className={styles.capacity}>Bạn có thể huỷ lời mời đang chờ để giải phóng chỗ.</p>}
+              {trip.maxMembers < 20 && <button className="button button--ghost" type="button" onClick={() => capacityInput.current?.focus()}>Tăng số người tối đa</button>}
+            </>}
             {inviteForm.formState.errors.email && <span role="alert">{inviteForm.formState.errors.email.message}</span>}
           </form>}
           {people.isLoading ? <div className={styles.peopleLoading} aria-busy="true">Đang tải thành viên…</div> : people.isError ? <div className={styles.peopleError} role="alert"><p>Chưa thể tải danh sách thành viên.</p><button className="button button--ghost" type="button" onClick={() => void people.refetch()}>Thử lại</button></div> : (
