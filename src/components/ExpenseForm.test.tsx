@@ -51,4 +51,26 @@ describe('ExpenseForm', () => {
     expect(await screen.findByText('Chọn ít nhất một người tham gia.')).toBeInTheDocument()
     await waitFor(() => expect(onSubmit).not.toHaveBeenCalled())
   })
+
+  it('keeps an untouched actual amount as not yet incurred', async () => {
+    const onSubmit = vi.fn().mockResolvedValue(undefined)
+    render(
+      <ExpenseForm
+        tripStart="2026-11-27"
+        tripEnd="2026-11-30"
+        pending={false}
+        people={people}
+        currentUserId="owner"
+        onSubmit={onSubmit}
+        onCancel={vi.fn()}
+      />,
+    )
+
+    fireEvent.change(screen.getByLabelText('Khoản chi'), { target: { value: 'Ăn tối' } })
+    fireEvent.change(screen.getByLabelText('Dự kiến'), { target: { value: '200000' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Thêm chi phí' }))
+
+    await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1))
+    expect(onSubmit.mock.calls[0][0]).toMatchObject({ estimatedAmountVnd: 200000, actualAmountVnd: null })
+  })
 })
