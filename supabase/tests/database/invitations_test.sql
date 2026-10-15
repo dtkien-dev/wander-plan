@@ -27,7 +27,7 @@ select lives_ok($$select public.invite_trip_member('20000000-0000-0000-0000-0000
 select is((select count(*) from public.trip_members where trip_id = '20000000-0000-0000-0000-000000000001'), 1::bigint, 'inviting existing users does not enroll them');
 select lives_ok($$select public.invite_trip_member('20000000-0000-0000-0000-000000000001', 'existing@test.local')$$, 'retrying a pending invitation at capacity is idempotent');
 select throws_ok($$select public.invite_trip_member('20000000-0000-0000-0000-000000000001', 'third@test.local')$$, 'P0001', 'Chuyến đi đã dùng hết 3 chỗ thành viên và lời mời.', 'pending invitations consume capacity');
-select throws_ok($$insert into public.trip_members (trip_id, user_id, role) values ('20000000-0000-0000-0000-000000000001', '10000000-0000-0000-0000-000000000003', 'editor')$$, '23514', 'Chuyến đi đã dùng hết 3 chỗ thành viên và lời mời.', 'direct owner inserts cannot bypass reserved seats');
+select throws_ok($$insert into public.trip_members (trip_id, user_id, role) values ('20000000-0000-0000-0000-000000000001', '10000000-0000-0000-0000-000000000003', 'editor')$$, '42501', 'permission denied for table trip_members', 'direct owner inserts cannot bypass consent or reserved seats');
 select throws_ok($$update public.trips set max_members = 2 where id = '20000000-0000-0000-0000-000000000001'$$, '23514', 'Số người tối đa không thể thấp hơn 3 chỗ đang được sử dụng.', 'capacity updates include all pending invitations');
 
 select set_config('request.jwt.claim.sub', '10000000-0000-0000-0000-000000000003', true);
