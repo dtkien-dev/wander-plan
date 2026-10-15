@@ -16,6 +16,7 @@ try {
     create role anon nologin;
     create role authenticated nologin;
     create role service_role nologin bypassrls;
+    create role supabase_auth_admin nologin;
     create schema auth;
     grant usage on schema auth, public to anon, authenticated, service_role;
     create table auth.users (

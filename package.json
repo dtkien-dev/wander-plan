@@ -11,6 +11,7 @@
     "test:watch": "vitest",
     "test:db": "supabase test db",
     "test:db:embedded": "node scripts/test-db-embedded.mjs",
+    "access:apply": "node scripts/apply-access-config.mjs",
     "supabase:start": "supabase start",
     "supabase:stop": "supabase stop"
   },
