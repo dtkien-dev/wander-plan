@@ -2,6 +2,7 @@ import { cleanup, render, screen } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { AppShell } from './AppShell'
+import { version } from '../../package.json'
 
 const auth = vi.hoisted(() => ({ isDemo: false, session: null, signOut: vi.fn() }))
 vi.mock('../providers/AuthProvider', () => ({ useAuth: () => auth }))
@@ -10,15 +11,14 @@ vi.mock('./TripManager', () => ({ TripManager: () => null }))
 
 afterEach(cleanup)
 
-describe('AppShell storage mode', () => {
-  it.each([false, true])('describes storage without claiming a successful sync (demo=%s)', (isDemo) => {
+describe('AppShell release version', () => {
+  it.each([false, true])('shows the actual release and preserves demo identification (demo=%s)', (isDemo) => {
     auth.isDemo = isDemo
     render(<MemoryRouter><AppShell /></MemoryRouter>)
 
-    const badge = screen.getByText(isDemo ? 'Bản xem thử' : 'Lưu trực tuyến')
-    expect(badge).toHaveAttribute('title', isDemo
-      ? 'Dữ liệu chỉ được lưu trên trình duyệt này, không chia sẻ với người khác.'
-      : 'Dữ liệu chuyến đi được lưu trực tuyến và chia sẻ với nhóm.')
+    expect(screen.getByLabelText('Phiên bản website')).toHaveTextContent(`v${version}`)
+    expect(Boolean(screen.queryByText('Bản xem thử'))).toBe(isDemo)
+    expect(screen.queryByText('Lưu trực tuyến')).not.toBeInTheDocument()
     expect(screen.queryByText('Đã đồng bộ')).not.toBeInTheDocument()
   })
 })

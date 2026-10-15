@@ -5,6 +5,7 @@ import { Brand } from './Brand'
 import { useAuth } from '../providers/AuthProvider'
 import { useWorkspaceContext } from '../providers/WorkspaceProvider'
 import { TripManager } from './TripManager'
+import { version } from '../../package.json'
 
 const navItems = [
   { to: '/', label: 'Tổng quan', icon: LayoutDashboard },
@@ -38,7 +39,8 @@ export function AppShell() {
           ))}
         </nav>
         <div className="user-area">
-          <span className={`mode-badge ${isDemo ? 'mode-badge--demo' : ''}`} title={isDemo ? 'Dữ liệu chỉ được lưu trên trình duyệt này, không chia sẻ với người khác.' : 'Dữ liệu chuyến đi được lưu trực tuyến và chia sẻ với nhóm.'}>{isDemo ? 'Bản xem thử' : 'Lưu trực tuyến'}</span>
+          <span className="version-badge" aria-label="Phiên bản website">v{version}</span>
+          {isDemo && <span className="mode-badge mode-badge--demo" title="Dữ liệu chỉ được lưu trên trình duyệt này, không chia sẻ với người khác.">Bản xem thử</span>}
           {session && (
             <button className="icon-button" type="button" disabled={signingOut} onClick={() => void logout()} aria-label="Đăng xuất">
               <LogOut size={20} strokeWidth={1.8} />
