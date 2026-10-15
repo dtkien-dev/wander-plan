@@ -38,7 +38,7 @@ export function AppShell() {
           ))}
         </nav>
         <div className="user-area">
-          <span className={`mode-badge ${isDemo ? 'mode-badge--demo' : ''}`}>{isDemo ? 'Bản xem thử' : 'Đã đồng bộ'}</span>
+          <span className={`mode-badge ${isDemo ? 'mode-badge--demo' : ''}`} title={isDemo ? 'Dữ liệu chỉ được lưu trên trình duyệt này, không chia sẻ với người khác.' : 'Dữ liệu chuyến đi được lưu trực tuyến và chia sẻ với nhóm.'}>{isDemo ? 'Bản xem thử' : 'Lưu trực tuyến'}</span>
           {session && (
             <button className="icon-button" type="button" disabled={signingOut} onClick={() => void logout()} aria-label="Đăng xuất">
               <LogOut size={20} strokeWidth={1.8} />
