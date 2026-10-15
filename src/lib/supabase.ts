@@ -3,7 +3,9 @@ import { createClient } from '@supabase/supabase-js'
 const url = import.meta.env.VITE_SUPABASE_URL
 const publishableKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY
 
+// Development builds may also target a local Supabase stack for UAT; production stays hosted-only.
 const validUrl = /^https:\/\/[a-z0-9]+\.supabase\.co\/?$/.test(url ?? '')
+  || (!import.meta.env.PROD && /^http:\/\/(127\.0\.0\.1|localhost):\d+\/?$/.test(url ?? ''))
 const validKey = /^(sb_publishable_[A-Za-z0-9_-]+|eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+)$/.test(publishableKey ?? '')
 
 export const isDemoMode = import.meta.env.VITE_DEMO_MODE === 'true' || (!import.meta.env.PROD && !url && !publishableKey)
