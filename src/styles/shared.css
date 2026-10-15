@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 *, *::before, *::after { box-sizing: border-box; }
-html { min-width: 320px; min-height: 100%; background: var(--color-bg); }
+html { min-height: 100%; background: var(--color-bg); }
 body { margin: 0; min-height: 100dvh; background: var(--color-bg); color: var(--color-text); font-family: var(--font-body); font-kerning: normal; font-synthesis: none; -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
 button, a, input, select, textarea { font: inherit; }
 button, a { -webkit-tap-highlight-color: transparent; }
@@ -91,7 +91,7 @@ a { color: inherit; }
 .boot-state { display: grid; place-items: center; min-height: 100dvh; padding: 24px; }
 
 @media (max-width: 760px) {
-  .topbar { position: static; grid-template-columns: 1fr auto; min-height: 66px; padding: max(10px, env(safe-area-inset-top)) 16px 10px; }
+  .topbar { position: static; grid-template-columns: 1fr auto; gap: 12px; min-height: 66px; padding: max(10px, env(safe-area-inset-top)) 16px 10px; }
   .desktop-nav { display: none; }
   .brand small { display: none; }
   .user-area .mode-badge { display: none; }
