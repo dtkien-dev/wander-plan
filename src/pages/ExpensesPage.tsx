@@ -1,13 +1,14 @@
 import { lazy, Suspense, useMemo, useRef, useState } from 'react'
-import { ArrowRight, Download, FileUp, HandCoins, Pencil, Plus, Trash2, WalletCards } from 'lucide-react'
+import { Download, FileUp, Pencil, Plus, Trash2, WalletCards } from 'lucide-react'
 import { ExpenseForm } from '../components/ExpenseForm'
 import { Modal } from '../components/Modal'
+import { SettlementPanel } from '../components/SettlementPanel'
 import { StateView } from '../components/StateView'
 import { actualOrEstimated, describeExpenseDates, formatCurrency, formatDate, safePercent, totalExpenses } from '../lib/format'
-import { calculateExpenseSettlement } from '../lib/expenseSettlement'
+import { calculateExpenseSettlement, type SettlementTransfer } from '../lib/expenseSettlement'
 import { downloadTravelExcelReport } from '../lib/travelExcel'
 import { useWorkspace, useWorkspaceMutations } from '../hooks/useWorkspace'
-import type { Expense, ExpenseCategory, ExpenseDraft, TripImportDraft } from '../types'
+import type { Expense, ExpenseCategory, ExpenseDraft, SettlementPayment, TripImportDraft } from '../types'
 import styles from './ExpensesPage.module.css'
 
 const labels: Record<ExpenseCategory, string> = { food: 'Ăn uống', transport: 'Di chuyển', stay: 'Lưu trú', ticket: 'Vé tham quan', other: 'Khác' }
@@ -41,7 +42,8 @@ export function ExpensesPage() {
   const total = totalExpenses(expenses)
   const activePeople = people.filter((person) => person.status === 'active' && person.userId)
   const peopleById = new Map(activePeople.map((person) => [person.userId!, person]))
-  const settlement = calculateExpenseSettlement(expenses, people)
+  const payments = data.settlementPayments ?? []
+  const settlement = calculateExpenseSettlement(expenses, people, payments)
   const personName = (userId: string) => peopleById.get(userId)?.displayName ?? 'Thành viên cũ'
 
   const save = async (draft: ExpenseDraft) => {
@@ -62,6 +64,26 @@ export function ExpensesPage() {
       setFeedback('Đã xóa khoản chi.')
     } catch (error) {
       setFeedback(error instanceof Error ? error.message : 'Không thể xóa khoản chi.')
+    }
+  }
+
+  const confirmPayment = async (transfer: SettlementTransfer) => {
+    if (!window.confirm(`Xác nhận bạn đã nhận ${formatCurrency(transfer.amountVnd)} từ ${personName(transfer.fromUserId)}?`)) return
+    try {
+      await mutations.recordPayment.mutateAsync({ tripId: trip.id, fromUserId: transfer.fromUserId, amountVnd: transfer.amountVnd, expectedCount: data.settlementPaymentCount ?? 0 })
+      setFeedback('Đã ghi nhận thanh toán.')
+    } catch (error) {
+      setFeedback(error instanceof Error ? error.message : 'Không thể ghi nhận thanh toán.')
+    }
+  }
+
+  const undoPayment = async (payment: SettlementPayment) => {
+    if (!window.confirm(`Hủy xác nhận đã nhận ${formatCurrency(payment.amountVnd)} từ ${personName(payment.fromUserId)}?`)) return
+    try {
+      await mutations.undoPayment.mutateAsync(payment)
+      setFeedback('Đã hủy xác nhận thanh toán.')
+    } catch (error) {
+      setFeedback(error instanceof Error ? error.message : 'Không thể hủy xác nhận thanh toán.')
     }
   }
 
@@ -95,11 +117,7 @@ export function ExpensesPage() {
         <div className={styles.categories}>{grouped.length ? grouped.map(([category, amount]) => <div key={category}><span>{labels[category]}</span><strong>{formatCurrency(amount)}</strong><div><i style={{ width: `${Math.max(safePercent(amount, total), amount > 0 ? 4 : 0)}%` }} /></div></div>) : <p>Chưa có phân bổ chi phí.</p>}</div>
       </section>
       {daily.length > 0 && <section className={styles.daily} aria-labelledby="daily-title"><header><p className="eyebrow">Theo từng ngày</p><h2 id="daily-title">Nhịp chi tiêu</h2></header><div>{daily.map(([date, amount]) => <article key={date}><time dateTime={date}>{formatDate(date)}</time><strong>{formatCurrency(amount)}</strong></article>)}</div></section>}
-      <section className={styles.settlement} aria-labelledby="settlement-title">
-        <header><span><HandCoins size={22} /></span><div><p className="eyebrow">Quyết toán thực tế</p><h2 id="settlement-title">Ai cần trả cho ai?</h2></div></header>
-        <div className={styles.balances}>{settlement.balances.map((balance) => <div key={balance.userId}><span>{personName(balance.userId)}</span><strong className={balance.amountVnd >= 0 ? styles.credit : styles.debt}>{balance.amountVnd >= 0 ? `Nhận ${formatCurrency(balance.amountVnd)}` : `Trả ${formatCurrency(-balance.amountVnd)}`}</strong></div>)}</div>
-        <div className={styles.transfers}>{settlement.transfers.length ? settlement.transfers.map((transfer) => <article key={`${transfer.fromUserId}-${transfer.toUserId}`}><strong>{personName(transfer.fromUserId)}</strong><ArrowRight size={18} /><strong>{personName(transfer.toUserId)}</strong><span>{formatCurrency(transfer.amountVnd)}</span></article>) : <p>Chưa có khoản thực tế cần quyết toán.</p>}</div>
-      </section>
+      <SettlementPanel balances={settlement.balances} transfers={settlement.transfers} payments={payments} currentUserId={currentUserId} pending={mutations.recordPayment.isPending || mutations.undoPayment.isPending} personName={personName} onConfirm={(transfer) => void confirmPayment(transfer)} onUndo={(payment) => void undoPayment(payment)} />
       {expenses.length === 0 ? <StateView state="empty" title="Chưa có khoản chi nào" message="Thêm khoản chi đầu tiên để theo dõi ngân sách và chia tiền cùng nhóm." actionLabel="Thêm khoản chi đầu tiên" onAction={() => { setFormError(''); setEditing(null) }} /> : (
         <section className={styles.list} aria-label="Danh sách chi phí">
           {expenses.map((expense) => <article className={styles.expense} key={expense.id}><span className={styles.category}>{labels[expense.category]}</span><div><h2>{expense.title}</h2><p>{describeExpenseDates(expense)} · {expense.notes || 'Không có ghi chú'}</p><p className={styles.splitMeta}>Trả bởi {personName(expense.paidByUserId)} · Chia cho {expense.participantUserIds.map(personName).join(', ')}</p></div><div className={styles.amount}><strong>{formatCurrency(actualOrEstimated(expense))}</strong><small>{expense.actualAmountVnd === null ? 'Dự kiến' : 'Thực tế'}</small></div><div className={styles.actions}><button className="icon-button" type="button" onClick={() => { setFormError(''); setEditing(expense) }} aria-label={`Sửa ${expense.title}`}><Pencil size={18} /></button><button className="icon-button icon-button--danger" type="button" disabled={mutations.deleteExpense.isPending} onClick={() => void remove(expense)} aria-label={`Xóa ${expense.title}`}><Trash2 size={18} /></button></div></article>)}

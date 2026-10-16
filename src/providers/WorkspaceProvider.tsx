@@ -66,7 +66,7 @@ function useWorkspaceState() {
       })
     if (tripId) {
       channel.on('postgres_changes', { event: '*', schema: 'public', table: 'trips', filter: `id=eq.${tripId}` }, () => refresh())
-      for (const table of ['trip_members', 'itinerary_items', 'expenses', 'checklist_items']) {
+      for (const table of ['trip_members', 'itinerary_items', 'expenses', 'checklist_items', 'settlement_payments']) {
         channel.on('postgres_changes', { event: '*', schema: 'public', table, filter: `trip_id=eq.${tripId}` }, () => refresh(table === 'trip_members'))
       }
       channel.on('postgres_changes', { event: '*', schema: 'public', table: 'expense_participants' }, () => refresh(false))

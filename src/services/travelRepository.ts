@@ -1,6 +1,6 @@
 import { demoWorkspace } from '../data/demoData'
 import { supabase } from '../lib/supabase'
-import type { ArchivedTrip, ChecklistDraft, ChecklistItem, Expense, ExpenseDraft, ItineraryDraft, ItineraryItem, Trip, TripDraft, TripImportDraft, TripImportResult, TripPerson, TripInvitation, WorkspaceData } from '../types'
+import type { ArchivedTrip, ChecklistDraft, ChecklistItem, Expense, SettlementPayment, ExpenseDraft, ItineraryDraft, ItineraryItem, Trip, TripDraft, TripImportDraft, TripImportResult, TripPerson, TripInvitation, WorkspaceData } from '../types'
 
 const STORAGE_KEY = 'wander-plan-demo-workspace-v1'
 const PEOPLE_STORAGE_KEY = 'wander-plan-demo-people-v1'
@@ -11,6 +11,8 @@ export interface TravelRepository {
   saveDisplayName(name: string): Promise<void>
   saveChecklist(draft: ChecklistDraft, tripId: string, existing?: ChecklistItem): Promise<void>
   deleteChecklist(item: ChecklistItem): Promise<void>
+  recordSettlementPayment(tripId: string, fromUserId: string, amountVnd: number, expectedCount: number): Promise<void>
+  undoSettlementPayment(payment: SettlementPayment): Promise<void>
   listTrips(): Promise<Trip[]>
   listArchivedTrips(): Promise<ArchivedTrip[]>
   setTripArchived(tripId: string, archived: boolean, version: number): Promise<void>
@@ -38,6 +40,8 @@ class DemoRepository implements TravelRepository {
     if (all) return (JSON.parse(all) as WorkspaceData[]).map((data) => ({
       ...data,
       checklist: data.checklist ?? [],
+      settlementPayments: data.settlementPayments ?? [],
+      settlementPaymentCount: data.settlementPaymentCount ?? data.settlementPayments?.length ?? 0,
       expenses: data.expenses.map((expense) => ({ ...expense, endDate: expense.endDate ?? null })),
     }))
     const saved = localStorage.getItem(STORAGE_KEY)
@@ -46,6 +50,8 @@ class DemoRepository implements TravelRepository {
     data.people = people ? JSON.parse(people) as TripPerson[] : data.people ?? [...demoPeople]
     data.trip.maxMembers ??= 4
     data.checklist ??= []
+    data.settlementPayments ??= []
+    data.settlementPaymentCount ??= 0
     data.currentUserId ??= 'demo-owner'
     data.expenses = data.expenses.map((expense) => ({
       ...expense,
@@ -137,6 +143,23 @@ class DemoRepository implements TravelRepository {
     const current = data.checklist?.find((entry) => entry.id === item.id)
     if (!current || current.version !== item.version) throw new Error('Mục chuẩn bị đã thay đổi. Đóng cửa sổ rồi mở lại mục để dùng bản mới nhất.')
     data.checklist = data.checklist?.filter((entry) => entry.id !== item.id)
+    this.write(data)
+  }
+
+  async recordSettlementPayment(tripId: string, fromUserId: string, amountVnd: number, expectedCount: number) {
+    const data = this.read(tripId)
+    if (!Number.isSafeInteger(amountVnd) || amountVnd <= 0) throw new Error('Số tiền thanh toán phải lớn hơn 0.')
+    if (fromUserId === data.currentUserId) throw new Error('Chọn người đã trả tiền cho bạn.')
+    if ((data.settlementPaymentCount ?? 0) !== expectedCount) throw new Error('Thanh toán vừa được cập nhật. Hãy xem lại danh sách rồi thử lại.')
+    ;(data.settlementPayments ??= []).push({ id: crypto.randomUUID(), tripId, fromUserId, toUserId: data.currentUserId, amountVnd, createdAt: new Date().toISOString() })
+    data.settlementPaymentCount = expectedCount + 1
+    this.write(data)
+  }
+
+  async undoSettlementPayment(payment: SettlementPayment) {
+    const data = this.read(payment.tripId)
+    if (payment.toUserId !== data.currentUserId || !data.settlementPayments?.some((entry) => entry.id === payment.id)) throw new Error('Chỉ người nhận tiền được hủy xác nhận này, hoặc xác nhận đã được hủy.')
+    data.settlementPayments = data.settlementPayments.filter((entry) => entry.id !== payment.id)
     this.write(data)
   }
 
@@ -328,6 +351,20 @@ class SupabaseRepository implements TravelRepository {
     const { error } = await supabase.rpc('remove_trip_checklist', { target_trip_id: item.tripId, target_item_id: item.id, expected_version: item.version })
     throwIfError(error)
   }
+  async recordSettlementPayment(tripId: string, fromUserId: string, amountVnd: number, expectedCount: number) {
+    if (!supabase) return
+    const { error } = await supabase.rpc('record_settlement_payment', {
+      target_trip_id: tripId, payer_user_id: fromUserId, payment_amount_vnd: amountVnd, expected_payment_count: expectedCount,
+    })
+    throwIfError(error)
+  }
+
+  async undoSettlementPayment(payment: SettlementPayment) {
+    if (!supabase) return
+    const { error } = await supabase.rpc('undo_settlement_payment', { target_trip_id: payment.tripId, target_payment_id: payment.id })
+    throwIfError(error)
+  }
+
   async saveDisplayName(name: string) {
     if (!supabase) return
     const { error } = await supabase.rpc('save_my_display_name', { target_name: name })
@@ -365,16 +402,20 @@ class SupabaseRepository implements TravelRepository {
     throwIfError(error)
     if (!trips?.length) return null
     const trip = mapTrip(trips[0])
-    const [itineraryResult, expenseResult, memberResult, checklistResult] = await Promise.all([
+    const [itineraryResult, expenseResult, memberResult, checklistResult, paymentResult] = await Promise.all([
       supabase.from('itinerary_items').select('id,trip_id,title,visit_date,start_time,end_time,estimated_cost_vnd,address,maps_url,notes,version').eq('trip_id', trip.id).order('visit_date').order('start_time'),
       supabase.from('expenses').select('id,trip_id,title,category,expense_date,end_date,estimated_amount_vnd,actual_amount_vnd,paid_by,notes,version,expense_participants(user_id)').eq('trip_id', trip.id).order('expense_date'),
       supabase.from('trip_members').select('user_id,role').eq('trip_id', trip.id),
       supabase.from('checklist_items').select('id,trip_id,title,assigned_to,completed,version').eq('trip_id', trip.id).is('deleted_at', null).order('created_at').order('id'),
+      // Undone rows are kept: their count is the duplicate-record guard.
+      supabase.from('settlement_payments').select('id,trip_id,from_user_id,to_user_id,amount_vnd,created_at,deleted_at').eq('trip_id', trip.id).order('created_at').order('id'),
     ])
     throwIfError(itineraryResult.error)
     throwIfError(expenseResult.error)
     throwIfError(memberResult.error)
     throwIfError(checklistResult.error)
+    throwIfError(paymentResult.error)
+    const paymentRows = paymentResult.data ?? []
     const { data: authData } = await supabase.auth.getSession()
     const currentMembership = memberResult.data?.find((member) => member.user_id === authData.session?.user.id)
     if (!currentMembership) throw new Error('Tài khoản chưa thuộc chuyến đi này.')
@@ -384,6 +425,8 @@ class SupabaseRepository implements TravelRepository {
     return {
       ownDisplayName: rawName === authData.session!.user.email ? null : rawName,
       checklist: (checklistResult.data ?? []).map((row): ChecklistItem => ({ id: row.id, tripId: row.trip_id, title: row.title, assignedTo: row.assigned_to, completed: row.completed, version: row.version })),
+      settlementPayments: paymentRows.filter((row) => !row.deleted_at).map((row): SettlementPayment => ({ id: row.id, tripId: row.trip_id, fromUserId: row.from_user_id, toUserId: row.to_user_id, amountVnd: Number(row.amount_vnd), createdAt: row.created_at })),
+      settlementPaymentCount: paymentRows.length,
       trip,
       itinerary: (itineraryResult.data ?? []).map(mapItinerary),
       expenses: (expenseResult.data ?? []).map(mapExpense),

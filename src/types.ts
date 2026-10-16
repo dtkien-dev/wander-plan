@@ -69,8 +69,20 @@ export interface Expense {
   version: number
 }
 
+export interface SettlementPayment {
+  id: string
+  tripId: string
+  fromUserId: string
+  toUserId: string
+  amountVnd: number
+  createdAt: string
+}
+
 export interface WorkspaceData {
   checklist?: ChecklistItem[]
+  settlementPayments?: SettlementPayment[]
+  /** Payment rows ever recorded for the trip, including undone ones; guards duplicate records. */
+  settlementPaymentCount?: number
   ownDisplayName?: string | null
   trip: Trip
   itinerary: ItineraryItem[]

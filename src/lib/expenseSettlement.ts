@@ -1,4 +1,4 @@
-import type { Expense, TripPerson } from '../types'
+import type { Expense, SettlementPayment, TripPerson } from '../types'
 
 export interface MemberBalance {
   userId: string
@@ -18,7 +18,7 @@ const splitEvenly = (amountVnd: number, participantUserIds: string[]) => {
   return participants.map((userId, index) => ({ userId, amountVnd: baseShare + (index < remainder ? 1 : 0) }))
 }
 
-export const calculateExpenseSettlement = (expenses: Expense[], people: TripPerson[]) => {
+export const calculateExpenseSettlement = (expenses: Expense[], people: TripPerson[], payments: SettlementPayment[] = []) => {
   const activeUserIds = people.flatMap((person) => person.status === 'active' && person.userId ? [person.userId] : [])
   const balances = new Map(activeUserIds.map((userId) => [userId, 0]))
 
@@ -28,6 +28,11 @@ export const calculateExpenseSettlement = (expenses: Expense[], people: TripPers
     splitEvenly(expense.actualAmountVnd, expense.participantUserIds).forEach((share) => {
       balances.set(share.userId, (balances.get(share.userId) ?? 0) - share.amountVnd)
     })
+  })
+  // A recorded payment moves money from payer to recipient, settling that part of their balances.
+  payments.forEach((payment) => {
+    balances.set(payment.fromUserId, (balances.get(payment.fromUserId) ?? 0) + payment.amountVnd)
+    balances.set(payment.toUserId, (balances.get(payment.toUserId) ?? 0) - payment.amountVnd)
   })
 
   const debtors = [...balances.entries()].filter(([, amount]) => amount < 0).map(([userId, amount]) => ({ userId, amount: -amount }))

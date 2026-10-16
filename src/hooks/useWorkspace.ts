@@ -3,7 +3,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { travelRepository } from '../services/travelRepository'
 import { singleFlight } from '../lib/singleFlight'
 import { archivedTripsKey, invitationsKey, tripsKey, useWorkspaceContext, workspaceKey } from '../providers/WorkspaceProvider'
-import type { ChecklistDraft, ChecklistItem, Expense, ExpenseDraft, ItineraryDraft, ItineraryItem, Trip, TripDraft, TripImportDraft } from '../types'
+import type { ChecklistDraft, ChecklistItem, Expense, SettlementPayment, ExpenseDraft, ItineraryDraft, ItineraryItem, Trip, TripDraft, TripImportDraft } from '../types'
 
 export function useWorkspace() {
   const { workspace, trips } = useWorkspaceContext()
@@ -79,6 +79,16 @@ export function useWorkspaceMutations() {
     onSuccess: (_, item, origin) => origin?.refresh(item.tripId),
     onError: (_, item, origin) => origin?.refresh(item.tripId),
   })
+  const recordPayment = useMutation({ onMutate: capture,
+    mutationFn: ({ tripId: id, fromUserId, amountVnd, expectedCount }: { tripId: string; fromUserId: string; amountVnd: number; expectedCount: number }) => write(`payment:${id}`, () => travelRepository.recordSettlementPayment(id, fromUserId, amountVnd, expectedCount)),
+    onSuccess: (_, variables, origin) => origin?.refresh(variables.tripId),
+    onError: (_, variables, origin) => origin?.refresh(variables.tripId),
+  })
+  const undoPayment = useMutation({ onMutate: capture,
+    mutationFn: (payment: SettlementPayment) => write(`payment:${payment.tripId}`, () => travelRepository.undoSettlementPayment(payment)),
+    onSuccess: (_, payment, origin) => origin?.refresh(payment.tripId),
+    onError: (_, payment, origin) => origin?.refresh(payment.tripId),
+  })
   const archiveTrip = useMutation({ onMutate: capture,
     mutationFn: ({ tripId: id, archived, version }: { tripId: string; archived: boolean; version: number }) => write(`archive:${id}`, () => travelRepository.setTripArchived(id, archived, version)),
     onSuccess: async (_, variables, origin) => {
@@ -90,5 +100,5 @@ export function useWorkspaceMutations() {
     },
     onError: (_, variables, origin) => origin?.refresh(variables.tripId, true),
   })
-  return { archiveTrip, checklist, deleteChecklist, displayName, itinerary, deleteItinerary, expense, deleteExpense, importTripData, createTrip, updateTrip, inviteMember, revokeInvitation, removeMember, respondInvitation }
+  return { archiveTrip, checklist, recordPayment, undoPayment, deleteChecklist, displayName, itinerary, deleteItinerary, expense, deleteExpense, importTripData, createTrip, updateTrip, inviteMember, revokeInvitation, removeMember, respondInvitation }
 }

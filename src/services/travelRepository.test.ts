@@ -16,6 +16,19 @@ beforeEach(() => {
 })
 
 describe('demo travel repository', () => {
+  it('records a payment for the recipient only once per seen state and lets the recipient undo it', async () => {
+    const before = await travelRepository.loadWorkspace('demo-trip')
+    expect(before!.settlementPayments).toEqual([])
+    await travelRepository.recordSettlementPayment('demo-trip', 'demo-editor', 50_000, 0)
+    await expect(travelRepository.recordSettlementPayment('demo-trip', 'demo-editor', 50_000, 0)).rejects.toThrow('vừa được cập nhật')
+    await expect(travelRepository.recordSettlementPayment('demo-trip', 'demo-owner', 1_000, 1)).rejects.toThrow('người đã trả')
+    const recorded = await travelRepository.loadWorkspace('demo-trip')
+    expect(recorded!.settlementPayments).toEqual([expect.objectContaining({ fromUserId: 'demo-editor', toUserId: 'demo-owner', amountVnd: 50_000 })])
+    await travelRepository.undoSettlementPayment(recorded!.settlementPayments![0])
+    const undone = await travelRepository.loadWorkspace('demo-trip')
+    expect(undone!.settlementPayments).toEqual([])
+    expect(undone!.settlementPaymentCount).toBe(1)
+  })
   it('hides an archived trip, preserves its data and requires a current owner version to restore', async () => {
     const before = await travelRepository.loadWorkspace('demo-trip')
     await travelRepository.saveChecklist({ title: 'Giấy tờ', assignedTo: 'demo-editor', completed: false }, 'demo-trip')

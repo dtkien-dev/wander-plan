@@ -1,0 +1,30 @@
+import { cleanup, fireEvent, render, screen } from '@testing-library/react'
+import { afterEach, expect, it, vi } from 'vitest'
+import { SettlementPanel } from './SettlementPanel'
+import type { SettlementPayment } from '../types'
+afterEach(cleanup)
+
+const names: Record<string, string> = { a: 'An', b: 'Bình', c: 'Chi' }
+const personName = (userId: string) => names[userId]
+const payment: SettlementPayment = { id: 'p', tripId: 't', fromUserId: 'b', toUserId: 'a', amountVnd: 45_000, createdAt: '2026-11-27T10:00:00Z' }
+const panel = (currentUserId: string, onConfirm = vi.fn(), onUndo = vi.fn()) => render(
+  <SettlementPanel balances={[]} transfers={[{ fromUserId: 'c', toUserId: 'a', amountVnd: 45_000 }]} payments={[payment]}
+    currentUserId={currentUserId} pending={false} personName={personName} onConfirm={onConfirm} onUndo={onUndo} />,
+)
+
+it('lets only the recipient confirm a transfer and undo a recorded payment', () => {
+  const onConfirm = vi.fn()
+  const onUndo = vi.fn()
+  panel('a', onConfirm, onUndo)
+  fireEvent.click(screen.getByRole('button', { name: /Đã nhận tiền/ }))
+  expect(onConfirm).toHaveBeenCalledWith({ fromUserId: 'c', toUserId: 'a', amountVnd: 45_000 })
+  fireEvent.click(screen.getByRole('button', { name: /Hủy xác nhận .* từ Bình/ }))
+  expect(onUndo).toHaveBeenCalledWith(payment)
+})
+
+it('shows payers and other members a waiting note without confirm or undo controls', () => {
+  panel('c')
+  expect(screen.getByText('Chờ An xác nhận đã nhận')).toBeInTheDocument()
+  expect(screen.queryByRole('button')).not.toBeInTheDocument()
+  expect(screen.getByRole('region', { name: 'Đã thanh toán' })).toHaveTextContent('Bình đã trả An')
+})

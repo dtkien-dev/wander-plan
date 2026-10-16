@@ -34,6 +34,16 @@
 .transfers article strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .transfers article span { color: var(--color-secondary); font-weight: 700; }
 .transfers p { margin: 0; color: var(--color-text-muted); }
+.transfers .transferAction { grid-column: 1 / -1; }
+.transfers small.transferAction { color: var(--color-text-muted); }
+.settlementHint { margin: 4px 0 0; color: var(--color-text-muted); font-size: 14px; }
+.payments { grid-column: 1 / -1; display: grid; gap: 8px; padding-top: 16px; border-top: 1px solid var(--color-border); }
+.payments h3 { margin: 0; font-size: 16px; }
+.payments ul { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.payments li { display: grid; grid-template-columns: minmax(0, 1fr) auto auto auto; align-items: center; gap: 12px; padding: 8px 12px; background: var(--color-surface-muted); border-radius: var(--radius-control); }
+.payments li > span:first-child { min-width: 0; overflow-wrap: anywhere; }
+.payments time { color: var(--color-text-muted); font-size: 13px; font-variant-numeric: tabular-nums; }
+.paymentAmount { color: var(--color-primary); font-weight: 700; font-variant-numeric: tabular-nums; }
 .list { display: grid; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-surface); box-shadow: var(--shadow-surface); overflow: hidden; }
 .expense { display: grid; grid-template-columns: 110px minmax(0, 1fr) 160px auto; align-items: center; gap: 18px; padding: 20px 24px; }
 .expense > div { min-width: 0; }
@@ -47,5 +57,5 @@
 .actions { display: grid; grid-auto-flow: column; gap: 8px; }
 .balances span, .transfers article strong { min-width: 0; overflow-wrap: anywhere; }
 @media (max-width: 900px) { .settlement { grid-template-columns: 1fr 1fr; } .settlement > header { grid-column: 1 / -1; } }
-@media (max-width: 760px) { .summary { grid-template-columns: 1fr; } .total, .categories { padding: 22px 20px; } .daily { grid-template-columns: 1fr; padding: 20px 18px; } .daily > div { grid-template-columns: 1fr 1fr; } .settlement { grid-template-columns: 1fr; padding: 20px 18px; } .settlement > header { grid-column: auto; } .transfers article { grid-template-columns: 1fr auto 1fr; } .transfers article span { grid-column: 1 / -1; } .expense { grid-template-columns: 1fr auto; gap: 10px 14px; padding: 18px; } .category { grid-column: 1; } .expense > div:nth-of-type(1) { grid-column: 1 / -1; } .amount { grid-column: 1; justify-items: start; } .actions { grid-column: 2; grid-row: 3; } }
+@media (max-width: 760px) { .summary { grid-template-columns: 1fr; } .total, .categories { padding: 22px 20px; } .daily { grid-template-columns: 1fr; padding: 20px 18px; } .daily > div { grid-template-columns: 1fr 1fr; } .settlement { grid-template-columns: 1fr; padding: 20px 18px; } .settlement > header { grid-column: auto; } .transfers article { grid-template-columns: 1fr auto 1fr; } .transfers article span { grid-column: 1 / -1; } .payments li { grid-template-columns: minmax(0, 1fr) auto; } .payments li > span:first-child { grid-column: 1 / -1; } .expense { grid-template-columns: 1fr auto; gap: 10px 14px; padding: 18px; } .category { grid-column: 1; } .expense > div:nth-of-type(1) { grid-column: 1 / -1; } .amount { grid-column: 1; justify-items: start; } .actions { grid-column: 2; grid-row: 3; } }
 @media (max-width: 420px) { .daily > div { grid-template-columns: 1fr; } }

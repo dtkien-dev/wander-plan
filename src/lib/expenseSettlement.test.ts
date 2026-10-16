@@ -43,4 +43,23 @@ describe('expense settlement', () => {
       { fromUserId: 'c', toUserId: 'a', amountVnd: 45 },
     ])
   })
+
+  it('subtracts recorded payments and shows the remaining difference after expenses change', () => {
+    const paid = { id: 'p', tripId: 't', fromUserId: 'b', toUserId: 'a', amountVnd: 45, createdAt: '' }
+    const settled = calculateExpenseSettlement([expense({ actualAmountVnd: 90, participantUserIds: ['b', 'c'] })], people, [paid])
+    expect(settled.transfers).toEqual([{ fromUserId: 'c', toUserId: 'a', amountVnd: 45 }])
+
+    const raised = calculateExpenseSettlement([expense({ actualAmountVnd: 120, participantUserIds: ['b', 'c'] })], people, [paid])
+    expect(raised.transfers).toEqual([
+      { fromUserId: 'b', toUserId: 'a', amountVnd: 15 },
+      { fromUserId: 'c', toUserId: 'a', amountVnd: 60 },
+    ])
+
+    const lowered = calculateExpenseSettlement([expense({ actualAmountVnd: 60, participantUserIds: ['b', 'c'] })], people, [paid])
+    expect(lowered.transfers).toEqual([
+      { fromUserId: 'c', toUserId: 'a', amountVnd: 15 },
+      { fromUserId: 'c', toUserId: 'b', amountVnd: 15 },
+    ])
+    expect(lowered.balances.reduce((sum, balance) => sum + balance.amountVnd, 0)).toBe(0)
+  })
 })
