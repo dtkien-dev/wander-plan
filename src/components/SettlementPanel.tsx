@@ -4,7 +4,15 @@ import { formatCurrency } from '../lib/format'
 import type { SettlementPayment } from '../types'
 import styles from '../pages/ExpensesPage.module.css'
 
-const paidAtFormatter = new Intl.DateTimeFormat('vi-VN', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })
+const pad = (value: number) => String(value).padStart(2, '0')
+const formatPaidAt = (value: string) => {
+  const date = new Date(value)
+  return `${pad(date.getDate())}/${pad(date.getMonth() + 1)} ${pad(date.getHours())}:${pad(date.getMinutes())}`
+}
+const describeBalance = (amountVnd: number) => {
+  if (amountVnd === 0) return 'Đã cân bằng'
+  return amountVnd > 0 ? `Nhận ${formatCurrency(amountVnd)}` : `Trả ${formatCurrency(-amountVnd)}`
+}
 
 interface SettlementPanelProps {
   balances: MemberBalance[]
@@ -21,7 +29,7 @@ export function SettlementPanel({ balances, transfers, payments, currentUserId, 
   return (
     <section className={styles.settlement} aria-labelledby="settlement-title">
       <header><span><HandCoins size={22} /></span><div><p className="eyebrow">Quyết toán thực tế</p><h2 id="settlement-title">Ai cần trả cho ai?</h2><p className={styles.settlementHint}>Người nhận tiền xác nhận khi đã nhận; số dư tự tính lại.</p></div></header>
-      <div className={styles.balances}>{balances.map((balance) => <div key={balance.userId}><span>{personName(balance.userId)}</span><strong className={balance.amountVnd >= 0 ? styles.credit : styles.debt}>{balance.amountVnd >= 0 ? `Nhận ${formatCurrency(balance.amountVnd)}` : `Trả ${formatCurrency(-balance.amountVnd)}`}</strong></div>)}</div>
+      <div className={styles.balances}>{balances.map((balance) => <div key={balance.userId}><span>{personName(balance.userId)}</span><strong className={balance.amountVnd >= 0 ? styles.credit : styles.debt}>{describeBalance(balance.amountVnd)}</strong></div>)}</div>
       <div className={styles.transfers}>{transfers.length ? transfers.map((transfer) => (
         <article key={`${transfer.fromUserId}-${transfer.toUserId}`}>
           <strong>{personName(transfer.fromUserId)}</strong><ArrowRight size={18} /><strong>{personName(transfer.toUserId)}</strong><span>{formatCurrency(transfer.amountVnd)}</span>
@@ -37,7 +45,7 @@ export function SettlementPanel({ balances, transfers, payments, currentUserId, 
             <li key={payment.id}>
               <span><strong>{personName(payment.fromUserId)}</strong> đã trả <strong>{personName(payment.toUserId)}</strong></span>
               <span className={styles.paymentAmount}>{formatCurrency(payment.amountVnd)}</span>
-              <time dateTime={payment.createdAt}>{paidAtFormatter.format(new Date(payment.createdAt))}</time>
+              <time dateTime={payment.createdAt}>{formatPaidAt(payment.createdAt)}</time>
               {payment.toUserId === currentUserId && <button className="button button--ghost" type="button" disabled={pending} onClick={() => onUndo(payment)} aria-label={`Hủy xác nhận ${formatCurrency(payment.amountVnd)} từ ${personName(payment.fromUserId)}`}><Undo2 size={16} /> Hủy</button>}
             </li>
           ))}</ul>

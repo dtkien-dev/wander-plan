@@ -3,7 +3,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { travelRepository } from '../services/travelRepository'
 import { singleFlight } from '../lib/singleFlight'
 import { archivedTripsKey, invitationsKey, tripsKey, useWorkspaceContext, workspaceKey } from '../providers/WorkspaceProvider'
-import type { ChecklistDraft, ChecklistItem, Expense, SettlementPayment, ExpenseDraft, ItineraryDraft, ItineraryItem, Trip, TripDraft, TripImportDraft } from '../types'
+import type { ChecklistDraft, ChecklistItem, Expense, ExpenseDraft, ItineraryDraft, ItineraryItem, SettlementPayment, Trip, TripDraft, TripImportDraft } from '../types'
 
 export function useWorkspace() {
   const { workspace, trips } = useWorkspaceContext()
@@ -85,7 +85,7 @@ export function useWorkspaceMutations() {
     onError: (_, variables, origin) => origin?.refresh(variables.tripId),
   })
   const undoPayment = useMutation({ onMutate: capture,
-    mutationFn: (payment: SettlementPayment) => write(`payment:${payment.tripId}`, () => travelRepository.undoSettlementPayment(payment)),
+    mutationFn: (payment: SettlementPayment) => write(`undo-payment:${payment.id}`, () => travelRepository.undoSettlementPayment(payment)),
     onSuccess: (_, payment, origin) => origin?.refresh(payment.tripId),
     onError: (_, payment, origin) => origin?.refresh(payment.tripId),
   })

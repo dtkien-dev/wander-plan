@@ -28,3 +28,11 @@ it('shows payers and other members a waiting note without confirm or undo contro
   expect(screen.queryByRole('button')).not.toBeInTheDocument()
   expect(screen.getByRole('region', { name: 'Đã thanh toán' })).toHaveTextContent('Bình đã trả An')
 })
+
+it('labels settled balances and shows when each payment was confirmed', () => {
+  render(<SettlementPanel balances={[{ userId: 'a', amountVnd: 0 }]} transfers={[]} payments={[{ ...payment, createdAt: new Date(2026, 10, 27, 9, 5).toISOString() }]}
+    currentUserId="c" pending={false} personName={personName} onConfirm={vi.fn()} onUndo={vi.fn()} />)
+  expect(screen.getByText('Đã cân bằng')).toBeInTheDocument()
+  expect(screen.getByText('Đã quyết toán xong.')).toBeInTheDocument()
+  expect(screen.getByText('27/11 09:05')).toBeInTheDocument()
+})
