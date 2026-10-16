@@ -121,8 +121,8 @@ export function ExpenseForm({ expense, tripStart, tripEnd, pending, people, curr
         {splitMethod !== 'equal' && selectedPeople.length > 0 && (
           <div className="split-field__rows">
             {selectedPeople.map((person) => splitMethod === 'shares'
-              ? <label key={person.userId}><span>{person.displayName}</span><input type="number" inputMode="numeric" min="1" max={MAX_SHARE_UNITS} step="1" aria-label={`Số phần của ${person.displayName}`} {...register(`shareUnits.${person.userId}`, { setValueAs: toNumber })} /><small>{sharePreview ? formatCurrency(sharePreview.get(person.userId) ?? 0) : '—'}</small></label>
-              : <label key={person.userId}><span>{person.displayName}</span><input type="number" inputMode="numeric" min="0" step="1000" aria-label={`Số tiền của ${person.displayName}`} {...register(`shareAmounts.${person.userId}`, { setValueAs: toNumber })} /></label>)}
+              ? <label key={`shares-${person.userId}`}><span>{person.displayName}</span><input type="number" inputMode="numeric" min="1" max={MAX_SHARE_UNITS} step="1" aria-label={`Số phần của ${person.displayName}`} {...register(`shareUnits.${person.userId}`, { setValueAs: toNumber })} /><small>{sharePreview ? formatCurrency(sharePreview.get(person.userId) ?? 0) : '—'}</small></label>
+              : <label key={`amounts-${person.userId}`}><span>{person.displayName}</span><input type="number" inputMode="numeric" min="0" step="1000" aria-label={`Số tiền của ${person.displayName}`} {...register(`shareAmounts.${person.userId}`, { setValueAs: toNumber })} /></label>)}
             <p className="field-hint" role="status">{splitMethod === 'shares'
               ? `Tính trên ${formatCurrency(splitTarget)}; phần lẻ do người thanh toán chịu nếu có tham gia.`
               : `Đã chia ${formatCurrency(amountTotal)} / ${formatCurrency(splitTarget)}${amountTotal === splitTarget ? '' : ` · còn lệch ${formatCurrency(Math.abs(splitTarget - amountTotal))}`}`}</p>

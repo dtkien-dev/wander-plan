@@ -133,6 +133,7 @@ describe('ExpenseForm', () => {
     expect(onSubmit.mock.calls[0][0]).toMatchObject({ splitMethod: 'shares', splitValues: { owner: 2, friend: 1 } })
 
     fireEvent.click(screen.getByRole('radio', { name: 'Theo số tiền' }))
+    expect(screen.getByLabelText('Số tiền của Bạn')).toHaveValue(null)
     fireEvent.change(screen.getByLabelText('Số tiền của Bạn'), { target: { value: '100000' } })
     fireEvent.change(screen.getByLabelText('Số tiền của Người bạn đồng hành'), { target: { value: '150000' } })
     expect(screen.getByText(/còn lệch 50\.000/)).toBeInTheDocument()
