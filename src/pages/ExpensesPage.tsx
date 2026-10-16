@@ -45,7 +45,8 @@ export function ExpensesPage() {
   const peopleById = new Map(activePeople.map((person) => [person.userId!, person]))
   const payments = data.settlementPayments ?? []
   const settlement = calculateExpenseSettlement(expenses, people, payments)
-  const personName = (userId: string) => peopleById.get(userId)?.displayName ?? 'Thành viên cũ'
+  const formerById = new Map((data.formerPeople ?? []).map((person) => [person.userId, person.displayName]))
+  const personName = (userId: string) => peopleById.get(userId)?.displayName ?? `${formerById.get(userId) ?? 'Thành viên cũ'} (đã rời nhóm)`
   const splitSummary = (expense: Expense) => {
     const method = expense.splitMethod ?? 'equal'
     const value = (userId: string) => {
@@ -134,7 +135,7 @@ export function ExpensesPage() {
       )}
       <Modal open={editing !== undefined} title={editing ? 'Chỉnh sửa chi phí' : 'Thêm chi phí'} onClose={() => setEditing(undefined)}>
         {formError && <div className="form-error-banner" role="alert">{formError}</div>}
-        <ExpenseForm expense={editing ?? undefined} tripStart={trip.startDate} tripEnd={trip.endDate} pending={mutations.expense.isPending} people={people} currentUserId={currentUserId} onSubmit={save} onCancel={() => setEditing(undefined)} />
+        <ExpenseForm expense={editing ?? undefined} tripStart={trip.startDate} tripEnd={trip.endDate} pending={mutations.expense.isPending} people={people} currentUserId={currentUserId} formerPeople={data.formerPeople} onSubmit={save} onCancel={() => setEditing(undefined)} />
       </Modal>
       {importOpen && <Suspense fallback={<StateView state="loading" />}><ExcelImportModal open={importOpen} trip={trip} itinerary={data.itinerary} expenses={expenses} people={people} pending={mutations.importTripData.isPending} onClose={() => setImportOpen(false)} onSubmit={importData} /></Suspense>}
     </div>

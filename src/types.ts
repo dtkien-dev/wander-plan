@@ -83,8 +83,15 @@ export interface SettlementPayment {
   createdAt: string
 }
 
+/** Someone who left the trip but still appears on its expenses or payments. */
+export interface FormerPerson {
+  userId: string
+  displayName: string
+}
+
 export interface WorkspaceData {
   checklist?: ChecklistItem[]
+  formerPeople?: FormerPerson[]
   settlementPayments?: SettlementPayment[]
   /** Payment rows ever recorded for the trip, including undone ones; guards duplicate records. */
   settlementPaymentCount?: number

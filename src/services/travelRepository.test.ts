@@ -61,11 +61,21 @@ describe('demo travel repository', () => {
     expect((await travelRepository.loadWorkspace('other-trip')).checklist).toEqual([])
     await travelRepository.saveChecklist({ ...newItem, completed: true }, 'demo-trip', original)
     await expect(travelRepository.deleteChecklist(original)).rejects.toThrow('đã thay đổi')
+    for (const expense of (await travelRepository.loadWorkspace('demo-trip'))!.expenses) await travelRepository.deleteExpense(expense)
     await travelRepository.removeMember('demo-trip', 'demo-editor')
     const current = (await travelRepository.loadWorkspace('demo-trip')).checklist![0]
     expect(current).toMatchObject({ title: 'Áo mưa', completed: true, assignedTo: null })
     await travelRepository.deleteChecklist(current)
     expect((await travelRepository.loadWorkspace('demo-trip')).checklist).toEqual([])
+  })
+  it('blocks removing a member until their money is settled and then keeps their name for old expenses', async () => {
+    await expect(travelRepository.removeMember('demo-trip', 'demo-editor')).rejects.toThrow('chưa có số Thực tế')
+    const workspace = (await travelRepository.loadWorkspace('demo-trip'))!
+    for (const expense of workspace.expenses.filter((entry) => entry.actualAmountVnd === null)) await travelRepository.deleteExpense(expense)
+    await expect(travelRepository.removeMember('demo-trip', 'demo-editor')).rejects.toThrow('còn nợ 1.125.000 đ')
+    await travelRepository.recordSettlementPayment('demo-trip', 'demo-editor', 1_125_000, 0)
+    await travelRepository.removeMember('demo-trip', 'demo-editor')
+    expect((await travelRepository.loadWorkspace('demo-trip'))!.formerPeople).toEqual([{ userId: 'demo-editor', displayName: 'Người bạn đồng hành' }])
   })
   it('persists an optional own name across existing and newly created trips', async () => {
     await travelRepository.createTrip(draft('Other trip'), 'other-trip')

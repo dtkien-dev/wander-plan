@@ -69,6 +69,24 @@ describe('travel Excel import', () => {
     expect(row[headerRow.indexOf('Chi tiết chia')]).toBe('ban@example.com: 2; banthan@example.com: 1')
   })
 
+  it('keeps former members of an exported expense when the file is imported again', () => {
+    const header = ['Khoản chi', 'Phân loại', 'Ngày', 'Dự kiến', 'Thực tế', 'Người thanh toán', 'Người tham gia', 'Ghi chú']
+    const saved = {
+      id: 'old', tripId: trip.id, title: 'Ăn tối', category: 'food' as const, expenseDate: '2026-11-27', endDate: null,
+      estimatedAmountVnd: 0, actualAmountVnd: 90000, paidByUserId: 'gone', participantUserIds: ['demo-owner', 'gone'],
+      splitMethod: 'amounts' as const, splitValues: { 'demo-owner': 30000, gone: 60000 }, notes: '', version: 2,
+    }
+    const exported = buildTravelExcelReportSheets({ ...demoWorkspace, expenses: [saved] }).find((entry) => entry.sheet === 'ChiPhi')!
+    const headerRow = exported.data[0].map((cell: any) => cell.value)
+    const row = exported.data[1] as any[]
+    expect(row[headerRow.indexOf('Chi tiết chia')]).toBe('ban@example.com: 30000')
+    const preview = buildTravelExcelPreview('trip.xlsx', [{ sheet: 'ChiPhi', data: [
+      [...header, 'Cách chia', 'Chi tiết chia', 'ID', 'Version'],
+      ['Ăn tối sửa', 'Ăn uống', '2026-11-27', 0, 90000, '', 'ban@example.com', '', 'Theo số tiền', 'ban@example.com: 30000', 'old', 2],
+    ] }], trip, [], [saved], demoWorkspace.people)
+    expect(preview.expenses[0]).toMatchObject({ errors: [], action: 'update', data: { paidByUserId: 'gone', participantUserIds: ['demo-owner', 'gone'], splitValues: { 'demo-owner': 30000, gone: 60000 } } })
+  })
+
   it('parses Vietnamese template rows and maps expense categories', () => {
     const preview = buildTravelExcelPreview('trip.xlsx', [
       { sheet: 'LichTrinh', data: [

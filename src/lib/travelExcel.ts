@@ -103,7 +103,7 @@ const splitMethodMap: Record<string, SplitMethod> = {
 }
 const formatSplitDetail = (expense: Expense, email: (userId: string) => string) => (expense.splitMethod ?? 'equal') === 'equal'
   ? ''
-  : expense.participantUserIds.map((userId) => `${email(userId)}: ${expense.splitValues?.[userId] ?? ''}`).join('; ')
+  : expense.participantUserIds.filter((userId) => email(userId)).map((userId) => `${email(userId)}: ${expense.splitValues?.[userId] ?? ''}`).join('; ')
 // "email: 2; email: 1" → userId → number; unknown emails are reported by the caller.
 const parseSplitDetail = (text: string, userIdByEmail: Map<string, string>) => {
   const values: Record<string, number> = {}
@@ -225,6 +225,7 @@ const parseExpenseSheet = (data: SheetData, trip: Trip, existing: Expense[], peo
   const fileIds = new Set<string>()
   const activePeople = people.filter((person) => person.status === 'active' && person.userId)
   const userIdByEmail = new Map(activePeople.map((person) => [person.email.trim().toLocaleLowerCase(), person.userId!]))
+  const activeIds = new Set(userIdByEmail.values())
   return data.slice(1).flatMap((row, rowIndex) => {
     const values = indexes.map((index) => row[index])
     const id = idIndex === -1 ? '' : toText(row[idIndex])
@@ -233,8 +234,13 @@ const parseExpenseSheet = (data: SheetData, trip: Trip, existing: Expense[], peo
     const category = categoryMap[normalize(values[1])]
     const payerEmail = toText(values[5]).toLocaleLowerCase()
     const participantEmails = [...new Set(toText(values[6]).split(/[;,]/).map((email) => email.trim().toLocaleLowerCase()).filter(Boolean))]
-    const paidByUserId = userIdByEmail.get(payerEmail) ?? ''
-    const participantUserIds = participantEmails.flatMap((email) => userIdByEmail.get(email) ?? [])
+    // Former members have no email in exports; updated rows keep them exactly as saved.
+    const saved = existingById.get(id)
+    const formerPayerId = saved && !activeIds.has(saved.paidByUserId) ? saved.paidByUserId : ''
+    const formerParticipantIds = saved?.participantUserIds.filter((userId) => !activeIds.has(userId)) ?? []
+    const paidByUserId = userIdByEmail.get(payerEmail) ?? (payerEmail ? '' : formerPayerId)
+    const activeParticipantIds = participantEmails.flatMap((email) => userIdByEmail.get(email) ?? [])
+    const participantUserIds = [...activeParticipantIds, ...formerParticipantIds]
     // Files without the optional end-date column keep the saved range of updated rows.
     const rawEndDate = endDateIndex === -1 ? undefined : toText(row[endDateIndex])
     const endDate = rawEndDate === undefined ? existingById.get(id)?.endDate ?? null : rawEndDate ? toDateValue(row[endDateIndex]) : null
@@ -243,7 +249,8 @@ const parseExpenseSheet = (data: SheetData, trip: Trip, existing: Expense[], peo
     const parsedSplitMethod = rawSplitMethod ? splitMethodMap[normalize(rawSplitMethod)] : 'equal'
     const splitMethod = rawSplitMethod === undefined ? existingById.get(id)?.splitMethod ?? 'equal' : parsedSplitMethod ?? 'equal'
     const splitDetail = splitMethod === 'equal' || splitDetailIndex === -1 ? undefined : parseSplitDetail(toText(row[splitDetailIndex]), userIdByEmail)
-    const splitValues = splitMethod === 'equal' ? {} : splitDetail?.values ?? { ...existingById.get(id)?.splitValues }
+    const formerValues = Object.fromEntries(formerParticipantIds.flatMap((userId) => saved?.splitValues?.[userId] === undefined ? [] : [[userId, saved.splitValues[userId]]]))
+    const splitValues = splitMethod === 'equal' ? {} : { ...formerValues, ...(splitDetail?.values ?? saved?.splitValues) }
     const draft: ExpenseDraft = {
       title: toText(values[0]), category: category ?? 'other', expenseDate: toDateValue(values[2]), endDate,
       estimatedAmountVnd: toMoney(values[3]) as number, actualAmountVnd: toMoney(values[4], true) as number | null,
@@ -269,9 +276,9 @@ const parseExpenseSheet = (data: SheetData, trip: Trip, existing: Expense[], peo
     }
     if (!Number.isInteger(draft.estimatedAmountVnd) || draft.estimatedAmountVnd < 0) errors.push('Số tiền dự kiến phải là số nguyên không âm')
     if (draft.actualAmountVnd !== null && (!Number.isInteger(draft.actualAmountVnd) || draft.actualAmountVnd < 0)) errors.push('Số tiền thực tế phải là số nguyên không âm')
-    if (!payerEmail || !paidByUserId) errors.push('Người thanh toán phải là email của thành viên đang hoạt động')
-    if (!participantEmails.length) errors.push('Chọn ít nhất một người tham gia')
-    else if (participantUserIds.length !== participantEmails.length) errors.push('Danh sách người tham gia có email không thuộc chuyến đi')
+    if (!paidByUserId) errors.push('Người thanh toán phải là email của thành viên đang hoạt động')
+    if (!participantUserIds.length) errors.push('Chọn ít nhất một người tham gia')
+    else if (activeParticipantIds.length !== participantEmails.length) errors.push('Danh sách người tham gia có email không thuộc chuyến đi')
     if (draft.notes.length > 500) errors.push('Ghi chú tối đa 500 ký tự')
     const key = expenseKey(draft)
     const version = toVersion(rawVersion)

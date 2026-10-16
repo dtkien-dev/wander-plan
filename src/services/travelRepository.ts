@@ -1,7 +1,7 @@
 import { demoWorkspace } from '../data/demoData'
-import { validateSplit } from '../lib/expenseSettlement'
+import { calculateExpenseSettlement, validateSplit } from '../lib/expenseSettlement'
 import { supabase } from '../lib/supabase'
-import type { ArchivedTrip, ChecklistDraft, ChecklistItem, Expense, SettlementPayment, SplitMethod, ExpenseDraft, ItineraryDraft, ItineraryItem, Trip, TripDraft, TripImportDraft, TripImportResult, TripPerson, TripInvitation, WorkspaceData } from '../types'
+import type { ArchivedTrip, ChecklistDraft, ChecklistItem, Expense, FormerPerson, SettlementPayment, SplitMethod, ExpenseDraft, ItineraryDraft, ItineraryItem, Trip, TripDraft, TripImportDraft, TripImportResult, TripPerson, TripInvitation, WorkspaceData } from '../types'
 
 const STORAGE_KEY = 'wander-plan-demo-workspace-v1'
 const PEOPLE_STORAGE_KEY = 'wander-plan-demo-people-v1'
@@ -196,6 +196,12 @@ class DemoRepository implements TravelRepository {
     const member = data.people.find((person) => person.userId === userId)
     if (!member) throw new Error('Không tìm thấy thành viên trong chuyến đi.')
     if (member.role === 'owner') throw new Error('Không thể loại chủ nhóm khỏi chuyến đi.')
+    if (data.expenses.some((expense) => expense.actualAmountVnd === null && (expense.paidByUserId === userId || expense.participantUserIds.includes(userId)))) {
+      throw new Error('Chưa thể loại: thành viên này còn trong khoản chi chưa có số Thực tế. Hãy nhập Thực tế và quyết toán, hoặc bỏ họ khỏi khoản đó.')
+    }
+    const balance = calculateExpenseSettlement(data.expenses, data.people, data.settlementPayments).balances.find((entry) => entry.userId === userId)?.amountVnd ?? 0
+    if (balance !== 0) throw new Error(`Chưa thể loại: thành viên này còn ${balance < 0 ? 'nợ' : 'được nhận lại'} ${Math.abs(balance).toLocaleString('vi-VN')} đ. Hãy quyết toán xong trước.`)
+    ;(data.formerPeople ??= []).push({ userId, displayName: member.displayName })
     data.people = data.people.filter((person) => person.userId !== userId)
     data.checklist = data.checklist?.map((item) => item.assignedTo === userId ? { ...item, assignedTo: null, version: item.version + 1 } : item)
     this.write(data)
@@ -421,19 +427,21 @@ class SupabaseRepository implements TravelRepository {
     throwIfError(error)
     if (!trips?.length) return null
     const trip = mapTrip(trips[0])
-    const [itineraryResult, expenseResult, memberResult, checklistResult, paymentResult] = await Promise.all([
+    const [itineraryResult, expenseResult, memberResult, checklistResult, paymentResult, formerResult] = await Promise.all([
       supabase.from('itinerary_items').select('id,trip_id,title,visit_date,start_time,end_time,estimated_cost_vnd,address,maps_url,notes,version').eq('trip_id', trip.id).order('visit_date').order('start_time'),
       supabase.from('expenses').select('id,trip_id,title,category,expense_date,end_date,estimated_amount_vnd,actual_amount_vnd,paid_by,notes,version,split_method,expense_participants(user_id,share_units,share_amount_vnd)').eq('trip_id', trip.id).order('expense_date'),
       supabase.from('trip_members').select('user_id,role').eq('trip_id', trip.id),
       supabase.from('checklist_items').select('id,trip_id,title,assigned_to,completed,version').eq('trip_id', trip.id).is('deleted_at', null).order('created_at').order('id'),
       // Undone rows are kept: their count is the duplicate-record guard.
       supabase.from('settlement_payments').select('id,trip_id,from_user_id,to_user_id,amount_vnd,created_at,deleted_at').eq('trip_id', trip.id).order('created_at').order('id'),
+      supabase.rpc('get_trip_former_people', { target_trip_id: trip.id }),
     ])
     throwIfError(itineraryResult.error)
     throwIfError(expenseResult.error)
     throwIfError(memberResult.error)
     throwIfError(checklistResult.error)
     throwIfError(paymentResult.error)
+    throwIfError(formerResult.error)
     const paymentRows = paymentResult.data ?? []
     const { data: authData } = await supabase.auth.getSession()
     const currentMembership = memberResult.data?.find((member) => member.user_id === authData.session?.user.id)
@@ -446,6 +454,7 @@ class SupabaseRepository implements TravelRepository {
       checklist: (checklistResult.data ?? []).map((row): ChecklistItem => ({ id: row.id, tripId: row.trip_id, title: row.title, assignedTo: row.assigned_to, completed: row.completed, version: row.version })),
       settlementPayments: paymentRows.filter((row) => !row.deleted_at).map((row): SettlementPayment => ({ id: row.id, tripId: row.trip_id, fromUserId: row.from_user_id, toUserId: row.to_user_id, amountVnd: Number(row.amount_vnd), createdAt: row.created_at })),
       settlementPaymentCount: paymentRows.length,
+      formerPeople: (formerResult.data ?? []).map((row: any): FormerPerson => ({ userId: row.user_id, displayName: row.display_name })),
       trip,
       itinerary: (itineraryResult.data ?? []).map(mapItinerary),
       expenses: (expenseResult.data ?? []).map(mapExpense),

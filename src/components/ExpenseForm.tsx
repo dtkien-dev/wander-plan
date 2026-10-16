@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { MAX_SHARE_UNITS, splitExpenseAmount, splitTargetAmount, validateSplit } from '../lib/expenseSettlement'
 import { countNights, formatCurrency } from '../lib/format'
-import type { Expense, ExpenseCategory, ExpenseDraft, SplitMethod, TripPerson } from '../types'
+import type { Expense, ExpenseCategory, ExpenseDraft, FormerPerson, SplitMethod, TripPerson } from '../types'
 
 // Shares and amounts keep separate inputs so switching method never reuses the other unit.
 type ExpenseFormValues = Omit<ExpenseDraft, 'splitMethod' | 'splitValues'> & {
@@ -19,7 +19,7 @@ const pickValues = (values: Record<string, number>, userIds: string[]) => Object
 
 const startDateLabels: Partial<Record<ExpenseCategory, string>> = { transport: 'Ngày đi', stay: 'Ngày nhận phòng' }
 
-const createSchema = (tripStart: string, tripEnd: string, activeUserIds: string[]) => z.object({
+const createSchema = (tripStart: string, tripEnd: string, activeUserIds: string[], formerParticipantIds: string[], formerPayerId: string | null) => z.object({
   title: z.string().trim().min(2, 'Nhập tên khoản chi.'),
   category: z.enum(['food', 'transport', 'stay', 'ticket', 'other']),
   expenseDate: z.string().min(1, 'Chọn ngày.'),
@@ -27,7 +27,7 @@ const createSchema = (tripStart: string, tripEnd: string, activeUserIds: string[
   roundTrip: z.boolean(),
   estimatedAmountVnd: z.number().int().min(0, 'Chi phí không thể âm.'),
   actualAmountVnd: z.number().int('Số tiền phải là số nguyên.').min(0, 'Chi phí không thể âm.').nullable(),
-  paidByUserId: z.string().refine((value) => activeUserIds.includes(value), 'Chọn một thành viên đang hoạt động.'),
+  paidByUserId: z.string().refine((value) => activeUserIds.includes(value) || value === formerPayerId, 'Chọn một thành viên đang hoạt động.'),
   participantUserIds: z.array(z.string()).min(1, 'Chọn ít nhất một người tham gia.')
     .refine((values) => values.every((value) => activeUserIds.includes(value)), 'Người tham gia phải đang thuộc chuyến đi.'),
   notes: z.string().trim().max(500, 'Ghi chú tối đa 500 ký tự.'),
@@ -35,7 +35,7 @@ const createSchema = (tripStart: string, tripEnd: string, activeUserIds: string[
   shareUnits: z.record(z.string(), z.number().or(z.nan())),
   shareAmounts: z.record(z.string(), z.number().or(z.nan())),
 }).superRefine((data, context) => {
-  const splitError = validateSplit(toDraft(data))
+  const splitError = validateSplit(toDraft(data, formerParticipantIds))
   if (splitError) context.addIssue({ code: 'custom', message: splitError, path: ['splitMethod'] })
   if (data.expenseDate < tripStart || data.expenseDate > tripEnd) {
     context.addIssue({ code: 'custom', message: 'Ngày chi phải nằm trong thời gian chuyến đi.', path: ['expenseDate'] })
@@ -52,10 +52,13 @@ const createSchema = (tripStart: string, tripEnd: string, activeUserIds: string[
   }
 })
 
-function toDraft({ roundTrip, shareUnits, shareAmounts, ...values }: ExpenseFormValues): ExpenseDraft {
-  const splitValues = values.splitMethod === 'equal' ? {} : pickValues(values.splitMethod === 'shares' ? shareUnits : shareAmounts, values.participantUserIds)
+// Former members are not editable checkboxes; they stay on the expense they were part of.
+function toDraft({ roundTrip, shareUnits, shareAmounts, ...values }: ExpenseFormValues, formerParticipantIds: string[]): ExpenseDraft {
+  const participantUserIds = [...values.participantUserIds, ...formerParticipantIds]
+  const splitValues = values.splitMethod === 'equal' ? {} : pickValues(values.splitMethod === 'shares' ? shareUnits : shareAmounts, participantUserIds)
   return {
     ...values,
+    participantUserIds,
     splitValues,
     endDate: values.category === 'stay' || (values.category === 'transport' && roundTrip) ? values.endDate : null,
   }
@@ -68,34 +71,40 @@ interface ExpenseFormProps {
   pending: boolean
   people: TripPerson[]
   currentUserId: string
+  formerPeople?: FormerPerson[]
   onSubmit: (draft: ExpenseDraft) => Promise<void>
   onCancel: () => void
 }
 
-export function ExpenseForm({ expense, tripStart, tripEnd, pending, people, currentUserId, onSubmit, onCancel }: ExpenseFormProps) {
+export function ExpenseForm({ expense, tripStart, tripEnd, pending, people, currentUserId, formerPeople = [], onSubmit, onCancel }: ExpenseFormProps) {
   const activePeople = people.filter((person): person is TripPerson & { userId: string } => person.status === 'active' && Boolean(person.userId))
   const activeUserIds = activePeople.map((person) => person.userId)
+  const formerName = (userId: string) => `${formerPeople.find((person) => person.userId === userId)?.displayName ?? 'Thành viên cũ'} (đã rời nhóm)`
+  const formerParticipants = (expense?.participantUserIds ?? []).filter((userId) => !activeUserIds.includes(userId)).map((userId) => ({ userId, displayName: formerName(userId) }))
+  const formerParticipantIds = formerParticipants.map((person) => person.userId)
+  const formerPayerId = expense && !activeUserIds.includes(expense.paidByUserId) ? expense.paidByUserId : null
   const savedMethod = expense?.splitMethod ?? 'equal'
   const { register, handleSubmit, watch, formState: { errors } } = useForm<ExpenseFormValues>({
-    resolver: zodResolver(createSchema(tripStart, tripEnd, activeUserIds)),
+    resolver: zodResolver(createSchema(tripStart, tripEnd, activeUserIds, formerParticipantIds, formerPayerId)),
     defaultValues: {
       ...(expense
-        ? { ...expense, roundTrip: expense.category === 'transport' && Boolean(expense.endDate) }
+        ? { ...expense, participantUserIds: expense.participantUserIds.filter((userId) => activeUserIds.includes(userId)), roundTrip: expense.category === 'transport' && Boolean(expense.endDate) }
         : {
             title: '', category: 'food', expenseDate: tripStart, endDate: null, roundTrip: false, estimatedAmountVnd: 0, actualAmountVnd: null,
             paidByUserId: activeUserIds.includes(currentUserId) ? currentUserId : activeUserIds[0] ?? '',
             participantUserIds: activeUserIds, notes: '',
           }),
       splitMethod: savedMethod,
-      shareUnits: Object.fromEntries(activeUserIds.map((userId) => [userId, savedMethod === 'shares' ? expense?.splitValues?.[userId] ?? 1 : 1])),
+      shareUnits: Object.fromEntries([...activeUserIds, ...formerParticipantIds].map((userId) => [userId, savedMethod === 'shares' ? expense?.splitValues?.[userId] ?? 1 : 1])),
       shareAmounts: savedMethod === 'amounts' ? { ...expense?.splitValues } : {},
     },
   })
   const [category, roundTrip, expenseDate, endDate, estimated, actual, splitMethod, participantUserIds, paidByUserId, shareUnits, shareAmounts] = watch(['category', 'roundTrip', 'expenseDate', 'endDate', 'estimatedAmountVnd', 'actualAmountVnd', 'splitMethod', 'participantUserIds', 'paidByUserId', 'shareUnits', 'shareAmounts'])
-  const selectedPeople = activePeople.filter((person) => participantUserIds?.includes(person.userId))
+  const selectedPeople = [...activePeople.filter((person) => participantUserIds?.includes(person.userId)), ...formerParticipants]
+  const allParticipantIds = selectedPeople.map((person) => person.userId)
   const splitTarget = splitTargetAmount({ actualAmountVnd: actual, estimatedAmountVnd: Number.isFinite(estimated) ? estimated : 0 })
   const amountTotal = selectedPeople.reduce((sum, person) => sum + (Number.isFinite(shareAmounts?.[person.userId]) ? shareAmounts[person.userId] : 0), 0)
-  const shareDraft = { participantUserIds, paidByUserId, splitMethod, splitValues: pickValues(shareUnits, participantUserIds ?? []), actualAmountVnd: actual, estimatedAmountVnd: estimated }
+  const shareDraft = { participantUserIds: allParticipantIds, paidByUserId, splitMethod, splitValues: pickValues(shareUnits, allParticipantIds), actualAmountVnd: actual, estimatedAmountVnd: estimated }
   const sharePreview = splitMethod === 'shares' && validateSplit(shareDraft) === null
     ? new Map(splitExpenseAmount(splitTarget, shareDraft).map((share) => [share.userId, share.amountVnd]))
     : null
@@ -104,7 +113,7 @@ export function ExpenseForm({ expense, tripStart, tripEnd, pending, people, curr
   const nights = isStay && endDate && endDate > expenseDate ? countNights(expenseDate, endDate) : 0
   const stayAmount = actual ?? estimated
   return (
-    <form className="form" onSubmit={handleSubmit((values) => onSubmit(toDraft(values)))}>
+    <form className="form" onSubmit={handleSubmit((values) => onSubmit(toDraft(values, formerParticipantIds)))}>
       <label className="field field--wide">Khoản chi<input {...register('title')} aria-invalid={Boolean(errors.title)} />{errors.title && <span>{errors.title.message}</span>}</label>
       <label className="field">Phân loại<select {...register('category')}><option value="food">Ăn uống</option><option value="transport">Di chuyển</option><option value="stay">Lưu trú</option><option value="ticket">Vé tham quan</option><option value="other">Khác</option></select></label>
       <label className="field">{startDateLabels[category] ?? 'Ngày'}<input type="date" min={tripStart} max={tripEnd} {...register('expenseDate')} aria-invalid={Boolean(errors.expenseDate)} />{errors.expenseDate && <span>{errors.expenseDate.message}</span>}</label>
@@ -113,8 +122,10 @@ export function ExpenseForm({ expense, tripStart, tripEnd, pending, people, curr
       {isStay && nights > 0 && <p className="field field--wide field-hint" role="status">{nights} đêm · khoảng {formatCurrency(Math.round(Number(stayAmount || 0) / nights))}/đêm</p>}
       <label className="field">{isStay ? 'Dự kiến (tổng)' : 'Dự kiến'}<input type="number" inputMode="numeric" min="0" step="1000" {...register('estimatedAmountVnd', { valueAsNumber: true })} aria-invalid={Boolean(errors.estimatedAmountVnd)} />{errors.estimatedAmountVnd && <span>{errors.estimatedAmountVnd.message}</span>}</label>
       <label className="field">{isStay ? 'Thực tế (tổng)' : 'Thực tế'}<input type="number" inputMode="numeric" min="0" step="1000" placeholder="Chưa phát sinh" {...register('actualAmountVnd', { setValueAs: (value) => value === '' || value == null ? null : Number(value) })} aria-invalid={Boolean(errors.actualAmountVnd)} />{errors.actualAmountVnd && <span>{errors.actualAmountVnd.message}</span>}</label>
-      <label className="field field--wide">Người thanh toán<select {...register('paidByUserId')} aria-invalid={Boolean(errors.paidByUserId)}>{activePeople.map((person) => <option key={person.userId} value={person.userId}>{person.displayName}</option>)}</select>{errors.paidByUserId && <span>{errors.paidByUserId.message}</span>}</label>
-      <fieldset className="field field--wide participant-field"><legend>Người tham gia</legend><div>{activePeople.map((person) => <label key={person.userId}><input type="checkbox" value={person.userId} {...register('participantUserIds')} /> <span>{person.displayName}</span></label>)}</div>{errors.participantUserIds && <span>{errors.participantUserIds.message}</span>}</fieldset>
+      {formerPayerId
+        ? <p className="field field--wide field-hint">Người thanh toán: {formerName(formerPayerId)} — giữ nguyên cho khoản chi này.</p>
+        : <label className="field field--wide">Người thanh toán<select {...register('paidByUserId')} aria-invalid={Boolean(errors.paidByUserId)}>{activePeople.map((person) => <option key={person.userId} value={person.userId}>{person.displayName}</option>)}</select>{errors.paidByUserId && <span>{errors.paidByUserId.message}</span>}</label>}
+      <fieldset className="field field--wide participant-field"><legend>Người tham gia</legend><div>{activePeople.map((person) => <label key={person.userId}><input type="checkbox" value={person.userId} {...register('participantUserIds')} /> <span>{person.displayName}</span></label>)}</div>{formerParticipants.length > 0 && <p className="field-hint">Giữ nguyên: {formerParticipants.map((person) => person.displayName).join(', ')}</p>}{errors.participantUserIds && <span>{errors.participantUserIds.message}</span>}</fieldset>
       <fieldset className="field field--wide split-field" aria-describedby={errors.splitMethod ? 'split-error' : undefined}>
         <legend>Cách chia</legend>
         <div className="split-field__methods">{(Object.keys(splitLabels) as SplitMethod[]).map((method) => <label key={method}><input type="radio" value={method} {...register('splitMethod')} /> <span>{splitLabels[method]}</span></label>)}</div>
