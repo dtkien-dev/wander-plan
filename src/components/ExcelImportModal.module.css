@@ -18,4 +18,4 @@
 .more, .empty { margin: 14px 0 0; color: var(--color-text-muted); font-size: 13px; }
 .more { padding: 0 12px; }
 .actions { display: grid; grid-auto-flow: column; justify-content: end; gap: 10px; margin-top: 20px; }
-@media (max-width: 620px) { .intro { grid-template-columns: 1fr; } .intro button { width: 100%; } .summary { grid-template-columns: 1fr; } .actions { grid-auto-flow: row; } .actions button { width: 100%; } }
+@media (max-width: 620px) { .intro { grid-template-columns: 1fr; } .intro button { width: 100%; } .summary { grid-template-columns: 1fr; } .actions { grid-auto-flow: row; grid-template-columns: minmax(0, 1fr); justify-content: stretch; } .actions button { width: 100%; } }
