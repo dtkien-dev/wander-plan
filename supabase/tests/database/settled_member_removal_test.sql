@@ -1,5 +1,5 @@
 begin;
-select plan(17);
+select plan(18);
 insert into auth.users(id,email,raw_user_meta_data) values
  ('a2323232-0000-0000-0000-000000000001','rm-owner@test.local','{}'),
  ('a2323232-0000-0000-0000-000000000002','rm-member@test.local','{}'),
@@ -74,6 +74,7 @@ select throws_ok($$select public.save_expense_with_participants('b2323232-0000-0
 
 -- Hardening: trigger functions are not callable by signed-in users.
 select ok(not has_function_privilege('authenticated','public.validate_trip_capacity()','execute'),'trigger functions revoked');
+select ok(not has_column_privilege('authenticated','public.expense_participants','user_id','update') and has_column_privilege('authenticated','public.expense_participants','share_units','update'),'participants: only split values updatable');
 select ok(has_function_privilege('authenticated','public.get_trip_former_people(uuid)','execute') and not has_function_privilege('anon','public.get_trip_former_people(uuid)','execute'),'former people RPC for signed-in users only');
 reset role;
 select * from finish();

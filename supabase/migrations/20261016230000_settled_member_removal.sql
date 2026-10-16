@@ -124,6 +124,8 @@ $$;
 drop trigger expense_participants_validate_member on public.expense_participants;
 create trigger expense_participants_validate_member before insert or update of expense_id, user_id
 on public.expense_participants for each row execute function private.validate_expense_participant();
+-- The platform grants table-wide UPDATE by default; only split values may change in place.
+revoke update on public.expense_participants from anon, authenticated;
 grant update (share_units, share_amount_vnd) on public.expense_participants to authenticated;
 create policy "members update expense participants" on public.expense_participants for update to authenticated
 using (exists (select 1 from public.expenses e where e.id = expense_id and private.is_trip_member(e.trip_id)))
