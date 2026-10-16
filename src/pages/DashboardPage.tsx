@@ -16,7 +16,7 @@ export function DashboardPage() {
   }, [])
   if (workspace.isLoading) return <StateView state="loading" />
   if (workspace.isError) return <StateView state="error" onAction={() => void workspace.refetch()} />
-  if (!workspace.data) return <StateView state="empty" title="Bạn chưa thuộc chuyến đi nào" message="Khi được mời vào một chuyến đi, kế hoạch và thông tin nhóm sẽ xuất hiện tại đây." />
+  if (!workspace.data) return <StateView state="empty" title="Chưa có chuyến đang hoạt động" message="Bạn có thể tạo chuyến, nhận lời mời hoặc nhờ chủ nhóm khôi phục chuyến đã lưu trữ." />
   const { trip, itinerary, expenses, memberCount } = workspace.data
   const reminder = getTripReminder(trip, now)
   const spent = totalExpenses(expenses)

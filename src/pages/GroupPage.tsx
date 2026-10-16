@@ -64,7 +64,7 @@ export function GroupPage() {
 
   if (workspace.isLoading) return <StateView state="loading" />
   if (workspace.isError) return <StateView state="error" onAction={() => void workspace.refetch()} />
-  if (!workspace.data || !trip) return <StateView state="empty" title="Chưa có chuyến đi" />
+  if (!workspace.data || !trip) return <StateView state="empty" title="Chưa có chuyến đang hoạt động" message="Chủ nhóm có thể khôi phục trong mục Đã lưu trữ, hoặc bạn có thể tạo hay nhận lời mời vào chuyến khác." />
 
   const occupiedSeats = people.data?.length ?? workspace.data.memberCount
   const pendingInvitations = people.data?.filter((person) => person.status === 'invited').length ?? 0

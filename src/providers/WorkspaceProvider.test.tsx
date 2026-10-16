@@ -83,6 +83,23 @@ beforeEach(() => {
 afterEach(cleanup)
 
 describe('WorkspaceProvider integration', () => {
+  it('refreshes hidden and restored invitations without membership events', async () => {
+    const client = new QueryClient({ defaultOptions: { queries: { retry: false, staleTime: 30_000 } } })
+    repository.listTrips.mockResolvedValue([])
+    vi.useFakeTimers()
+    render(tree(client))
+    try {
+      await act(async () => { await vi.advanceTimersByTimeAsync(1) })
+      expect(screen.getByLabelText('invitations-first')).toHaveTextContent('1')
+      repository.loadInvitations.mockResolvedValue([])
+      await act(async () => { await vi.advanceTimersByTimeAsync(15_001) })
+      expect(screen.getByLabelText('invitations-first')).toHaveTextContent('0')
+      repository.loadInvitations.mockResolvedValue([invitation])
+      await act(async () => { await vi.advanceTimersByTimeAsync(15_001) })
+      expect(screen.getByLabelText('invitations-first')).toHaveTextContent('1')
+    } finally { vi.useRealTimers() }
+  })
+
   it('drops archived content after a self-membership event and reloads it after restoration with no active trip', async () => {
     mount()
     await waitFor(() => expect(screen.getByLabelText('data-first')).toHaveTextContent('trip-a'))

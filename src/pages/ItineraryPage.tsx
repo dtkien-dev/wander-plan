@@ -22,7 +22,7 @@ export function ItineraryPage() {
   const exportPending = useRef(false)
   if (workspace.isLoading) return <StateView state="loading" />
   if (workspace.isError) return <StateView state="error" onAction={() => void workspace.refetch()} />
-  if (!workspace.data) return <StateView state="empty" title="Chưa có chuyến đi" />
+  if (!workspace.data) return <StateView state="empty" title="Chưa có chuyến đang hoạt động" />
   const data = workspace.data
   const { trip, itinerary } = data
   const groups = [...itinerary.reduce((result, item) => {

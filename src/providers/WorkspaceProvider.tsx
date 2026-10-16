@@ -22,7 +22,8 @@ function useWorkspaceState() {
   const storageKey = `wander-plan:active-trip:${identity}`
   const [selection, setSelection] = useState<{ identity: string; id: string | null }>(() => ({ identity, id: readSelection(storageKey) }))
   const trips = useQuery({ queryKey: tripsKey(identity), queryFn: () => travelRepository.listTrips(), enabled })
-  const invitations = useQuery({ queryKey: invitationsKey(identity), queryFn: () => travelRepository.loadInvitations(), enabled })
+  // Hidden invitation rows cannot deliver archive events to pending recipients.
+  const invitations = useQuery({ queryKey: invitationsKey(identity), queryFn: () => travelRepository.loadInvitations(), enabled, refetchInterval: 15_000 })
   const archivedTrips = useQuery({ queryKey: archivedTripsKey(identity), queryFn: () => travelRepository.listArchivedTrips(), enabled })
   const requestedId = selection.identity === identity ? selection.id : readSelection(storageKey)
   const tripId = trips.data?.find((trip) => trip.id === requestedId)?.id ?? trips.data?.[0]?.id
