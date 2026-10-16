@@ -57,7 +57,7 @@ describe('GroupPage invitations', () => {
     expect(screen.getByText(/3\/4 người đã tham gia · 1 chỗ đang giữ cho lời mời/)).toBeInTheDocument()
     expect(screen.queryByRole('status')).not.toBeInTheDocument()
     expect(screen.getByText(/Bạn có thể huỷ lời mời đang chờ để giải phóng chỗ/)).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /Thêm/ })).toBeDisabled()
+    expect(screen.getByRole('button', { name: 'Thêm', exact: true })).toBeDisabled()
     expect(screen.getByLabelText('Mời bằng email')).toBeDisabled()
   })
 

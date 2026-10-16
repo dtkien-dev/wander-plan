@@ -3,7 +3,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { travelRepository } from '../services/travelRepository'
 import { singleFlight } from '../lib/singleFlight'
 import { invitationsKey, tripsKey, useWorkspaceContext, workspaceKey } from '../providers/WorkspaceProvider'
-import type { Expense, ExpenseDraft, ItineraryDraft, ItineraryItem, Trip, TripDraft, TripImportDraft } from '../types'
+import type { ChecklistDraft, ChecklistItem, Expense, ExpenseDraft, ItineraryDraft, ItineraryItem, Trip, TripDraft, TripImportDraft } from '../types'
 
 export function useWorkspace() {
   const { workspace, trips } = useWorkspaceContext()
@@ -69,5 +69,15 @@ export function useWorkspaceMutations() {
     mutationFn: (name: string) => write('profile-name', () => travelRepository.saveDisplayName(name)),
     onSuccess: (_, __, origin) => client.invalidateQueries({ queryKey: ['workspace', origin?.identity ?? identity] }),
   })
-  return { displayName, itinerary, deleteItinerary, expense, deleteExpense, importTripData, createTrip, updateTrip, inviteMember, revokeInvitation, removeMember, respondInvitation }
+  const checklist = useMutation({ onMutate: capture,
+    mutationFn: ({ draft, tripId: id, existing }: { draft: ChecklistDraft; tripId: string; existing?: ChecklistItem }) => write(`checklist:${id}:${existing?.id ?? 'new'}`, () => travelRepository.saveChecklist(draft, id, existing)),
+    onSuccess: (_, variables, origin) => origin?.refresh(variables.tripId),
+    onError: (_, variables, origin) => origin?.refresh(variables.tripId),
+  })
+  const deleteChecklist = useMutation({ onMutate: capture,
+    mutationFn: (item: ChecklistItem) => write(`checklist:${item.tripId}:${item.id}`, () => travelRepository.deleteChecklist(item)),
+    onSuccess: (_, item, origin) => origin?.refresh(item.tripId),
+    onError: (_, item, origin) => origin?.refresh(item.tripId),
+  })
+  return { checklist, deleteChecklist, displayName, itinerary, deleteItinerary, expense, deleteExpense, importTripData, createTrip, updateTrip, inviteMember, revokeInvitation, removeMember, respondInvitation }
 }

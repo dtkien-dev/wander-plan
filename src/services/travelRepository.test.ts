@@ -16,6 +16,20 @@ beforeEach(() => {
 })
 
 describe('demo travel repository', () => {
+  it('keeps checklist per trip, rejects stale edits and unassigns a removed member', async () => {
+    await travelRepository.createTrip(draft('Other trip'), 'other-trip')
+    const newItem = { title: 'Áo mưa', assignedTo: 'demo-editor', completed: false }
+    await travelRepository.saveChecklist(newItem, 'demo-trip')
+    const original = (await travelRepository.loadWorkspace('demo-trip')).checklist![0]
+    expect((await travelRepository.loadWorkspace('other-trip')).checklist).toEqual([])
+    await travelRepository.saveChecklist({ ...newItem, completed: true }, 'demo-trip', original)
+    await expect(travelRepository.deleteChecklist(original)).rejects.toThrow('đã thay đổi')
+    await travelRepository.removeMember('demo-trip', 'demo-editor')
+    const current = (await travelRepository.loadWorkspace('demo-trip')).checklist![0]
+    expect(current).toMatchObject({ title: 'Áo mưa', completed: true, assignedTo: null })
+    await travelRepository.deleteChecklist(current)
+    expect((await travelRepository.loadWorkspace('demo-trip')).checklist).toEqual([])
+  })
   it('persists an optional own name across existing and newly created trips', async () => {
     await travelRepository.createTrip(draft('Other trip'), 'other-trip')
     await travelRepository.saveDisplayName('  An  ')

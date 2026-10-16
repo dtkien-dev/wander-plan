@@ -62,6 +62,7 @@ export interface Expense {
 }
 
 export interface WorkspaceData {
+  checklist?: ChecklistItem[]
   ownDisplayName?: string | null
   trip: Trip
   itinerary: ItineraryItem[]
@@ -71,6 +72,16 @@ export interface WorkspaceData {
   currentUserId: string
   currentRole: MemberRole
 }
+
+export interface ChecklistItem {
+  id: string
+  tripId: string
+  title: string
+  assignedTo: string | null
+  completed: boolean
+  version: number
+}
+export type ChecklistDraft = Pick<ChecklistItem, 'title' | 'assignedTo' | 'completed'>
 
 export type ItineraryDraft = Omit<ItineraryItem, 'id' | 'tripId' | 'version'>
 export type ExpenseDraft = Omit<Expense, 'id' | 'tripId' | 'version'>

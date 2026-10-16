@@ -6,6 +6,7 @@ import { z } from 'zod'
 import { StateView } from '../components/StateView'
 import { Modal } from '../components/Modal'
 import { DisplayNameForm } from '../components/DisplayNameForm'
+import { TripChecklist } from '../components/TripChecklist'
 import { useTripPeople, useWorkspace, useWorkspaceMutations } from '../hooks/useWorkspace'
 import { formatCurrency, formatDate } from '../lib/format'
 import type { TripDraft } from '../types'
@@ -172,6 +173,7 @@ export function GroupPage() {
           )}
         </aside>
       </div>
+      <TripChecklist items={workspace.data.checklist ?? []} people={people.data ?? []} busy={Boolean(mutations.checklist?.isPending || mutations.deleteChecklist?.isPending)} onSave={(draft, existing) => mutations.checklist.mutateAsync({ draft, tripId: trip.id, existing })} onDelete={(item) => mutations.deleteChecklist.mutateAsync(item)} />
       <Modal open={revokingEmail !== null} title="Huỷ lời mời" onClose={() => { if (!mutations.revokeInvitation.isPending) setRevokingEmail(null) }}>
         <p className={styles.invitationConfirm}>Huỷ lời mời gửi đến {revokingEmail}? Chỗ đang giữ sẽ được giải phóng.</p>
         <div className="form__actions"><button className="button button--ghost" type="button" disabled={mutations.revokeInvitation.isPending} onClick={() => setRevokingEmail(null)}>Giữ lời mời</button><button className="button button--primary" type="button" disabled={mutations.revokeInvitation.isPending} onClick={() => revokingEmail && void revokeInvitation(revokingEmail)}>{mutations.revokeInvitation.isPending ? 'Đang huỷ…' : 'Xác nhận huỷ'}</button></div>
