@@ -16,6 +16,23 @@ beforeEach(() => {
 })
 
 describe('demo travel repository', () => {
+  it('hides an archived trip, preserves its data and requires a current owner version to restore', async () => {
+    const before = await travelRepository.loadWorkspace('demo-trip')
+    await travelRepository.saveChecklist({ title: 'Giấy tờ', assignedTo: 'demo-editor', completed: false }, 'demo-trip')
+    await travelRepository.setTripArchived('demo-trip', true, before.trip.version)
+    expect(await travelRepository.listTrips()).toEqual([])
+    const archived = (await travelRepository.listArchivedTrips())[0]
+    expect(archived).toMatchObject({ id: 'demo-trip', name: before.trip.name, version: before.trip.version + 1 })
+    await expect(travelRepository.loadWorkspace('demo-trip')).rejects.toThrow('đã được lưu trữ')
+    await expect(travelRepository.setTripArchived('demo-trip', false, before.trip.version)).rejects.toThrow('đã thay đổi')
+    await travelRepository.setTripArchived('demo-trip', false, archived.version)
+    const restored = await travelRepository.loadWorkspace('demo-trip')
+    expect(restored.itinerary).toEqual(before.itinerary)
+    expect(restored.expenses).toEqual(before.expenses)
+    expect(restored.people).toEqual(before.people)
+    expect(restored.checklist).toEqual([expect.objectContaining({ title: 'Giấy tờ', assignedTo: 'demo-editor' })])
+    expect(await travelRepository.listArchivedTrips()).toEqual([])
+  })
   it('keeps checklist per trip, rejects stale edits and unassigns a removed member', async () => {
     await travelRepository.createTrip(draft('Other trip'), 'other-trip')
     const newItem = { title: 'Áo mưa', assignedTo: 'demo-editor', completed: false }

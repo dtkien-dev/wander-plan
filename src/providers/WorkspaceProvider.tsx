@@ -7,6 +7,7 @@ import { useAuth } from './AuthProvider'
 export const workspaceKey = (identity: string, tripId?: string) => ['workspace', identity, tripId ?? 'none'] as const
 export const tripsKey = (identity: string) => ['trips', identity] as const
 export const invitationsKey = (identity: string) => ['invitations', identity] as const
+export const archivedTripsKey = (identity: string) => ['archived-trips', identity] as const
 
 function readSelection(key: string) {
   try { return localStorage.getItem(key) }
@@ -22,6 +23,7 @@ function useWorkspaceState() {
   const [selection, setSelection] = useState<{ identity: string; id: string | null }>(() => ({ identity, id: readSelection(storageKey) }))
   const trips = useQuery({ queryKey: tripsKey(identity), queryFn: () => travelRepository.listTrips(), enabled })
   const invitations = useQuery({ queryKey: invitationsKey(identity), queryFn: () => travelRepository.loadInvitations(), enabled })
+  const archivedTrips = useQuery({ queryKey: archivedTripsKey(identity), queryFn: () => travelRepository.listArchivedTrips(), enabled })
   const requestedId = selection.identity === identity ? selection.id : readSelection(storageKey)
   const tripId = trips.data?.find((trip) => trip.id === requestedId)?.id ?? trips.data?.[0]?.id
   const workspace = useQuery({
@@ -47,9 +49,12 @@ function useWorkspaceState() {
         if (metadataDirty) {
           void client.invalidateQueries({ queryKey: tripsKey(identity) })
           void client.invalidateQueries({ queryKey: invitationsKey(identity) })
+          void client.invalidateQueries({ queryKey: archivedTripsKey(identity) })
+          void client.invalidateQueries({ queryKey: ['workspace', identity] })
+        } else {
+          void client.invalidateQueries({ queryKey: workspaceKey(identity, tripId) })
         }
         metadataDirty = false
-        void client.invalidateQueries({ queryKey: workspaceKey(identity, tripId) })
       }, 100)
     }
     const channel = supabase.channel(`workspace-${identity}-${tripId ?? 'none'}`)
@@ -69,7 +74,7 @@ function useWorkspaceState() {
     return () => { clearTimeout(timer); void supabase?.removeChannel(channel) }
   }, [client, identity, session?.user.id, tripId])
 
-  return { identity, tripId, selectTrip, trips, invitations, workspace }
+  return { identity, tripId, selectTrip, trips, invitations, archivedTrips, workspace }
 }
 
 const WorkspaceContext = createContext<ReturnType<typeof useWorkspaceState> | null>(null)

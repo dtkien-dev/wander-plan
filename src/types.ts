@@ -2,6 +2,7 @@ export type MemberRole = 'owner' | 'editor'
 export type ExpenseCategory = 'food' | 'transport' | 'stay' | 'ticket' | 'other'
 
 export interface Trip {
+  archivedAt?: string | null
   id: string
   name: string
   destination: string
@@ -10,6 +11,13 @@ export interface Trip {
   timezone: string
   budgetVnd: number
   maxMembers: number
+  version: number
+}
+
+export interface ArchivedTrip {
+  id: string
+  name: string
+  archivedAt: string
   version: number
 }
 

@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { travelRepository } from '../services/travelRepository'
 import { singleFlight } from '../lib/singleFlight'
-import { invitationsKey, tripsKey, useWorkspaceContext, workspaceKey } from '../providers/WorkspaceProvider'
+import { archivedTripsKey, invitationsKey, tripsKey, useWorkspaceContext, workspaceKey } from '../providers/WorkspaceProvider'
 import type { ChecklistDraft, ChecklistItem, Expense, ExpenseDraft, ItineraryDraft, ItineraryItem, Trip, TripDraft, TripImportDraft } from '../types'
 
 export function useWorkspace() {
@@ -36,7 +36,7 @@ export function useWorkspaceMutations() {
   const refresh = async (id = tripId, includeTrips = false) => {
     await Promise.all([
       client.invalidateQueries({ queryKey: workspaceKey(identity, id) }),
-      ...(includeTrips ? [client.invalidateQueries({ queryKey: tripsKey(identity) })] : []),
+      ...(includeTrips ? [client.invalidateQueries({ queryKey: tripsKey(identity) }), client.invalidateQueries({ queryKey: archivedTripsKey(identity) })] : []),
     ])
   }
   const capture = () => ({ identity, refresh, selectTrip })
@@ -79,5 +79,16 @@ export function useWorkspaceMutations() {
     onSuccess: (_, item, origin) => origin?.refresh(item.tripId),
     onError: (_, item, origin) => origin?.refresh(item.tripId),
   })
-  return { checklist, deleteChecklist, displayName, itinerary, deleteItinerary, expense, deleteExpense, importTripData, createTrip, updateTrip, inviteMember, revokeInvitation, removeMember, respondInvitation }
+  const archiveTrip = useMutation({ onMutate: capture,
+    mutationFn: ({ tripId: id, archived, version }: { tripId: string; archived: boolean; version: number }) => write(`archive:${id}`, () => travelRepository.setTripArchived(id, archived, version)),
+    onSuccess: async (_, variables, origin) => {
+      if (!origin) return
+      await client.cancelQueries({ queryKey: workspaceKey(origin.identity, variables.tripId) })
+      client.setQueryData(workspaceKey(origin.identity, variables.tripId), null)
+      await Promise.all([origin.refresh(variables.tripId, true), client.invalidateQueries({ queryKey: invitationsKey(origin.identity) })])
+      if (!variables.archived && isCurrent(origin.identity)) origin.selectTrip(variables.tripId)
+    },
+    onError: (_, variables, origin) => origin?.refresh(variables.tripId, true),
+  })
+  return { archiveTrip, checklist, deleteChecklist, displayName, itinerary, deleteItinerary, expense, deleteExpense, importTripData, createTrip, updateTrip, inviteMember, revokeInvitation, removeMember, respondInvitation }
 }

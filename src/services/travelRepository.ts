@@ -1,6 +1,6 @@
 import { demoWorkspace } from '../data/demoData'
 import { supabase } from '../lib/supabase'
-import type { ChecklistDraft, ChecklistItem, Expense, ExpenseDraft, ItineraryDraft, ItineraryItem, Trip, TripDraft, TripImportDraft, TripImportResult, TripPerson, TripInvitation, WorkspaceData } from '../types'
+import type { ArchivedTrip, ChecklistDraft, ChecklistItem, Expense, ExpenseDraft, ItineraryDraft, ItineraryItem, Trip, TripDraft, TripImportDraft, TripImportResult, TripPerson, TripInvitation, WorkspaceData } from '../types'
 
 const STORAGE_KEY = 'wander-plan-demo-workspace-v1'
 const PEOPLE_STORAGE_KEY = 'wander-plan-demo-people-v1'
@@ -12,6 +12,8 @@ export interface TravelRepository {
   saveChecklist(draft: ChecklistDraft, tripId: string, existing?: ChecklistItem): Promise<void>
   deleteChecklist(item: ChecklistItem): Promise<void>
   listTrips(): Promise<Trip[]>
+  listArchivedTrips(): Promise<ArchivedTrip[]>
+  setTripArchived(tripId: string, archived: boolean, version: number): Promise<void>
   createTrip(draft: TripDraft, requestId: string): Promise<string>
   loadInvitations(): Promise<TripInvitation[]>
   respondInvitation(tripId: string, accept: boolean): Promise<void>
@@ -58,6 +60,7 @@ class DemoRepository implements TravelRepository {
   private read(tripId?: string) {
     const data = this.readAll().find((entry) => !tripId || entry.trip.id === tripId)
     if (!data) throw new Error('Không tìm thấy chuyến đi.')
+    if (data.trip.archivedAt) throw new Error('Chuyến đi đã được lưu trữ. Chủ nhóm cần khôi phục để xem nội dung.')
     return data
   }
 
@@ -69,7 +72,21 @@ class DemoRepository implements TravelRepository {
     localStorage.setItem('wander-plan-demo-trips-v2', JSON.stringify(all))
   }
 
-  async listTrips() { return this.readAll().map((data) => data.trip) }
+  async listTrips() { return this.readAll().filter((data) => !data.trip.archivedAt).map((data) => data.trip) }
+
+  async listArchivedTrips(): Promise<ArchivedTrip[]> {
+    return this.readAll().filter((data) => data.trip.archivedAt && data.currentRole === 'owner')
+      .map(({ trip }) => ({ id: trip.id, name: trip.name, archivedAt: trip.archivedAt!, version: trip.version }))
+  }
+
+  async setTripArchived(tripId: string, archived: boolean, version: number) {
+    const data = this.readAll().find((data) => data.trip.id === tripId)
+    if (!data || data.currentRole !== 'owner') throw new Error('Chỉ chủ nhóm được lưu trữ hoặc khôi phục chuyến đi.')
+    if (data.trip.version !== version) throw new Error('Chuyến đi đã thay đổi. Hãy tải lại danh sách và thử lại.')
+    if (Boolean(data.trip.archivedAt) === archived) return
+    data.trip = { ...data.trip, archivedAt: archived ? new Date().toISOString() : null, version: version + 1 }
+    this.write(data)
+  }
 
   async loadWorkspace(tripId?: string) {
     await delay()
@@ -285,6 +302,18 @@ const throwIfError = (error: { message: string } | null) => {
 }
 
 class SupabaseRepository implements TravelRepository {
+  async listArchivedTrips(): Promise<ArchivedTrip[]> {
+    if (!supabase) return []
+    const { data, error } = await supabase.rpc('get_my_archived_trips')
+    throwIfError(error)
+    return (data ?? []).map((row: any) => ({ id: row.id, name: row.name, archivedAt: row.archived_at, version: row.version }))
+  }
+
+  async setTripArchived(tripId: string, archived: boolean, version: number) {
+    if (!supabase) return
+    const { error } = await supabase.rpc('set_trip_archived', { target_trip_id: tripId, archive_trip: archived, expected_version: version })
+    throwIfError(error)
+  }
   async saveChecklist(draft: ChecklistDraft, tripId: string, existing?: ChecklistItem) {
     if (!supabase) return
     const { error } = await supabase.rpc('save_trip_checklist', {

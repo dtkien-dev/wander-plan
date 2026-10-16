@@ -9,7 +9,7 @@ import { useWorkspace, useWorkspaceMutations } from '../hooks/useWorkspace'
 import type { Trip, TripInvitation, WorkspaceData } from '../types'
 
 const authState = vi.hoisted(() => ({ session: { user: { id: 'alice' } } as Session, isDemo: false }))
-const repository = vi.hoisted(() => ({ listTrips: vi.fn(), loadInvitations: vi.fn(), loadWorkspace: vi.fn(), respondInvitation: vi.fn(), updateTrip: vi.fn() }))
+const repository = vi.hoisted(() => ({ listTrips: vi.fn(), listArchivedTrips: vi.fn(), setTripArchived: vi.fn(), loadInvitations: vi.fn(), loadWorkspace: vi.fn(), respondInvitation: vi.fn(), updateTrip: vi.fn() }))
 const realtime = vi.hoisted(() => ({ channel: vi.fn(), removeChannel: vi.fn() }))
 vi.mock('./AuthProvider', () => ({ useAuth: () => authState }))
 vi.mock('../services/travelRepository', () => ({ travelRepository: repository }))
@@ -68,6 +68,7 @@ beforeEach(() => {
   response = undefined
   repository.listTrips.mockResolvedValue([trip('trip-a'), trip('trip-b'), trip('trip-c')])
   repository.loadInvitations.mockResolvedValue([invitation])
+  repository.listArchivedTrips.mockResolvedValue([])
   repository.loadWorkspace.mockImplementation(async (id: string) => workspace(id))
   repository.respondInvitation.mockResolvedValue(undefined)
   realtime.channel.mockImplementation(() => {
@@ -82,6 +83,19 @@ beforeEach(() => {
 afterEach(cleanup)
 
 describe('WorkspaceProvider integration', () => {
+  it('drops archived content after a self-membership event and reloads it after restoration with no active trip', async () => {
+    mount()
+    await waitFor(() => expect(screen.getByLabelText('data-first')).toHaveTextContent('trip-a'))
+    repository.listTrips.mockResolvedValue([])
+    repository.loadWorkspace.mockResolvedValue(null)
+    act(() => channels[channels.length - 1].handlers.find((handler) => handler.table === 'trip_members' && handler.filter === 'user_id=eq.alice')!.callback())
+    await waitFor(() => expect(screen.getByLabelText('trip-first')).toHaveTextContent('none'))
+    expect(screen.getByLabelText('data-first')).toHaveTextContent('empty')
+    repository.listTrips.mockResolvedValue([trip('trip-a')])
+    repository.loadWorkspace.mockImplementation(async (id: string) => workspace(id))
+    act(() => channels[channels.length - 1].handlers.find((handler) => handler.table === 'trip_members' && handler.filter === 'user_id=eq.alice')!.callback())
+    await waitFor(() => expect(screen.getByLabelText('data-first')).toHaveTextContent('trip-a'))
+  })
   it('shares one scoped realtime channel across callers and refreshes incoming invitations', async () => {
     const { client, rerender, unmount } = mount()
     await waitFor(() => expect(screen.getByLabelText('data-second')).toHaveTextContent('trip-a'))
