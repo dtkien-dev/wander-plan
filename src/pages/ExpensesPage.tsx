@@ -8,9 +8,10 @@ import { actualOrEstimated, describeExpenseDates, formatCurrency, formatDate, sa
 import { calculateExpenseSettlement, type SettlementTransfer } from '../lib/expenseSettlement'
 import { downloadTravelExcelReport } from '../lib/travelExcel'
 import { useWorkspace, useWorkspaceMutations } from '../hooks/useWorkspace'
-import type { Expense, ExpenseCategory, ExpenseDraft, SettlementPayment, TripImportDraft } from '../types'
+import type { Expense, ExpenseCategory, ExpenseDraft, SettlementPayment, SplitMethod, TripImportDraft } from '../types'
 import styles from './ExpensesPage.module.css'
 
+const splitPrefixes: Record<SplitMethod, string> = { equal: 'Chia cho', shares: 'Chia theo phần', amounts: 'Chia theo số tiền' }
 const labels: Record<ExpenseCategory, string> = { food: 'Ăn uống', transport: 'Di chuyển', stay: 'Lưu trú', ticket: 'Vé tham quan', other: 'Khác' }
 
 const ExcelImportModal = lazy(() => import('../components/ExcelImportModal').then((module) => ({ default: module.ExcelImportModal })))
@@ -45,6 +46,14 @@ export function ExpensesPage() {
   const payments = data.settlementPayments ?? []
   const settlement = calculateExpenseSettlement(expenses, people, payments)
   const personName = (userId: string) => peopleById.get(userId)?.displayName ?? 'Thành viên cũ'
+  const splitSummary = (expense: Expense) => {
+    const method = expense.splitMethod ?? 'equal'
+    const value = (userId: string) => {
+      if (method === 'shares') return ` ×${expense.splitValues?.[userId] ?? 1}`
+      return method === 'amounts' ? ` ${formatCurrency(expense.splitValues?.[userId] ?? 0)}` : ''
+    }
+    return `${splitPrefixes[method]} ${expense.participantUserIds.map((userId) => personName(userId) + value(userId)).join(', ')}`
+  }
 
   const save = async (draft: ExpenseDraft) => {
     try {
@@ -120,7 +129,7 @@ export function ExpensesPage() {
       <SettlementPanel balances={settlement.balances} transfers={settlement.transfers} payments={payments} currentUserId={currentUserId} pending={mutations.recordPayment.isPending || mutations.undoPayment.isPending} personName={personName} onConfirm={(transfer) => void confirmPayment(transfer)} onUndo={(payment) => void undoPayment(payment)} />
       {expenses.length === 0 ? <StateView state="empty" title="Chưa có khoản chi nào" message="Thêm khoản chi đầu tiên để theo dõi ngân sách và chia tiền cùng nhóm." actionLabel="Thêm khoản chi đầu tiên" onAction={() => { setFormError(''); setEditing(null) }} /> : (
         <section className={styles.list} aria-label="Danh sách chi phí">
-          {expenses.map((expense) => <article className={styles.expense} key={expense.id}><span className={styles.category}>{labels[expense.category]}</span><div><h2>{expense.title}</h2><p>{describeExpenseDates(expense)} · {expense.notes || 'Không có ghi chú'}</p><p className={styles.splitMeta}>Trả bởi {personName(expense.paidByUserId)} · Chia cho {expense.participantUserIds.map(personName).join(', ')}</p></div><div className={styles.amount}><strong>{formatCurrency(actualOrEstimated(expense))}</strong><small>{expense.actualAmountVnd === null ? 'Dự kiến' : 'Thực tế'}</small></div><div className={styles.actions}><button className="icon-button" type="button" onClick={() => { setFormError(''); setEditing(expense) }} aria-label={`Sửa ${expense.title}`}><Pencil size={18} /></button><button className="icon-button icon-button--danger" type="button" disabled={mutations.deleteExpense.isPending} onClick={() => void remove(expense)} aria-label={`Xóa ${expense.title}`}><Trash2 size={18} /></button></div></article>)}
+          {expenses.map((expense) => <article className={styles.expense} key={expense.id}><span className={styles.category}>{labels[expense.category]}</span><div><h2>{expense.title}</h2><p>{describeExpenseDates(expense)} · {expense.notes || 'Không có ghi chú'}</p><p className={styles.splitMeta}>Trả bởi {personName(expense.paidByUserId)} · {splitSummary(expense)}</p></div><div className={styles.amount}><strong>{formatCurrency(actualOrEstimated(expense))}</strong><small>{expense.actualAmountVnd === null ? 'Dự kiến' : 'Thực tế'}</small></div><div className={styles.actions}><button className="icon-button" type="button" onClick={() => { setFormError(''); setEditing(expense) }} aria-label={`Sửa ${expense.title}`}><Pencil size={18} /></button><button className="icon-button icon-button--danger" type="button" disabled={mutations.deleteExpense.isPending} onClick={() => void remove(expense)} aria-label={`Xóa ${expense.title}`}><Trash2 size={18} /></button></div></article>)}
         </section>
       )}
       <Modal open={editing !== undefined} title={editing ? 'Chỉnh sửa chi phí' : 'Thêm chi phí'} onClose={() => setEditing(undefined)}>

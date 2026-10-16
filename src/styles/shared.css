@@ -87,6 +87,16 @@ a { color: inherit; }
 .participant-field label { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 8px; min-width: 0; min-height: 44px; padding: 9px 12px; background: #fbfaf5; border: 1px solid var(--color-border); border-radius: var(--radius-control); cursor: pointer; }
 .participant-field label span { min-width: 0; overflow-wrap: anywhere; }
 .participant-field input { width: 18px; height: 18px; accent-color: var(--color-primary); }
+.split-field { display: grid; gap: 10px; min-width: 0; margin: 0; padding: 0; border: 0; }
+.split-field legend { margin-bottom: 7px; padding: 0; }
+.split-field__methods { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.split-field__methods label { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 8px; min-width: 0; min-height: 44px; padding: 9px 12px; background: #fbfaf5; border: 1px solid var(--color-border); border-radius: var(--radius-control); cursor: pointer; }
+.split-field__methods input { width: 18px; height: 18px; accent-color: var(--color-primary); }
+.split-field__rows { display: grid; gap: 8px; }
+.split-field__rows label { display: grid; grid-template-columns: minmax(0, 1fr) minmax(96px, 150px) minmax(72px, auto); align-items: center; gap: 10px; min-width: 0; }
+.split-field__rows label span { min-width: 0; overflow-wrap: anywhere; font-weight: 600; }
+.split-field__rows small { color: var(--color-text-muted); font-variant-numeric: tabular-nums; text-align: right; }
+@media (max-width: 420px) { .split-field__methods { grid-template-columns: 1fr; } .split-field__rows label { grid-template-columns: minmax(0, 1fr) minmax(88px, 120px); } .split-field__rows small { grid-column: 1 / -1; text-align: left; } }
 .field--check { grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 10px; min-height: 44px; padding: 9px 12px; background: #fbfaf5; border: 1px solid var(--color-border); border-radius: var(--radius-control); font-weight: 600; cursor: pointer; }
 .field--check input { width: 18px; height: 18px; min-height: 0; padding: 0; accent-color: var(--color-primary); }
 .field--check > span { min-width: 0; color: var(--color-text); font-size: 14px; overflow-wrap: anywhere; }

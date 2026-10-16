@@ -1,6 +1,7 @@
+import { validateSplit } from './expenseSettlement'
 import { actualOrEstimated, isGoogleMapsUrl, totalExpenses } from './format'
 import { inspectXlsxArchive } from './xlsxGuard'
-import type { Expense, ExpenseCategory, ExpenseDraft, ItineraryDraft, ItineraryItem, Trip, TripImportDraft, TripPerson, WorkspaceData } from '../types'
+import type { Expense, ExpenseCategory, ExpenseDraft, ItineraryDraft, ItineraryItem, SplitMethod, Trip, TripImportDraft, TripPerson, WorkspaceData } from '../types'
 
 type CellValue = string | number | boolean | Date | null
 type SheetData = CellValue[][]
@@ -33,6 +34,9 @@ const MAX_IMPORT_ROWS = 1000
 const itineraryHeaders = ['Tên địa điểm', 'Ngày', 'Bắt đầu', 'Kết thúc', 'Chi phí dự kiến', 'Địa chỉ', 'Google Maps URL', 'Ghi chú']
 const expenseHeaders = ['Khoản chi', 'Phân loại', 'Ngày', 'Dự kiến', 'Thực tế', 'Người thanh toán', 'Người tham gia', 'Ghi chú']
 const expenseEndDateHeader = 'Đến ngày'
+const splitMethodHeader = 'Cách chia'
+const splitDetailHeader = 'Chi tiết chia'
+const splitMethodLabels: Record<SplitMethod, string> = { equal: 'Chia đều', shares: 'Theo phần', amounts: 'Theo số tiền' }
 const idHeader = 'ID'
 const versionHeader = 'Version'
 const categoryLabels: Record<ExpenseCategory, string> = {
@@ -93,6 +97,26 @@ const categoryMap: Record<string, ExpenseCategory> = {
   anuong: 'food', food: 'food', dichuyen: 'transport', transport: 'transport',
   luutru: 'stay', stay: 'stay', vethamquan: 'ticket', ticket: 'ticket', khac: 'other', other: 'other',
 }
+const splitMethodMap: Record<string, SplitMethod> = {
+  chiadeu: 'equal', deu: 'equal', equal: 'equal', theophan: 'shares', phan: 'shares', shares: 'shares',
+  theosotien: 'amounts', sotien: 'amounts', amounts: 'amounts',
+}
+const formatSplitDetail = (expense: Expense, email: (userId: string) => string) => (expense.splitMethod ?? 'equal') === 'equal'
+  ? ''
+  : expense.participantUserIds.map((userId) => `${email(userId)}: ${expense.splitValues?.[userId] ?? ''}`).join('; ')
+// "email: 2; email: 1" → userId → number; unknown emails are reported by the caller.
+const parseSplitDetail = (text: string, userIdByEmail: Map<string, string>) => {
+  const values: Record<string, number> = {}
+  const unknown: string[] = []
+  text.split(';').map((part) => part.trim()).filter(Boolean).forEach((part) => {
+    const match = part.match(/^(.+?)\s*[:=]\s*(.+)$/)
+    const email = (match?.[1] ?? part).trim().toLocaleLowerCase()
+    const userId = userIdByEmail.get(email)
+    if (!userId || !match) { unknown.push(email); return }
+    values[userId] = toMoney(match[2]) as number
+  })
+  return { values, unknown }
+}
 const getHeaderIndexes = (headerRow: CellValue[], expected: string[]) => {
   const indexes = new Map<string, number>()
   headerRow.forEach((cell, index) => indexes.set(normalize(cell), index))
@@ -117,6 +141,8 @@ const sameExpense = (draft: ExpenseDraft, existing: Expense) =>
   draft.endDate === existing.endDate &&
   draft.estimatedAmountVnd === existing.estimatedAmountVnd && draft.actualAmountVnd === existing.actualAmountVnd &&
   draft.paidByUserId === existing.paidByUserId && [...draft.participantUserIds].sort().join('|') === [...existing.participantUserIds].sort().join('|') &&
+  (draft.splitMethod ?? 'equal') === (existing.splitMethod ?? 'equal') &&
+  JSON.stringify(Object.entries(draft.splitValues ?? {}).sort()) === JSON.stringify(Object.entries(existing.splitValues ?? {}).sort()) &&
   draft.notes === existing.notes
 
 const parseItinerarySheet = (data: SheetData, trip: Trip, existing: ItineraryItem[]): ExcelPreviewRow<ItineraryDraft>[] => {
@@ -191,6 +217,8 @@ const parseExpenseSheet = (data: SheetData, trip: Trip, existing: Expense[], peo
   const idIndex = getOptionalHeaderIndex(data[0], idHeader)
   const versionIndex = getOptionalHeaderIndex(data[0], versionHeader)
   const endDateIndex = getOptionalHeaderIndex(data[0], expenseEndDateHeader)
+  const splitMethodIndex = getOptionalHeaderIndex(data[0], splitMethodHeader)
+  const splitDetailIndex = getOptionalHeaderIndex(data[0], splitDetailHeader)
   const existingById = new Map(existing.map((expense) => [expense.id, expense]))
   const existingKeyOwners = new Map(existing.map((expense) => [expenseKey(expense), expense.id]))
   const fileKeys = new Map<string, string>()
@@ -210,12 +238,25 @@ const parseExpenseSheet = (data: SheetData, trip: Trip, existing: Expense[], peo
     // Files without the optional end-date column keep the saved range of updated rows.
     const rawEndDate = endDateIndex === -1 ? undefined : toText(row[endDateIndex])
     const endDate = rawEndDate === undefined ? existingById.get(id)?.endDate ?? null : rawEndDate ? toDateValue(row[endDateIndex]) : null
+    // Files without the split columns keep an updated row's saved split; new rows split equally.
+    const rawSplitMethod = splitMethodIndex === -1 ? undefined : toText(row[splitMethodIndex])
+    const parsedSplitMethod = rawSplitMethod ? splitMethodMap[normalize(rawSplitMethod)] : 'equal'
+    const splitMethod = rawSplitMethod === undefined ? existingById.get(id)?.splitMethod ?? 'equal' : parsedSplitMethod ?? 'equal'
+    const splitDetail = splitMethod === 'equal' || splitDetailIndex === -1 ? undefined : parseSplitDetail(toText(row[splitDetailIndex]), userIdByEmail)
+    const splitValues = splitMethod === 'equal' ? {} : splitDetail?.values ?? { ...existingById.get(id)?.splitValues }
     const draft: ExpenseDraft = {
       title: toText(values[0]), category: category ?? 'other', expenseDate: toDateValue(values[2]), endDate,
       estimatedAmountVnd: toMoney(values[3]) as number, actualAmountVnd: toMoney(values[4], true) as number | null,
-      paidByUserId, participantUserIds, notes: toText(values[7]),
+      paidByUserId, participantUserIds, splitMethod, splitValues, notes: toText(values[7]),
     }
     const errors: string[] = []
+    if (rawSplitMethod && !parsedSplitMethod) errors.push('Cách chia phải là Chia đều, Theo phần hoặc Theo số tiền')
+    if (splitDetail?.unknown.length) errors.push('Chi tiết chia có email không thuộc chuyến đi hoặc thiếu số')
+    else if (Object.keys(splitValues).some((userId) => !participantUserIds.includes(userId))) errors.push('Chi tiết chia chỉ được ghi cho người tham gia')
+    else if (participantUserIds.length) {
+      const splitError = validateSplit(draft)
+      if (splitError) errors.push(splitError)
+    }
     if (draft.title.length < 2 || draft.title.length > 150) errors.push('Khoản chi phải có 2–150 ký tự')
     if (!category) errors.push('Phân loại không hợp lệ')
     if (!draft.expenseDate) errors.push('Ngày không hợp lệ')
@@ -299,7 +340,7 @@ export const downloadTravelExcelTemplate = async () => {
   const headerRow = (headers: string[]) => headers.map((value) => ({ value, ...headerStyle }))
   const workbook = writeXlsxFile([
     { sheet: 'LichTrinh', data: [headerRow(itineraryHeaders)], stickyRowsCount: 1, showGridLines: false, columns: [{ width: 28 }, { width: 14 }, { width: 12 }, { width: 12 }, { width: 20 }, { width: 34 }, { width: 36 }, { width: 36 }] },
-    { sheet: 'ChiPhi', data: [headerRow([...expenseHeaders, expenseEndDateHeader])], stickyRowsCount: 1, showGridLines: false, columns: [{ width: 28 }, { width: 18 }, { width: 14 }, { width: 18 }, { width: 18 }, { width: 28 }, { width: 42 }, { width: 36 }, { width: 14 }] },
+    { sheet: 'ChiPhi', data: [headerRow([...expenseHeaders, expenseEndDateHeader, splitMethodHeader, splitDetailHeader])], stickyRowsCount: 1, showGridLines: false, columns: [{ width: 28 }, { width: 18 }, { width: 14 }, { width: 18 }, { width: 18 }, { width: 28 }, { width: 42 }, { width: 36 }, { width: 14 }, { width: 16 }, { width: 48 }] },
   ], { fontFamily: 'Arial', fontSize: 10 })
   await workbook.toFile('wander-plan-mau-import.xlsx')
 }
@@ -368,7 +409,7 @@ export const buildTravelExcelReportSheets = (workspace: WorkspaceData, exportedA
       ]),
   ]
   const expenseData = [
-    reportHeaderRow([...expenseHeaders, expenseEndDateHeader, 'Đang tính', 'Trạng thái', idHeader, versionHeader]),
+    reportHeaderRow([...expenseHeaders, expenseEndDateHeader, splitMethodHeader, splitDetailHeader, 'Đang tính', 'Trạng thái', idHeader, versionHeader]),
     ...[...workspace.expenses]
       .sort((a, b) => a.expenseDate.localeCompare(b.expenseDate))
       .map((expense) => [
@@ -376,6 +417,7 @@ export const buildTravelExcelReportSheets = (workspace: WorkspaceData, exportedA
         reportMoneyCell(expense.estimatedAmountVnd), reportMoneyCell(expense.actualAmountVnd), memberEmail(expense.paidByUserId),
         expense.participantUserIds.map(memberEmail).filter(Boolean).join(', '), expense.notes,
         expense.endDate ? reportDateCell(expense.endDate) : null,
+        splitMethodLabels[expense.splitMethod ?? 'equal'], formatSplitDetail(expense, memberEmail),
         reportMoneyCell(actualOrEstimated(expense)), expense.actualAmountVnd === null ? 'Dự kiến' : 'Thực tế', expense.id, expense.version,
       ]),
   ]
@@ -383,7 +425,7 @@ export const buildTravelExcelReportSheets = (workspace: WorkspaceData, exportedA
   return [
     { sheet: 'TongQuan', data: summaryData, showGridLines: false, columns: [{ width: 30 }, { width: 24 }, { width: 3 }, { width: 22 }, { width: 20 }] },
     { sheet: 'LichTrinh', data: itineraryData, stickyRowsCount: 1, showGridLines: false, columns: [{ width: 28 }, { width: 14 }, { width: 12 }, { width: 12 }, { width: 20 }, { width: 34 }, { width: 36 }, { width: 36 }, { width: 38 }, { width: 12 }] },
-    { sheet: 'ChiPhi', data: expenseData, stickyRowsCount: 1, showGridLines: false, columns: [{ width: 28 }, { width: 18 }, { width: 14 }, { width: 18 }, { width: 18 }, { width: 28 }, { width: 42 }, { width: 36 }, { width: 14 }, { width: 18 }, { width: 14 }, { width: 38 }, { width: 12 }] },
+    { sheet: 'ChiPhi', data: expenseData, stickyRowsCount: 1, showGridLines: false, columns: [{ width: 28 }, { width: 18 }, { width: 14 }, { width: 18 }, { width: 18 }, { width: 28 }, { width: 42 }, { width: 36 }, { width: 14 }, { width: 16 }, { width: 48 }, { width: 18 }, { width: 14 }, { width: 38 }, { width: 12 }] },
   ]
 }
 

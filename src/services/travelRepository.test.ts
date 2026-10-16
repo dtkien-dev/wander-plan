@@ -16,6 +16,13 @@ beforeEach(() => {
 })
 
 describe('demo travel repository', () => {
+  it('rejects exact-amount splits that do not match the expense', async () => {
+    const draft = { title: 'Ăn tối', category: 'food' as const, expenseDate: '2026-11-27', endDate: null, estimatedAmountVnd: 0, actualAmountVnd: 150000,
+      paidByUserId: 'demo-owner', participantUserIds: ['demo-owner', 'demo-editor'], splitMethod: 'amounts' as const,
+      splitValues: { 'demo-owner': 50000, 'demo-editor': 90000 }, notes: '' }
+    const workspace = await travelRepository.loadWorkspace('demo-trip')
+    await expect(travelRepository.saveExpense({ ...draft, expenseDate: workspace!.trip.startDate }, 'demo-trip')).rejects.toThrow('thiếu')
+  })
   it('records a payment for the recipient only once per seen state and lets the recipient undo it', async () => {
     const before = await travelRepository.loadWorkspace('demo-trip')
     expect(before!.settlementPayments).toEqual([])

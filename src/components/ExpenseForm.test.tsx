@@ -120,4 +120,41 @@ describe('ExpenseForm', () => {
     await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1))
     expect(onSubmit.mock.calls[0][0]).toMatchObject({ category: 'other', endDate: null })
   })
+
+  it('submits share and exact-amount splits and blocks amounts that do not match the expense', async () => {
+    const onSubmit = vi.fn().mockResolvedValue(undefined)
+    render(<ExpenseForm tripStart="2026-11-27" tripEnd="2026-11-30" pending={false} people={people} currentUserId="owner" onSubmit={onSubmit} onCancel={vi.fn()} />)
+    fireEvent.change(screen.getByLabelText('Khoản chi'), { target: { value: 'Phòng khách sạn' } })
+    fireEvent.change(screen.getByLabelText('Dự kiến'), { target: { value: '300000' } })
+    fireEvent.click(screen.getByRole('radio', { name: 'Theo phần' }))
+    fireEvent.change(screen.getByLabelText('Số phần của Bạn'), { target: { value: '2' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Thêm chi phí' }))
+    await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1))
+    expect(onSubmit.mock.calls[0][0]).toMatchObject({ splitMethod: 'shares', splitValues: { owner: 2, friend: 1 } })
+
+    fireEvent.click(screen.getByRole('radio', { name: 'Theo số tiền' }))
+    fireEvent.change(screen.getByLabelText('Số tiền của Bạn'), { target: { value: '100000' } })
+    fireEvent.change(screen.getByLabelText('Số tiền của Người bạn đồng hành'), { target: { value: '150000' } })
+    expect(screen.getByText(/còn lệch 50\.000/)).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'Thêm chi phí' }))
+    expect(await screen.findByText(/thiếu 50\.000/)).toBeInTheDocument()
+    expect(onSubmit).toHaveBeenCalledTimes(1)
+    fireEvent.change(screen.getByLabelText('Số tiền của Người bạn đồng hành'), { target: { value: '200000' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Thêm chi phí' }))
+    await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(2))
+    expect(onSubmit.mock.calls[1][0]).toMatchObject({ splitMethod: 'amounts', splitValues: { owner: 100000, friend: 200000 } })
+  })
+
+  it('requires exact amounts to be re-entered after the actual amount changes', async () => {
+    const onSubmit = vi.fn().mockResolvedValue(undefined)
+    const saved = { id: 'e', tripId: 't', title: 'Ăn tối', category: 'food' as const, expenseDate: '2026-11-27', endDate: null, estimatedAmountVnd: 0,
+      actualAmountVnd: 150000, paidByUserId: 'owner', participantUserIds: ['owner', 'friend'], splitMethod: 'amounts' as const,
+      splitValues: { owner: 50000, friend: 100000 }, notes: '', version: 1 }
+    render(<ExpenseForm expense={saved} tripStart="2026-11-27" tripEnd="2026-11-30" pending={false} people={people} currentUserId="owner" onSubmit={onSubmit} onCancel={vi.fn()} />)
+    expect(screen.getByLabelText('Số tiền của Người bạn đồng hành')).toHaveValue(100000)
+    fireEvent.change(screen.getByLabelText('Thực tế'), { target: { value: '180000' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Lưu thay đổi' }))
+    expect(await screen.findByText(/thiếu 30\.000/)).toBeInTheDocument()
+    expect(onSubmit).not.toHaveBeenCalled()
+  })
 })

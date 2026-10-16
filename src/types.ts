@@ -1,5 +1,6 @@
 export type MemberRole = 'owner' | 'editor'
 export type ExpenseCategory = 'food' | 'transport' | 'stay' | 'ticket' | 'other'
+export type SplitMethod = 'equal' | 'shares' | 'amounts'
 
 export interface Trip {
   archivedAt?: string | null
@@ -65,6 +66,10 @@ export interface Expense {
   actualAmountVnd: number | null
   paidByUserId: string
   participantUserIds: string[]
+  /** Missing means equal (legacy data). */
+  splitMethod?: SplitMethod
+  /** Participant userId → share units ('shares') or đồng ('amounts'); empty for equal. */
+  splitValues?: Record<string, number>
   notes: string
   version: number
 }

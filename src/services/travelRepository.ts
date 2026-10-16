@@ -1,6 +1,7 @@
 import { demoWorkspace } from '../data/demoData'
+import { validateSplit } from '../lib/expenseSettlement'
 import { supabase } from '../lib/supabase'
-import type { ArchivedTrip, ChecklistDraft, ChecklistItem, Expense, SettlementPayment, ExpenseDraft, ItineraryDraft, ItineraryItem, Trip, TripDraft, TripImportDraft, TripImportResult, TripPerson, TripInvitation, WorkspaceData } from '../types'
+import type { ArchivedTrip, ChecklistDraft, ChecklistItem, Expense, SettlementPayment, SplitMethod, ExpenseDraft, ItineraryDraft, ItineraryItem, Trip, TripDraft, TripImportDraft, TripImportResult, TripPerson, TripInvitation, WorkspaceData } from '../types'
 
 const STORAGE_KEY = 'wander-plan-demo-workspace-v1'
 const PEOPLE_STORAGE_KEY = 'wander-plan-demo-people-v1'
@@ -225,6 +226,8 @@ class DemoRepository implements TravelRepository {
 
   async saveExpense(draft: ExpenseDraft, tripId: string, existing?: Expense) {
     const data = this.read(tripId)
+    const splitError = validateSplit(draft)
+    if (splitError) throw new Error(splitError)
     if (existing) {
       data.expenses = data.expenses.map((expense) =>
         expense.id === existing.id ? { ...expense, ...draft, version: expense.version + 1 } : expense,
@@ -279,6 +282,15 @@ class DemoRepository implements TravelRepository {
   }
 }
 
+const splitRow = (draft: ExpenseDraft) => {
+  const method = draft.splitMethod ?? 'equal'
+  return { split_method: method, split_values: method === 'equal' ? null : draft.splitValues ?? {} }
+}
+const splitParams = (draft: ExpenseDraft) => {
+  const { split_method, split_values } = splitRow(draft)
+  return { target_split_method: split_method, target_split_values: split_values }
+}
+
 const mapTrip = (row: any): Trip => ({
   id: row.id,
   name: row.name,
@@ -305,6 +317,8 @@ const mapItinerary = (row: any): ItineraryItem => ({
   version: row.version,
 })
 
+const splitValueColumns: Partial<Record<SplitMethod, string>> = { shares: 'share_units', amounts: 'share_amount_vnd' }
+
 const mapExpense = (row: any): Expense => ({
   id: row.id,
   tripId: row.trip_id,
@@ -316,6 +330,11 @@ const mapExpense = (row: any): Expense => ({
   actualAmountVnd: row.actual_amount_vnd === null ? null : Number(row.actual_amount_vnd),
   paidByUserId: row.paid_by,
   participantUserIds: (row.expense_participants ?? []).map((participant: any) => participant.user_id),
+  splitMethod: row.split_method ?? 'equal',
+  splitValues: Object.fromEntries((row.expense_participants ?? []).flatMap((participant: any) => {
+    const value = participant[splitValueColumns[row.split_method as SplitMethod] ?? '']
+    return value === null || value === undefined ? [] : [[participant.user_id, Number(value)]]
+  })),
   notes: row.notes ?? '',
   version: row.version,
 })
@@ -404,7 +423,7 @@ class SupabaseRepository implements TravelRepository {
     const trip = mapTrip(trips[0])
     const [itineraryResult, expenseResult, memberResult, checklistResult, paymentResult] = await Promise.all([
       supabase.from('itinerary_items').select('id,trip_id,title,visit_date,start_time,end_time,estimated_cost_vnd,address,maps_url,notes,version').eq('trip_id', trip.id).order('visit_date').order('start_time'),
-      supabase.from('expenses').select('id,trip_id,title,category,expense_date,end_date,estimated_amount_vnd,actual_amount_vnd,paid_by,notes,version,expense_participants(user_id)').eq('trip_id', trip.id).order('expense_date'),
+      supabase.from('expenses').select('id,trip_id,title,category,expense_date,end_date,estimated_amount_vnd,actual_amount_vnd,paid_by,notes,version,split_method,expense_participants(user_id,share_units,share_amount_vnd)').eq('trip_id', trip.id).order('expense_date'),
       supabase.from('trip_members').select('user_id,role').eq('trip_id', trip.id),
       supabase.from('checklist_items').select('id,trip_id,title,assigned_to,completed,version').eq('trip_id', trip.id).is('deleted_at', null).order('created_at').order('id'),
       // Undone rows are kept: their count is the duplicate-record guard.
@@ -554,6 +573,7 @@ class SupabaseRepository implements TravelRepository {
       payer_user_id: draft.paidByUserId,
       participant_user_ids: draft.participantUserIds,
       expense_notes: draft.notes,
+      ...splitParams(draft),
     })
     throwIfError(error)
     if (!data) throw new Error('Không thể lưu chi phí.')
@@ -599,6 +619,7 @@ class SupabaseRepository implements TravelRepository {
         paid_by: entry.draft.paidByUserId,
         participant_ids: entry.draft.participantUserIds,
         notes: entry.draft.notes,
+        ...splitRow(entry.draft),
       })),
     })
     throwIfError(error)

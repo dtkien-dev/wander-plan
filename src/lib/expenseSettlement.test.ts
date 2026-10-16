@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { calculateExpenseSettlement } from './expenseSettlement'
+import { calculateExpenseSettlement, splitExpenseAmount, validateSplit } from './expenseSettlement'
 import type { Expense, TripPerson } from '../types'
 
 const people: TripPerson[] = [
@@ -42,6 +42,28 @@ describe('expense settlement', () => {
       { fromUserId: 'b', toUserId: 'a', amountVnd: 45 },
       { fromUserId: 'c', toUserId: 'a', amountVnd: 45 },
     ])
+  })
+
+  it('splits by shares with the leftover on the payer, or spread in fixed order when the payer is absent', () => {
+    const shares = { splitMethod: 'shares' as const, splitValues: { a: 1, b: 1, c: 1 } }
+    expect(splitExpenseAmount(100, { ...shares, paidByUserId: 'b', participantUserIds: ['a', 'b', 'c'] })).toEqual([
+      { userId: 'a', amountVnd: 33 }, { userId: 'b', amountVnd: 34 }, { userId: 'c', amountVnd: 33 },
+    ])
+    expect(splitExpenseAmount(100, { splitMethod: 'shares', splitValues: { b: 2, c: 1 }, paidByUserId: 'a', participantUserIds: ['c', 'b'] })).toEqual([
+      { userId: 'b', amountVnd: 67 }, { userId: 'c', amountVnd: 33 },
+    ])
+    const result = calculateExpenseSettlement([expense({ actualAmountVnd: 300, splitMethod: 'shares', splitValues: { a: 1, b: 2 }, participantUserIds: ['a', 'b'] })], people)
+    expect(result.transfers).toEqual([{ fromUserId: 'b', toUserId: 'a', amountVnd: 200 }])
+  })
+
+  it('uses exact amounts and reports how far they are from the expense amount', () => {
+    const amounts = expense({ actualAmountVnd: 150, splitMethod: 'amounts', splitValues: { a: 50, b: 100 }, participantUserIds: ['a', 'b'] })
+    expect(calculateExpenseSettlement([amounts], people).transfers).toEqual([{ fromUserId: 'b', toUserId: 'a', amountVnd: 100 }])
+    expect(validateSplit(amounts)).toBeNull()
+    expect(validateSplit({ ...amounts, actualAmountVnd: 200 })).toMatch(/thiếu 50/)
+    expect(validateSplit({ ...amounts, actualAmountVnd: null, estimatedAmountVnd: 120 })).toMatch(/thừa 30/)
+    expect(validateSplit({ ...amounts, splitValues: { a: 50 } })).toMatch(/từng người/)
+    expect(validateSplit({ ...amounts, splitMethod: 'shares', splitValues: { a: 1, b: 0 } })).toMatch(/từ 1 đến 1000/)
   })
 
   it('subtracts recorded payments and shows the remaining difference after expenses change', () => {

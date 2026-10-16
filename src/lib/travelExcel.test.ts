@@ -34,6 +34,41 @@ describe('travel Excel import', () => {
     expect(legacyFile.expenses[0]).toMatchObject({ action: 'skip', data: { endDate: '2026-11-30' } })
   })
 
+  it('imports split columns, keeps saved splits for files without them and exports both columns', () => {
+    const header = ['Khoản chi', 'Phân loại', 'Ngày', 'Dự kiến', 'Thực tế', 'Người thanh toán', 'Người tham gia', 'Ghi chú']
+    const both = 'ban@example.com, banthan@example.com'
+    const preview = buildTravelExcelPreview('trip.xlsx', [{ sheet: 'ChiPhi', data: [
+      [...header, 'Cách chia', 'Chi tiết chia'],
+      ['Phòng', 'Lưu trú', '2026-11-27', 300000, '', 'ban@example.com', both, '', 'Theo phần', 'ban@example.com: 2; banthan@example.com: 1'],
+      ['Ăn tối', 'Ăn uống', '2026-11-27', 0, 150000, 'ban@example.com', both, '', 'Theo số tiền', 'ban@example.com: 50.000; banthan@example.com: 90.000'],
+      ['Vé', 'Vé tham quan', '2026-11-28', 1000, '', 'ban@example.com', both, '', 'Kiểu lạ', ''],
+      ['Cà phê', 'Ăn uống', '2026-11-28', 1000, '', 'ban@example.com', both, '', '', ''],
+      ['Taxi', 'Di chuyển', '2026-11-28', 1000, '', 'ban@example.com', 'ban@example.com', '', 'Theo phần', 'la@example.com: 1'],
+    ] }], trip, [], [], demoWorkspace.people)
+    expect(preview.expenses[0]).toMatchObject({ errors: [], data: { splitMethod: 'shares', splitValues: { 'demo-owner': 2, 'demo-editor': 1 } } })
+    expect(preview.expenses[1].errors[0]).toMatch(/thiếu 10\.000/)
+    expect(preview.expenses[2].errors).toContain('Cách chia phải là Chia đều, Theo phần hoặc Theo số tiền')
+    expect(preview.expenses[3]).toMatchObject({ errors: [], data: { splitMethod: 'equal', splitValues: {} } })
+    expect(preview.expenses[4].errors).toContain('Chi tiết chia có email không thuộc chuyến đi hoặc thiếu số')
+
+    const saved = {
+      id: 'room', tripId: trip.id, title: 'Phòng', category: 'stay' as const, expenseDate: '2026-11-27', endDate: null,
+      estimatedAmountVnd: 300000, actualAmountVnd: null, paidByUserId: 'demo-owner', participantUserIds: ['demo-owner', 'demo-editor'],
+      splitMethod: 'shares' as const, splitValues: { 'demo-owner': 2, 'demo-editor': 1 }, notes: '', version: 3,
+    }
+    const legacy = buildTravelExcelPreview('trip.xlsx', [{ sheet: 'ChiPhi', data: [
+      [...header, 'ID', 'Version'],
+      ['Phòng', 'Lưu trú', '2026-11-27', 300000, '', 'ban@example.com', both, '', 'room', 3],
+    ] }], trip, [], [saved], demoWorkspace.people)
+    expect(legacy.expenses[0]).toMatchObject({ action: 'skip', data: { splitMethod: 'shares' } })
+
+    const sheet = buildTravelExcelReportSheets({ ...demoWorkspace, expenses: [saved] }).find((entry) => entry.sheet === 'ChiPhi')!
+    const headerRow = sheet.data[0].map((cell: any) => cell.value)
+    const row = sheet.data[1] as unknown[]
+    expect(row[headerRow.indexOf('Cách chia')]).toBe('Theo phần')
+    expect(row[headerRow.indexOf('Chi tiết chia')]).toBe('ban@example.com: 2; banthan@example.com: 1')
+  })
+
   it('parses Vietnamese template rows and maps expense categories', () => {
     const preview = buildTravelExcelPreview('trip.xlsx', [
       { sheet: 'LichTrinh', data: [
