@@ -141,7 +141,7 @@ export function GroupPage() {
 
         <aside className={styles.people} aria-labelledby="people-title">
           <header><span className={styles.sectionIcon}><UsersRound size={24} /></span><p className="eyebrow">Quyền truy cập</p><h2 id="people-title">Thành viên</h2><p>{activeMembers}/{trip.maxMembers} người đã tham gia{pendingInvitations > 0 ? ` · ${pendingInvitations} chỗ đang giữ cho lời mời` : ''}</p></header>
-          {self && <DisplayNameForm key={workspace.data.currentUserId} initialName={workspace.data.ownDisplayName ?? (self.displayName === self.email || self.displayName === self.email.split('@')[0] ? '' : self.displayName)} fallback={self.email.split('@')[0]} saving={mutations.displayName?.isPending ?? false} onSave={(name) => mutations.displayName.mutateAsync(name)} />}
+          {self && <DisplayNameForm key={workspace.data.currentUserId} initialName={workspace.data.ownDisplayName ?? (self.displayName === self.email || self.displayName === self.email.split('@')[0] ? '' : self.displayName)} fallback={self.email.split('@')[0]} saving={mutations.displayName.isPending} onSave={(name) => mutations.displayName.mutateAsync(name)} />}
           {isOwner && <form className={styles.invite} onSubmit={inviteForm.handleSubmit(invite)}>
             <label htmlFor="invite-email">Mời bằng email</label>
             <div><input id="invite-email" type="email" autoComplete="email" placeholder="ban@example.com" disabled={isFull || membersLoading || mutations.inviteMember.isPending} {...inviteForm.register('email')} aria-invalid={Boolean(inviteForm.formState.errors.email)} /><button className="button button--primary" type="submit" disabled={isFull || membersLoading || mutations.inviteMember.isPending}><MailPlus size={18} />{mutations.inviteMember.isPending ? 'Đang thêm…' : 'Thêm'}</button></div>
@@ -173,7 +173,7 @@ export function GroupPage() {
           )}
         </aside>
       </div>
-      <TripChecklist items={workspace.data.checklist ?? []} people={people.data ?? []} busy={Boolean(mutations.checklist?.isPending || mutations.deleteChecklist?.isPending)} onSave={(draft, existing) => mutations.checklist.mutateAsync({ draft, tripId: trip.id, existing })} onDelete={(item) => mutations.deleteChecklist.mutateAsync(item)} />
+      <TripChecklist items={workspace.data.checklist ?? []} people={people.data ?? []} busy={mutations.checklist.isPending || mutations.deleteChecklist.isPending} onSave={(draft, existing) => mutations.checklist.mutateAsync({ draft, tripId: trip.id, existing })} onDelete={(item) => mutations.deleteChecklist.mutateAsync(item)} />
       <Modal open={revokingEmail !== null} title="Huỷ lời mời" onClose={() => { if (!mutations.revokeInvitation.isPending) setRevokingEmail(null) }}>
         <p className={styles.invitationConfirm}>Huỷ lời mời gửi đến {revokingEmail}? Chỗ đang giữ sẽ được giải phóng.</p>
         <div className="form__actions"><button className="button button--ghost" type="button" disabled={mutations.revokeInvitation.isPending} onClick={() => setRevokingEmail(null)}>Giữ lời mời</button><button className="button button--primary" type="button" disabled={mutations.revokeInvitation.isPending} onClick={() => revokingEmail && void revokeInvitation(revokingEmail)}>{mutations.revokeInvitation.isPending ? 'Đang huỷ…' : 'Xác nhận huỷ'}</button></div>

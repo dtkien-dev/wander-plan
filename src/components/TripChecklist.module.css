@@ -14,4 +14,4 @@
 .done { text-decoration: line-through; color: var(--color-text-muted); }
 .actions { display: flex; flex-shrink: 0; }
 .confirm { overflow-wrap: anywhere; }
-@media (max-width: 560px) { .section { padding: 20px 16px; } .header { align-items: start; flex-direction: column; } .list li { flex-wrap: wrap; } .actions { margin-left: auto; } }
+@media (max-width: 560px) { .section { padding: 20px 16px; } .header { align-items: start; flex-direction: column; } .list li { flex-wrap: wrap; } .item { flex-basis: 100%; } .actions { margin-left: auto; } }

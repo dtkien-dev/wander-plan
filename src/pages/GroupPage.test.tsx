@@ -38,6 +38,9 @@ function setup(role: WorkspaceData['currentRole'], revokeInvitation = vi.fn().mo
   mocks.useWorkspace.mockReturnValue({ data: workspace(role), isLoading: false, isError: false, refetch: vi.fn() })
   mocks.useTripPeople.mockReturnValue({ data: people, isLoading: false, isError: false, refetch: vi.fn() })
   mocks.useWorkspaceMutations.mockReturnValue({
+    displayName: { mutateAsync: vi.fn(), isPending: false },
+    checklist: { mutateAsync: vi.fn(), isPending: false },
+    deleteChecklist: { mutateAsync: vi.fn(), isPending: false },
     updateTrip: { mutateAsync: vi.fn(), isPending: false },
     inviteMember: { mutateAsync: vi.fn(), isPending: false },
     revokeInvitation: { mutateAsync: revokeInvitation, isPending: false },
