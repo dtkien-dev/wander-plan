@@ -107,7 +107,7 @@ class DemoRepository implements TravelRepository {
     if (draft.assignedTo && !data.people.some((person) => person.userId === draft.assignedTo && person.status === 'active')) throw new Error('Người phụ trách phải là thành viên của chuyến đi.')
     if (existing) {
       const item = data.checklist?.find((item) => item.id === existing.id)
-      if (!item || item.version !== existing.version) throw new Error('Mục chuẩn bị đã thay đổi. Hãy tải lại và thử lại.')
+      if (!item || item.version !== existing.version) throw new Error('Mục chuẩn bị đã thay đổi. Đóng cửa sổ rồi mở lại mục để dùng bản mới nhất.')
       Object.assign(item, draft, { title, version: item.version + 1 })
     } else {
       (data.checklist ??= []).push({ ...draft, title, id: crypto.randomUUID(), tripId, version: 1 })
@@ -118,7 +118,7 @@ class DemoRepository implements TravelRepository {
   async deleteChecklist(item: ChecklistItem) {
     const data = this.read(item.tripId)
     const current = data.checklist?.find((entry) => entry.id === item.id)
-    if (!current || current.version !== item.version) throw new Error('Mục chuẩn bị đã thay đổi. Hãy tải lại và thử lại.')
+    if (!current || current.version !== item.version) throw new Error('Mục chuẩn bị đã thay đổi. Đóng cửa sổ rồi mở lại mục để dùng bản mới nhất.')
     data.checklist = data.checklist?.filter((entry) => entry.id !== item.id)
     this.write(data)
   }
@@ -287,21 +287,17 @@ const throwIfError = (error: { message: string } | null) => {
 class SupabaseRepository implements TravelRepository {
   async saveChecklist(draft: ChecklistDraft, tripId: string, existing?: ChecklistItem) {
     if (!supabase) return
-    const fields = { title: draft.title.trim(), assigned_to: draft.assignedTo }
-    const query = existing
-      ? supabase.from('checklist_items').update({ ...fields, completed: draft.completed }).eq('id', existing.id).eq('trip_id', tripId).eq('version', existing.version).is('deleted_at', null)
-      : supabase.from('checklist_items').insert({ ...fields, trip_id: tripId })
-    const { data, error } = await query.select('id')
+    const { error } = await supabase.rpc('save_trip_checklist', {
+      target_trip_id: tripId, target_item_id: existing?.id ?? null, expected_version: existing?.version ?? null,
+      item_title: draft.title.trim(), assignee_user_id: draft.assignedTo, item_completed: draft.completed,
+    })
     throwIfError(error)
-    if (!data?.length) throw new Error('Mục chuẩn bị đã thay đổi. Hãy tải lại và thử lại.')
   }
 
   async deleteChecklist(item: ChecklistItem) {
     if (!supabase) return
-    const { data, error } = await supabase.from('checklist_items').update({ deleted_at: new Date().toISOString() })
-      .eq('id', item.id).eq('trip_id', item.tripId).eq('version', item.version).is('deleted_at', null).select('id')
+    const { error } = await supabase.rpc('remove_trip_checklist', { target_trip_id: item.tripId, target_item_id: item.id, expected_version: item.version })
     throwIfError(error)
-    if (!data?.length) throw new Error('Mục chuẩn bị đã thay đổi. Hãy tải lại và thử lại.')
   }
   async saveDisplayName(name: string) {
     if (!supabase) return
