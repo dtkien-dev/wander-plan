@@ -1,5 +1,5 @@
 begin;
-select plan(24);
+select plan(25);
 insert into auth.users(id, email, raw_user_meta_data) values
  ('a1414141-0000-0000-0000-000000000001','owner@test.local','{}'),
  ('a1414141-0000-0000-0000-000000000002','member@test.local','{}'),
@@ -26,6 +26,7 @@ select throws_ok($$select * from public.get_trip_people('b1414141-0000-0000-0000
 select lives_ok($$insert into public.checklist_items(trip_id,title,assigned_to) values('b1414141-0000-0000-0000-000000000001','Mang áo mưa','a1414141-0000-0000-0000-000000000002')$$,'member adds assigned item');
 select throws_ok($$insert into public.checklist_items(trip_id,title,assigned_to) values('b1414141-0000-0000-0000-000000000001','Bad assignee','a1414141-0000-0000-0000-000000000003')$$,'23514',null,'outside assignee rejected');
 select throws_ok($$insert into public.checklist_items(trip_id,title) values('b1414141-0000-0000-0000-000000000002','Cross trip')$$,'42501',null,'cross trip insert rejected');
+select throws_ok($$insert into public.checklist_items(trip_id,title,assigned_to) values('b1414141-0000-0000-0000-000000000002','Cross trip probe','a1414141-0000-0000-0000-000000000001')$$,'42501',null,'outside caller cannot probe another trip assignee membership');
 select throws_ok($$update public.checklist_items set trip_id='b1414141-0000-0000-0000-000000000002'$$,'42501',null,'trip immutable to API');
 select lives_ok($$update public.checklist_items set title='Mang áo khoác',completed=true where version=1$$,'member edits and checks item');
 select is((select version from public.checklist_items),2,'version incremented');
@@ -35,7 +36,7 @@ select lives_ok($$update public.checklist_items set deleted_at=now() where versi
 select is((select count(*) from public.checklist_items where deleted_at is null),0::bigint,'deleted item hidden by list query');
 reset role;
 delete from public.trip_members where trip_id='b1414141-0000-0000-0000-000000000001' and user_id='a1414141-0000-0000-0000-000000000002';
-select is((select assigned_to from public.checklist_items),null::uuid,'removed member unassigned without losing item');
+select is((select assigned_to from public.checklist_items where trip_id='b1414141-0000-0000-0000-000000000001'),null::uuid,'removed member unassigned without losing item');
 select set_config('request.jwt.claim.sub','a1414141-0000-0000-0000-000000000003',true);
 set local role authenticated;
 select is((select count(*) from public.checklist_items),0::bigint,'other trip cannot read checklist');
