@@ -111,3 +111,15 @@ Plan → code → QA → security review/test → go-live → release notes and 
 Pages calls the shared CI verification workflow before building and deploying. Verification runs lint, application tests, embedded SQL/RLS tests, a dependency audit that blocks high/critical advisories, and a demo build. Only the deploy job receives Pages write/OIDC permissions. Dependency auditing complements the security review of authorization and business logic; it does not replace it.
 
 Before a release, review security results and required migrations, verify the target database/repository, and apply only missing migrations. After deployment, verify the workflow result, live version and affected behavior. Record release results and remaining work under `docs/releases/`.
+
+### Updating GitHub Actions
+
+External actions in `.github/workflows/ci.yml` and `.github/workflows/deploy-pages.yml` use full commit SHAs, with the corresponding release tag in a comment. The local reusable CI workflow stays a local path. The pins identify the reviewed action commits; runner images, downloaded tooling and npm dependencies have their own update mechanisms.
+
+To update a pin:
+1. Choose a release from the action's official `github.com/actions/<action>` repository and read its release notes and `action.yml` (including nested actions for composite actions). Do not copy a SHA from a fork.
+2. Resolve the release tag in that official repository. For example: `git ls-remote https://github.com/actions/checkout.git 'refs/tags/v6.1.0' 'refs/tags/v6.1.0^{}'`. If an annotated tag has a `^{}` entry, use that peeled commit SHA rather than the tag object's SHA.
+3. Replace the full 40-character SHA and version comment in every workflow occurrence. Review any requested input, runtime or permission changes separately; keep verify → build → deploy gates intact.
+4. Parse both YAML files, inspect the scoped diff and verify that each SHA belongs to the official action repository. Run the existing CI and Pages workflows and confirm every job succeeds before marking the update complete. Retain the previously verified SHA for rollback.
+
+See [GitHub's secure-use guidance](https://docs.github.com/en/actions/reference/security/secure-use#using-third-party-actions). Pinning these workflow references does not lock every transitive build dependency. This maintenance change needs no database migration or application-version increment.
