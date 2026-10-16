@@ -8,6 +8,7 @@ const demoPeople = demoWorkspace.people
 
 export interface TravelRepository {
   loadWorkspace(tripId?: string): Promise<WorkspaceData | null>
+  saveDisplayName(name: string): Promise<void>
   listTrips(): Promise<Trip[]>
   createTrip(draft: TripDraft, requestId: string): Promise<string>
   loadInvitations(): Promise<TripInvitation[]>
@@ -76,7 +77,7 @@ class DemoRepository implements TravelRepository {
   async createTrip(draft: TripDraft, requestId: string) {
     const previous = this.readAll().find((data) => data.trip.id === requestId)
     if (previous) return previous.trip.id
-    const owner = { ...demoPeople[0], userId: 'demo-owner', role: 'owner' as const, status: 'active' as const }
+    const owner = { ...(this.readAll()[0]?.people.find((person) => person.userId === 'demo-owner') ?? demoPeople[0]), userId: 'demo-owner', role: 'owner' as const, status: 'active' as const }
     this.write({ trip: { ...draft, id: requestId, timezone: 'Asia/Ho_Chi_Minh', version: 1 }, people: [owner], memberCount: 1, currentUserId: 'demo-owner', currentRole: 'owner', itinerary: [], expenses: [] })
     return requestId
   }
@@ -95,12 +96,24 @@ class DemoRepository implements TravelRepository {
 
   async loadTripPeople(tripId: string) { return this.read(tripId).people }
 
+  async saveDisplayName(name: string) {
+    const trimmed = name.trim()
+    if ([...trimmed].length > 80) throw new Error('Tên hiển thị tối đa 80 ký tự.')
+    const all = this.readAll()
+    for (const data of all) {
+      data.ownDisplayName = trimmed || null
+      data.people = data.people.map((person) => person.userId === 'demo-owner'
+        ? { ...person, displayName: trimmed || person.email.split('@')[0] } : person)
+    }
+    localStorage.setItem('wander-plan-demo-trips-v2', JSON.stringify(all))
+  }
+
   async inviteMember(tripId: string, email: string) {
     const data = this.read(tripId)
     const normalized = email.trim().toLowerCase()
     if (data.people.some((person) => person.email.toLowerCase() === normalized)) return
     if (data.people.length >= data.trip.maxMembers) throw new Error('Chuyến đi đã dùng hết số chỗ thành viên và lời mời.')
-    data.people.push({ userId: null, email: normalized, displayName: normalized, role: 'editor', status: 'invited', joinedAt: null })
+    data.people.push({ userId: null, email: normalized, displayName: normalized.split('@')[0], role: 'editor', status: 'invited', joinedAt: null })
     this.write(data)
   }
 
@@ -244,6 +257,11 @@ const throwIfError = (error: { message: string } | null) => {
 }
 
 class SupabaseRepository implements TravelRepository {
+  async saveDisplayName(name: string) {
+    if (!supabase) return
+    const { error } = await supabase.rpc('save_my_display_name', { target_name: name })
+    throwIfError(error)
+  }
   async listTrips() {
     if (!supabase) return []
     const { data, error } = await supabase.from('trips').select('id,name,destination,start_date,end_date,timezone,budget_vnd,max_members,version').order('start_date')
@@ -287,7 +305,11 @@ class SupabaseRepository implements TravelRepository {
     const { data: authData } = await supabase.auth.getSession()
     const currentMembership = memberResult.data?.find((member) => member.user_id === authData.session?.user.id)
     if (!currentMembership) throw new Error('Tài khoản chưa thuộc chuyến đi này.')
+    const profile = await supabase.from('profiles').select('display_name').eq('id', authData.session!.user.id).single()
+    throwIfError(profile.error)
+    const rawName = profile.data?.display_name
     return {
+      ownDisplayName: rawName === authData.session!.user.email ? null : rawName,
       trip,
       itinerary: (itineraryResult.data ?? []).map(mapItinerary),
       expenses: (expenseResult.data ?? []).map(mapExpense),
@@ -336,7 +358,7 @@ class SupabaseRepository implements TravelRepository {
     return (data ?? []).map((person: any): TripPerson => ({
       userId: person.user_id,
       email: person.email,
-      displayName: person.display_name || person.email,
+      displayName: person.display_name || person.email.split('@')[0],
       role: person.role,
       status: person.status,
       joinedAt: person.joined_at,

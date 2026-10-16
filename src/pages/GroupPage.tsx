@@ -5,6 +5,7 @@ import { CalendarRange, CheckCircle2, Clock3, Crown, MailPlus, MapPin, UserMinus
 import { z } from 'zod'
 import { StateView } from '../components/StateView'
 import { Modal } from '../components/Modal'
+import { DisplayNameForm } from '../components/DisplayNameForm'
 import { useTripPeople, useWorkspace, useWorkspaceMutations } from '../hooks/useWorkspace'
 import { formatCurrency, formatDate } from '../lib/format'
 import type { TripDraft } from '../types'
@@ -68,6 +69,7 @@ export function GroupPage() {
   const isFull = occupiedSeats >= trip.maxMembers
   const membersLoading = !people.data || people.isError
   const activeMembers = people.data?.filter((person) => person.status === 'active').length ?? workspace.data.memberCount
+  const self = people.data?.find((person) => person.userId === workspace.data?.currentUserId)
 
   const saveTrip = async (draft: TripDraft) => {
     setFormError('')
@@ -138,6 +140,7 @@ export function GroupPage() {
 
         <aside className={styles.people} aria-labelledby="people-title">
           <header><span className={styles.sectionIcon}><UsersRound size={24} /></span><p className="eyebrow">Quyền truy cập</p><h2 id="people-title">Thành viên</h2><p>{activeMembers}/{trip.maxMembers} người đã tham gia{pendingInvitations > 0 ? ` · ${pendingInvitations} chỗ đang giữ cho lời mời` : ''}</p></header>
+          {self && <DisplayNameForm key={workspace.data.currentUserId} initialName={workspace.data.ownDisplayName ?? (self.displayName === self.email || self.displayName === self.email.split('@')[0] ? '' : self.displayName)} fallback={self.email.split('@')[0]} saving={mutations.displayName?.isPending ?? false} onSave={(name) => mutations.displayName.mutateAsync(name)} />}
           {isOwner && <form className={styles.invite} onSubmit={inviteForm.handleSubmit(invite)}>
             <label htmlFor="invite-email">Mời bằng email</label>
             <div><input id="invite-email" type="email" autoComplete="email" placeholder="ban@example.com" disabled={isFull || membersLoading || mutations.inviteMember.isPending} {...inviteForm.register('email')} aria-invalid={Boolean(inviteForm.formState.errors.email)} /><button className="button button--primary" type="submit" disabled={isFull || membersLoading || mutations.inviteMember.isPending}><MailPlus size={18} />{mutations.inviteMember.isPending ? 'Đang thêm…' : 'Thêm'}</button></div>

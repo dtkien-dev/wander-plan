@@ -16,6 +16,17 @@ beforeEach(() => {
 })
 
 describe('demo travel repository', () => {
+  it('persists an optional own name across existing and newly created trips', async () => {
+    await travelRepository.createTrip(draft('Other trip'), 'other-trip')
+    await travelRepository.saveDisplayName('  An  ')
+    await travelRepository.createTrip(draft('Third trip'), 'third-trip')
+    for (const trip of await travelRepository.listTrips()) {
+      expect((await travelRepository.loadTripPeople(trip.id)).find((person) => person.userId === 'demo-owner')?.displayName).toBe('An')
+    }
+    await travelRepository.saveDisplayName('')
+    expect((await travelRepository.loadTripPeople('third-trip'))[0].displayName).toBe('ban')
+    expect((await travelRepository.loadTripPeople('demo-trip'))[1].displayName).toBe('Người bạn đồng hành')
+  })
   it('reads saved demo expenses from before date ranges as single-day expenses', async () => {
     const saved = structuredClone(demoWorkspace)
     saved.expenses.forEach((expense) => { delete (expense as Partial<typeof expense>).endDate })

@@ -62,6 +62,7 @@ export interface Expense {
 }
 
 export interface WorkspaceData {
+  ownDisplayName?: string | null
   trip: Trip
   itinerary: ItineraryItem[]
   expenses: Expense[]

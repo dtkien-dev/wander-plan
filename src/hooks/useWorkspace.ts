@@ -65,5 +65,9 @@ export function useWorkspaceMutations() {
     onSuccess: async (_, variables, origin) => { if (!origin) return; await Promise.all([origin.refresh(variables.tripId, true), client.invalidateQueries({ queryKey: invitationsKey(origin.identity) })]); if (variables.accept && isCurrent(origin.identity)) origin.selectTrip(variables.tripId) },
     onError: (_, __, origin) => { if (origin) void client.invalidateQueries({ queryKey: invitationsKey(origin.identity) }) },
   })
-  return { itinerary, deleteItinerary, expense, deleteExpense, importTripData, createTrip, updateTrip, inviteMember, revokeInvitation, removeMember, respondInvitation }
+  const displayName = useMutation({ onMutate: capture,
+    mutationFn: (name: string) => write('profile-name', () => travelRepository.saveDisplayName(name)),
+    onSuccess: (_, __, origin) => client.invalidateQueries({ queryKey: ['workspace', origin?.identity ?? identity] }),
+  })
+  return { displayName, itinerary, deleteItinerary, expense, deleteExpense, importTripData, createTrip, updateTrip, inviteMember, revokeInvitation, removeMember, respondInvitation }
 }

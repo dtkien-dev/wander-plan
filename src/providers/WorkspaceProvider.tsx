@@ -55,6 +55,9 @@ function useWorkspaceState() {
     const channel = supabase.channel(`workspace-${identity}-${tripId ?? 'none'}`)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'trip_members', filter: `user_id=eq.${identity}` }, () => refresh())
       .on('postgres_changes', { event: '*', schema: 'public', table: 'trip_invitations' }, () => refresh())
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'profiles' }, () => {
+        void client.invalidateQueries({ queryKey: ['workspace', identity] })
+      })
     if (tripId) {
       channel.on('postgres_changes', { event: '*', schema: 'public', table: 'trips', filter: `id=eq.${tripId}` }, () => refresh())
       for (const table of ['trip_members', 'itinerary_items', 'expenses']) {
