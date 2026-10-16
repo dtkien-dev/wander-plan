@@ -3,8 +3,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { TripManager } from './TripManager'
 
 const mocks = vi.hoisted(() => ({
-  context: { tripId: null as string | null, selectTrip: vi.fn(), trips: {} as Record<string, unknown>, invitations: {} as Record<string, unknown> },
-  mutations: { createTrip: {} as Record<string, unknown>, respondInvitation: {} as Record<string, unknown> },
+  context: { tripId: null as string | null, selectTrip: vi.fn(), trips: {} as Record<string, unknown>, invitations: {} as Record<string, unknown>, archivedTrips: {} as Record<string, unknown> },
+  mutations: { createTrip: {} as Record<string, unknown>, respondInvitation: {} as Record<string, unknown>, archiveTrip: {} as Record<string, unknown> },
 }))
 
 vi.mock('../providers/WorkspaceProvider', () => ({ useWorkspaceContext: () => mocks.context }))
@@ -40,6 +40,8 @@ beforeEach(() => {
   vi.clearAllMocks()
   mocks.context.tripId = null
   setInvitations()
+  mocks.context.archivedTrips = { data: [], isLoading: false, isError: false, refetch: vi.fn() }
+  mocks.mutations.archiveTrip = { mutateAsync: vi.fn().mockResolvedValue(undefined), isPending: false }
   mocks.mutations.createTrip = { mutateAsync: vi.fn().mockResolvedValue('created-trip'), isPending: false }
   mocks.mutations.respondInvitation = { mutateAsync: vi.fn().mockResolvedValue(undefined), isPending: false }
   vi.spyOn(crypto, 'randomUUID').mockReturnValue('request-id-1')
@@ -47,6 +49,19 @@ beforeEach(() => {
 afterEach(() => { cleanup(); vi.restoreAllMocks() })
 
 describe('TripManager', () => {
+  it('lets an owner restore from the archived list with no active trip and retry a failed restore', async () => {
+    mocks.context.archivedTrips = { data: [{ id: 'old-trip', name: 'Chuyến Huế cũ', archivedAt: '2026-10-16T12:00:00Z', version: 3 }], isError: false }
+    const restore = vi.fn().mockRejectedValueOnce(new Error('Mất kết nối')).mockResolvedValue(undefined)
+    mocks.mutations.archiveTrip.mutateAsync = restore
+    render(<TripManager />)
+    fireEvent.click(screen.getByRole('button', { name: 'Đã lưu trữ (1)' }))
+    expect(screen.getByRole('dialog')).toHaveTextContent('Nội dung được giữ kín')
+    fireEvent.click(screen.getByRole('button', { name: 'Khôi phục Chuyến Huế cũ' }))
+    expect(await screen.findByRole('alert')).toHaveTextContent('Mất kết nối')
+    fireEvent.click(screen.getByRole('button', { name: 'Khôi phục Chuyến Huế cũ' }))
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
+    expect(restore).toHaveBeenLastCalledWith({ tripId: 'old-trip', archived: false, version: 3 })
+  })
   it('lists trips with destination and dates and selects one by pointer', () => {
     mocks.context.tripId = 'trip-a'
     mocks.context.trips = { data: [

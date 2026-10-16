@@ -27,4 +27,9 @@
 .invitations article > div { min-width: 0; overflow-wrap: anywhere; }
 .invitations p { margin: 4px 0; font-size: 13px; }
 .actions { display: flex; gap: 8px; flex-shrink: 0; }
+.archivedList { display: grid; gap: 12px; padding: 0; list-style: none; }
+.archivedList li { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px; border: 1px solid var(--color-border); border-radius: var(--radius-inset); }
+.archivedList strong { min-width: 0; overflow-wrap: anywhere; }
+.archivedList button { flex-shrink: 0; }
+@media (max-width: 600px) { .archivedList li { flex-direction: column; align-items: stretch; } }
 @media (max-width: 600px) { .toolbar, .invitations article { flex-direction: column; align-items: stretch; } .select { width: 100%; } .actions { flex-wrap: wrap; } }

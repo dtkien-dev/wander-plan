@@ -41,6 +41,7 @@ function setup(role: WorkspaceData['currentRole'], revokeInvitation = vi.fn().mo
     displayName: { mutateAsync: vi.fn(), isPending: false },
     checklist: { mutateAsync: vi.fn(), isPending: false },
     deleteChecklist: { mutateAsync: vi.fn(), isPending: false },
+    archiveTrip: { mutateAsync: vi.fn(), isPending: false },
     updateTrip: { mutateAsync: vi.fn(), isPending: false },
     inviteMember: { mutateAsync: vi.fn(), isPending: false },
     revokeInvitation: { mutateAsync: revokeInvitation, isPending: false },
