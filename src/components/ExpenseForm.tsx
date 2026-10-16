@@ -103,11 +103,11 @@ export function ExpenseForm({ expense, tripStart, tripEnd, pending, people, curr
     },
   })
   const [category, roundTrip, expenseDate, endDate, estimated, actual, splitMethod, participantUserIds, paidByUserId, shareUnits, shareAmounts] = watch(['category', 'roundTrip', 'expenseDate', 'endDate', 'estimatedAmountVnd', 'actualAmountVnd', 'splitMethod', 'participantUserIds', 'paidByUserId', 'shareUnits', 'shareAmounts'])
-  const selectedPeople = [...activePeople.filter((person) => participantUserIds?.includes(person.userId)), ...formerParticipants]
-  const allParticipantIds = selectedPeople.map((person) => person.userId)
+  // Split rows only render while money is editable, so they never include former members.
+  const selectedPeople = activePeople.filter((person) => participantUserIds?.includes(person.userId))
   const splitTarget = splitTargetAmount({ actualAmountVnd: actual, estimatedAmountVnd: Number.isFinite(estimated) ? estimated : 0 })
   const amountTotal = selectedPeople.reduce((sum, person) => sum + (Number.isFinite(shareAmounts?.[person.userId]) ? shareAmounts[person.userId] : 0), 0)
-  const shareDraft = { participantUserIds: allParticipantIds, paidByUserId, splitMethod, splitValues: pickValues(shareUnits, allParticipantIds), actualAmountVnd: actual, estimatedAmountVnd: estimated }
+  const shareDraft = { participantUserIds, paidByUserId, splitMethod, splitValues: pickValues(shareUnits, participantUserIds ?? []), actualAmountVnd: actual, estimatedAmountVnd: estimated }
   const sharePreview = splitMethod === 'shares' && validateSplit(shareDraft) === null
     ? new Map(splitExpenseAmount(splitTarget, shareDraft).map((share) => [share.userId, share.amountVnd]))
     : null
