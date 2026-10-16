@@ -30,7 +30,7 @@ select is(
 );
 
 select ok(
-  has_function_privilege('authenticated', 'public.save_expense_with_participants(uuid, uuid, integer, text, text, date, bigint, bigint, uuid, uuid[], text, date)', 'execute')
+  has_function_privilege('authenticated', 'public.save_expense_with_participants(uuid, uuid, integer, text, text, date, bigint, bigint, uuid, uuid[], text, date, text, jsonb)', 'execute')
   and has_function_privilege('authenticated', 'public.import_trip_data(uuid, jsonb, jsonb)', 'execute')
   and has_function_privilege('authenticated', 'public.respond_trip_invitation(uuid, boolean)', 'execute')
   and has_function_privilege('authenticated', 'public.get_trip_people(uuid)', 'execute'),
