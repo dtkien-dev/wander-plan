@@ -94,7 +94,7 @@ a { color: inherit; }
 .form__actions { display: grid; grid-auto-flow: column; justify-content: end; gap: 10px; padding-top: 4px; }
 .boot-state { display: grid; place-items: center; min-height: 100dvh; padding: 24px; }
 
-@media (max-width: 760px) {
+@media (max-width: 900px) {
   .topbar { position: static; grid-template-columns: 1fr auto; gap: 12px; min-height: 66px; padding: max(10px, env(safe-area-inset-top)) 16px 10px; }
   .desktop-nav { display: none; }
   .brand small { display: none; }
