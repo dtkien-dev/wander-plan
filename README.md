@@ -18,7 +18,7 @@ Use Node 20.19+ or a supported newer LTS for all development tools. Without Supa
 
 ## Database setup and upgrades
 
-Fresh database: apply migrations once in filename order through `202610160004_security_hardening.sql`. Existing databases: inspect applied migration history and apply only missing forward migrations. Do not rerun all historical migrations: earlier functions restore obsolete single-trip/auto-accept behavior. Keep a backup and rehearse upgrades before production.
+Fresh database: apply all files in `supabase/migrations/` once in filename order. Existing databases: inspect applied migration history and apply only missing forward migrations. Do not rerun all historical migrations: earlier functions restore obsolete single-trip/auto-accept behavior. Keep a backup and rehearse upgrades before production.
 
 The `202610150001` security migration removes direct membership INSERT privileges from public API roles. Trip creation and recipient acceptance still create memberships through their authorized RPCs; existing memberships and business data are unchanged. Apply this forward migration to databases already running the `202610140004` contract. Do not restore the old direct INSERT grant when reverting frontend code.
 
@@ -91,6 +91,12 @@ Locally, `supabase/config.toml` enables the same hook. Google stays disabled the
 Pending invitations reserve places: 3 active members plus 1 pending invitation fill a group of 4. The owner can revoke the pending invitation to free its place. A declined invitation also frees its place. There is no automatic expiry policy in this version.
 
 ## Trips and reminders
+
+In **Nhóm**, each member can set their own optional display name (up to 80 characters), shared across all trips. Clearing it shows the email local part. Existing names are retained; a legacy email-as-name is displayed using its local part. Owners cannot change another person's name. Email addresses remain visible only within shared trips through the existing membership checks.
+
+The shared trip checklist is also in **Nhóm**. Every current member can add, edit, check and remove preparation items, with an optional current-member assignee. Removing a member clears their assignments and retains the items. Stale edits/deletions are rejected; reopen the item after refreshing to use its latest version. Checklist data is separate from the itinerary/expense Excel format.
+
+For rollout, apply forward migrations `20261016123926_names_and_checklist.sql`, `20261016124932_authorize_checklist_validation.sql` and `20261016125337_serialize_checklist_writes.sql` before the matching frontend. These add the checklist table/RLS, profile-name RPC and Realtime publication, prevent cross-trip membership probing, and route checklist writes through authorized RPCs with trip-before-item locking (matching member removal). Direct API checklist writes are revoked. Checklist removal uses `deleted_at` updates so trip-filtered Realtime subscribers receive removals while RLS remains enforced. Old demo storage gains an empty checklist on read. A frontend rollback retains the new data; database recovery uses forward migrations.
 
 The trip selector scopes queries, edits and realtime subscriptions to the selected trip; changing trips resets open edit forms. Each new trip has its own membership, itinerary and expenses. Trip creation uses a request key to prevent duplicates on retries.
 
