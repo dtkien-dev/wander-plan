@@ -54,6 +54,37 @@ beforeEach(() => vi.clearAllMocks())
 afterEach(cleanup)
 
 describe('GroupPage invitations', () => {
+  it('keeps settings compact, discards a cancelled draft and saves through the owner editor', async () => {
+    setup('owner')
+    const update = mocks.useWorkspaceMutations().updateTrip.mutateAsync
+    update.mockResolvedValue(undefined)
+    render(<GroupPage />)
+    expect(screen.queryByLabelText('Tên chuyến đi')).not.toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'Chỉnh sửa chuyến', exact: true }))
+    fireEvent.change(screen.getByLabelText('Tên chuyến đi'), { target: { value: 'Bản nháp chưa lưu' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Hủy chỉnh sửa' }))
+    expect(update).not.toHaveBeenCalled()
+    fireEvent.click(screen.getByRole('button', { name: 'Chỉnh sửa chuyến', exact: true }))
+    expect(screen.getByLabelText('Tên chuyến đi')).toHaveValue(trip.name)
+    fireEvent.change(screen.getByLabelText('Tên chuyến đi'), { target: { value: 'Hành trình Huế cùng bạn' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Lưu thông tin' }))
+    await waitFor(() => expect(update).toHaveBeenCalledWith({ existing: trip, draft: expect.objectContaining({ name: 'Hành trình Huế cùng bạn' }) }))
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
+    expect(screen.getByRole('status')).toHaveTextContent('Đã cập nhật')
+  })
+
+  it('retains an owner draft and actionable error when saving fails', async () => {
+    setup('owner')
+    mocks.useWorkspaceMutations().updateTrip.mutateAsync.mockRejectedValue(new Error('Chuyến đi đã thay đổi.'))
+    render(<GroupPage />)
+    fireEvent.click(screen.getByRole('button', { name: 'Chỉnh sửa chuyến', exact: true }))
+    fireEvent.change(screen.getByLabelText('Điểm đến'), { target: { value: 'Huế và vùng lân cận' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Lưu thông tin' }))
+    expect(await screen.findByRole('alert')).toHaveTextContent('Chuyến đi đã thay đổi.')
+    expect(screen.getByLabelText('Điểm đến')).toHaveValue('Huế và vùng lân cận')
+    expect(screen.getByRole('button', { name: 'Lưu thông tin' })).toBeEnabled()
+  })
+
   it('shows active and held-seat counts and disables another invite when all four seats are occupied', () => {
     setup('owner')
     render(<GroupPage />)
@@ -77,7 +108,7 @@ describe('GroupPage invitations', () => {
     expect(screen.queryByRole('status')).not.toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Thêm', exact: true })).toBeDisabled()
     fireEvent.click(await screen.findByRole('button', { name: 'Tăng số người tối đa' }))
-    expect(screen.getByLabelText('Số người tối đa')).toHaveFocus()
+    await waitFor(() => expect(screen.getByLabelText('Số người tối đa')).toHaveFocus())
   })
 
   it('does not suggest increasing capacity beyond the supported limit', () => {
@@ -129,6 +160,8 @@ describe('GroupPage invitations', () => {
     setup('editor')
     render(<GroupPage />)
 
+    expect(screen.queryByRole('button', { name: 'Chỉnh sửa chuyến', exact: true })).not.toBeInTheDocument()
+    expect(screen.queryByLabelText('Tên chuyến đi')).not.toBeInTheDocument()
     expect(screen.queryByRole('button', { name: /Huỷ lời mời/ })).not.toBeInTheDocument()
     expect(screen.queryByLabelText('Mời bằng email')).not.toBeInTheDocument()
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()

@@ -33,6 +33,7 @@ export function GroupPage() {
   const [notice, setNotice] = useState('')
   const [formError, setFormError] = useState('')
   const [revokingEmail, setRevokingEmail] = useState<string | null>(null)
+  const [editingTrip, setEditingTrip] = useState<'general' | 'capacity' | null>(null)
   const capacityInput = useRef<HTMLInputElement | null>(null)
   const trip = workspace.data?.trip
   const isOwner = workspace.data?.currentRole === 'owner'
@@ -62,6 +63,12 @@ export function GroupPage() {
     resetTripForm({ name: trip.name, destination: trip.destination, startDate: trip.startDate, endDate: trip.endDate, budgetVnd: trip.budgetVnd, maxMembers: trip.maxMembers })
   }, [trip, resetTripForm])
 
+  useEffect(() => {
+    if (editingTrip !== 'capacity') return
+    const frame = window.requestAnimationFrame(() => capacityInput.current?.focus())
+    return () => window.cancelAnimationFrame(frame)
+  }, [editingTrip])
+
   if (workspace.isLoading) return <StateView state="loading" />
   if (workspace.isError) return <StateView state="error" onAction={() => void workspace.refetch()} />
   if (!workspace.data || !trip) return <StateView state="empty" title="Chưa có chuyến đang hoạt động" message="Chủ nhóm có thể khôi phục trong mục Đã lưu trữ, hoặc bạn có thể tạo hay nhận lời mời vào chuyến khác." />
@@ -77,6 +84,7 @@ export function GroupPage() {
     setFormError('')
     try {
       await mutations.updateTrip.mutateAsync({ draft, existing: trip })
+      setEditingTrip(null)
       setNotice('Đã cập nhật thông tin chuyến đi.')
     } catch (error) {
       setFormError(error instanceof Error ? error.message : 'Không thể cập nhật chuyến đi.')
@@ -116,33 +124,24 @@ export function GroupPage() {
   return (
     <div className={styles.page} data-ai-id="group-page">
       <header className="section-header section-header--page">
-        <div><p className="eyebrow">Nhóm {trip.maxMembers} người</p><h1>Chuyến đi & thành viên</h1><p>Một nơi để chốt ngày đi, ngân sách và những người được phép chỉnh sửa.</p></div>
+        <div><p className="eyebrow">Cùng nhau chuẩn bị</p><h1>Nhóm của bạn</h1><p>Thành viên, thông tin chuyến và những việc cần làm trước ngày đi.</p></div>
       </header>
       {notice && <div className="feedback" role="status">{notice}<button type="button" onClick={() => setNotice('')}>Đóng</button></div>}
       <div className={styles.grid}>
         <section className={styles.settings} aria-labelledby="trip-settings-title">
-          <header><div><span className={styles.sectionIcon}><CalendarRange size={24} /></span><p className="eyebrow">Thông tin chung</p><h2 id="trip-settings-title">{trip.name}</h2></div>{!isOwner && <span className={styles.readonly}>Chỉ chủ chuyến đi được sửa</span>}</header>
+          <header><div><span className={styles.sectionIcon}><CalendarRange size={24} /></span><p className="eyebrow">Thông tin chung</p><h2 id="trip-settings-title">{trip.name}</h2></div>{isOwner ? <button className="button button--soft" type="button" onClick={() => { resetTripForm(); setFormError(''); setEditingTrip('general') }}>Chỉnh sửa chuyến</button> : <span className={styles.readonly}>Chỉ chủ chuyến đi được sửa</span>}</header>
           <div className={styles.tripFacts} aria-label="Tóm tắt chuyến đi">
             <span><CalendarRange size={18} />{formatDate(trip.startDate)} — {formatDate(trip.endDate)}</span>
             <span><MapPin size={18} />{trip.destination}</span>
             <span><WalletCards size={18} />{formatCurrency(trip.budgetVnd)}</span>
             <span><UsersRound size={18} />Tối đa {trip.maxMembers} người</span>
           </div>
-          {formError && <div className="form-error-banner" role="alert">{formError}</div>}
-          <form className="form" onSubmit={tripForm.handleSubmit(saveTrip)}>
-            <label className="field field--wide">Tên chuyến đi<input disabled={!isOwner} {...tripForm.register('name')} aria-invalid={Boolean(tripForm.formState.errors.name)} />{tripForm.formState.errors.name && <span>{tripForm.formState.errors.name.message}</span>}</label>
-            <label className="field field--wide">Điểm đến<input disabled={!isOwner} {...tripForm.register('destination')} aria-invalid={Boolean(tripForm.formState.errors.destination)} />{tripForm.formState.errors.destination && <span>{tripForm.formState.errors.destination.message}</span>}</label>
-            <label className="field">Ngày bắt đầu<input type="date" disabled={!isOwner} {...tripForm.register('startDate')} aria-invalid={Boolean(tripForm.formState.errors.startDate)} />{tripForm.formState.errors.startDate && <span>{tripForm.formState.errors.startDate.message}</span>}</label>
-            <label className="field">Ngày kết thúc<input type="date" disabled={!isOwner} {...tripForm.register('endDate')} aria-invalid={Boolean(tripForm.formState.errors.endDate)} />{tripForm.formState.errors.endDate && <span>{tripForm.formState.errors.endDate.message}</span>}</label>
-            <label className="field">Ngân sách dự kiến<input type="number" min="0" step="100000" inputMode="numeric" disabled={!isOwner} {...tripForm.register('budgetVnd', { valueAsNumber: true })} aria-invalid={Boolean(tripForm.formState.errors.budgetVnd)} />{tripForm.formState.errors.budgetVnd && <span>{tripForm.formState.errors.budgetVnd.message}</span>}</label>
-            <label className="field">Số người tối đa<input type="number" min={occupiedSeats} max="20" step="1" inputMode="numeric" disabled={!isOwner} {...capacityField} ref={(input) => { capacityField.ref(input); capacityInput.current = input }} aria-invalid={Boolean(tripForm.formState.errors.maxMembers)} />{tripForm.formState.errors.maxMembers && <span>{tripForm.formState.errors.maxMembers.message}</span>}</label>
-            {isOwner && <div className="form__actions field--wide"><button className="button button--primary" type="submit" disabled={mutations.updateTrip.isPending || !tripForm.formState.isDirty}>{mutations.updateTrip.isPending ? 'Đang lưu…' : 'Lưu thông tin'}</button></div>}
-          </form>
+
         </section>
 
         <aside className={styles.people} aria-labelledby="people-title">
           <header><span className={styles.sectionIcon}><UsersRound size={24} /></span><p className="eyebrow">Quyền truy cập</p><h2 id="people-title">Thành viên</h2><p>{activeMembers}/{trip.maxMembers} người đã tham gia{pendingInvitations > 0 ? ` · ${pendingInvitations} chỗ đang giữ cho lời mời` : ''}</p></header>
-          {self && <DisplayNameForm key={workspace.data.currentUserId} initialName={workspace.data.ownDisplayName ?? (self.displayName === self.email || self.displayName === self.email.split('@')[0] ? '' : self.displayName)} fallback={self.email.split('@')[0]} saving={mutations.displayName.isPending} onSave={(name) => mutations.displayName.mutateAsync(name)} />}
+          {self && <details className={styles.profile}><summary>Tên hiển thị của bạn<span>Chỉnh sửa hồ sơ</span></summary><DisplayNameForm key={workspace.data.currentUserId} initialName={workspace.data.ownDisplayName ?? (self.displayName === self.email || self.displayName === self.email.split('@')[0] ? '' : self.displayName)} fallback={self.email.split('@')[0]} saving={mutations.displayName.isPending} onSave={(name) => mutations.displayName.mutateAsync(name)} /></details>}
           {isOwner && <form className={styles.invite} onSubmit={inviteForm.handleSubmit(invite)}>
             <label htmlFor="invite-email">Mời bằng email</label>
             <div><input id="invite-email" type="email" autoComplete="email" placeholder="ban@example.com" disabled={isFull || membersLoading || mutations.inviteMember.isPending} {...inviteForm.register('email')} aria-invalid={Boolean(inviteForm.formState.errors.email)} /><button className="button button--primary" type="submit" disabled={isFull || membersLoading || mutations.inviteMember.isPending}><MailPlus size={18} />{mutations.inviteMember.isPending ? 'Đang thêm…' : 'Thêm'}</button></div>
@@ -151,7 +150,7 @@ export function GroupPage() {
                 ? `Đã giữ đủ ${trip.maxMembers} chỗ, gồm ${activeMembers} thành viên và ${pendingInvitations} lời mời đang chờ.`
                 : `Nhóm đã đủ ${activeMembers} thành viên.`}</p>
               {pendingInvitations > 0 && <p className={styles.capacity}>Bạn có thể huỷ lời mời đang chờ để giải phóng chỗ.</p>}
-              {trip.maxMembers < 20 && <button className="button button--ghost" type="button" onClick={() => capacityInput.current?.focus()}>Tăng số người tối đa</button>}
+              {trip.maxMembers < 20 && <button className="button button--ghost" type="button" onClick={() => { resetTripForm(); setFormError(''); setEditingTrip('capacity') }}>Tăng số người tối đa</button>}
             </>}
             {inviteForm.formState.errors.email && <span role="alert">{inviteForm.formState.errors.email.message}</span>}
           </form>}
@@ -173,9 +172,22 @@ export function GroupPage() {
             </ul>
           )}
         </aside>
+        <TripChecklist items={workspace.data.checklist ?? []} people={people.data ?? []} busy={mutations.checklist.isPending || mutations.deleteChecklist.isPending} onSave={(draft, existing) => mutations.checklist.mutateAsync({ draft, tripId: trip.id, existing })} onDelete={(item) => mutations.deleteChecklist.mutateAsync(item)} />
       </div>
-      <TripChecklist items={workspace.data.checklist ?? []} people={people.data ?? []} busy={mutations.checklist.isPending || mutations.deleteChecklist.isPending} onSave={(draft, existing) => mutations.checklist.mutateAsync({ draft, tripId: trip.id, existing })} onDelete={(item) => mutations.deleteChecklist.mutateAsync(item)} />
-      {isOwner && <ArchiveTripControl name={trip.name} busy={mutations.archiveTrip.isPending} onArchive={() => mutations.archiveTrip.mutateAsync({ tripId: trip.id, archived: true, version: trip.version })} />}
+
+      {isOwner && <details className={styles.archive}><summary>Quản lý lưu trữ chuyến</summary><ArchiveTripControl name={trip.name} busy={mutations.archiveTrip.isPending} onArchive={() => mutations.archiveTrip.mutateAsync({ tripId: trip.id, archived: true, version: trip.version })} /></details>}
+      <Modal open={editingTrip !== null && isOwner} title="Chỉnh sửa chuyến đi" onClose={() => { if (!mutations.updateTrip.isPending) setEditingTrip(null) }}>
+          {formError && <div className="form-error-banner" role="alert">{formError}</div>}
+          <form className="form" onSubmit={tripForm.handleSubmit(saveTrip)}>
+            <label className="field field--wide">Tên chuyến đi<input disabled={!isOwner} {...tripForm.register('name')} aria-invalid={Boolean(tripForm.formState.errors.name)} />{tripForm.formState.errors.name && <span>{tripForm.formState.errors.name.message}</span>}</label>
+            <label className="field field--wide">Điểm đến<input disabled={!isOwner} {...tripForm.register('destination')} aria-invalid={Boolean(tripForm.formState.errors.destination)} />{tripForm.formState.errors.destination && <span>{tripForm.formState.errors.destination.message}</span>}</label>
+            <label className="field">Ngày bắt đầu<input type="date" disabled={!isOwner} {...tripForm.register('startDate')} aria-invalid={Boolean(tripForm.formState.errors.startDate)} />{tripForm.formState.errors.startDate && <span>{tripForm.formState.errors.startDate.message}</span>}</label>
+            <label className="field">Ngày kết thúc<input type="date" disabled={!isOwner} {...tripForm.register('endDate')} aria-invalid={Boolean(tripForm.formState.errors.endDate)} />{tripForm.formState.errors.endDate && <span>{tripForm.formState.errors.endDate.message}</span>}</label>
+            <label className="field">Ngân sách dự kiến<input type="number" min="0" step="100000" inputMode="numeric" disabled={!isOwner} {...tripForm.register('budgetVnd', { valueAsNumber: true })} aria-invalid={Boolean(tripForm.formState.errors.budgetVnd)} />{tripForm.formState.errors.budgetVnd && <span>{tripForm.formState.errors.budgetVnd.message}</span>}</label>
+            <label className="field">Số người tối đa<input type="number" min={occupiedSeats} max="20" step="1" inputMode="numeric" disabled={!isOwner} {...capacityField} ref={(input) => { capacityField.ref(input); capacityInput.current = input }} aria-invalid={Boolean(tripForm.formState.errors.maxMembers)} />{tripForm.formState.errors.maxMembers && <span>{tripForm.formState.errors.maxMembers.message}</span>}</label>
+            {isOwner && <div className="form__actions field--wide"><button className="button button--primary" type="submit" disabled={mutations.updateTrip.isPending || !tripForm.formState.isDirty}>{mutations.updateTrip.isPending ? 'Đang lưu…' : 'Lưu thông tin'}</button><button className="button button--ghost" type="button" disabled={mutations.updateTrip.isPending} onClick={() => setEditingTrip(null)}>Hủy chỉnh sửa</button></div>}
+          </form>
+      </Modal>
       <Modal open={revokingEmail !== null} title="Huỷ lời mời" onClose={() => { if (!mutations.revokeInvitation.isPending) setRevokingEmail(null) }}>
         <p className={styles.invitationConfirm}>Huỷ lời mời gửi đến {revokingEmail}? Chỗ đang giữ sẽ được giải phóng.</p>
         <div className="form__actions"><button className="button button--ghost" type="button" disabled={mutations.revokeInvitation.isPending} onClick={() => setRevokingEmail(null)}>Giữ lời mời</button><button className="button button--primary" type="button" disabled={mutations.revokeInvitation.isPending} onClick={() => revokingEmail && void revokeInvitation(revokingEmail)}>{mutations.revokeInvitation.isPending ? 'Đang huỷ…' : 'Xác nhận huỷ'}</button></div>
