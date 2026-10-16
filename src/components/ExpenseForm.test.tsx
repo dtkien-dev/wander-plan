@@ -159,19 +159,20 @@ describe('ExpenseForm', () => {
     expect(onSubmit).not.toHaveBeenCalled()
   })
 
-  it('keeps a former payer and participant on an old expense while other details stay editable', async () => {
+  it('locks the money of an expense with a former member while title and notes stay editable', async () => {
     const onSubmit = vi.fn().mockResolvedValue(undefined)
     const saved = { id: 'e', tripId: 't', title: 'Ăn tối', category: 'food' as const, expenseDate: '2026-11-27', endDate: null, estimatedAmountVnd: 0,
       actualAmountVnd: 90000, paidByUserId: 'gone', participantUserIds: ['owner', 'gone'], splitMethod: 'shares' as const,
       splitValues: { owner: 1, gone: 2 }, notes: '', version: 1 }
     render(<ExpenseForm expense={saved} tripStart="2026-11-27" tripEnd="2026-11-30" pending={false} people={people} currentUserId="owner"
       formerPeople={[{ userId: 'gone', displayName: 'Chi' }]} onSubmit={onSubmit} onCancel={vi.fn()} />)
-    expect(screen.getByText(/Người thanh toán: Chi \(đã rời nhóm\)/)).toBeInTheDocument()
-    expect(screen.queryByLabelText('Người thanh toán')).not.toBeInTheDocument()
-    expect(screen.getByLabelText('Số phần của Chi (đã rời nhóm)')).toHaveValue(2)
+    expect(screen.getByRole('note')).toHaveTextContent('Phần tiền đã khóa vì có người đã rời nhóm')
+    expect(screen.getByRole('note')).toHaveTextContent('Trả bởi Chi (đã rời nhóm) · Theo phần: Bạn, Chi (đã rời nhóm)')
+    for (const label of ['Người thanh toán', 'Dự kiến', 'Thực tế']) expect(screen.queryByLabelText(label)).not.toBeInTheDocument()
+    expect(screen.queryByRole('radio')).not.toBeInTheDocument()
     fireEvent.change(screen.getByLabelText('Khoản chi'), { target: { value: 'Ăn tối cả nhóm' } })
     fireEvent.click(screen.getByRole('button', { name: 'Lưu thay đổi' }))
     await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1))
-    expect(onSubmit.mock.calls[0][0]).toMatchObject({ title: 'Ăn tối cả nhóm', paidByUserId: 'gone', participantUserIds: ['owner', 'gone'], splitValues: { owner: 1, gone: 2 } })
+    expect(onSubmit.mock.calls[0][0]).toMatchObject({ title: 'Ăn tối cả nhóm', actualAmountVnd: 90000, paidByUserId: 'gone', participantUserIds: ['owner', 'gone'], splitMethod: 'shares', splitValues: { owner: 1, gone: 2 } })
   })
 })

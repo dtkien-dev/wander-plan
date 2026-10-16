@@ -83,6 +83,9 @@ export function ExpenseForm({ expense, tripStart, tripEnd, pending, people, curr
   const formerParticipants = (expense?.participantUserIds ?? []).filter((userId) => !activeUserIds.includes(userId)).map((userId) => ({ userId, displayName: formerName(userId) }))
   const formerParticipantIds = formerParticipants.map((person) => person.userId)
   const formerPayerId = expense && !activeUserIds.includes(expense.paidByUserId) ? expense.paidByUserId : null
+  // A024: an expense that involves someone who left keeps its money exactly as recorded.
+  const moneyLocked = formerParticipantIds.length > 0 || formerPayerId !== null
+  const nameOf = (userId: string) => activePeople.find((person) => person.userId === userId)?.displayName ?? formerName(userId)
   const savedMethod = expense?.splitMethod ?? 'equal'
   const { register, handleSubmit, watch, formState: { errors } } = useForm<ExpenseFormValues>({
     resolver: zodResolver(createSchema(tripStart, tripEnd, activeUserIds, formerParticipantIds, formerPayerId)),
@@ -120,27 +123,36 @@ export function ExpenseForm({ expense, tripStart, tripEnd, pending, people, curr
       {category === 'transport' && <label className="field field--wide field--check"><input type="checkbox" {...register('roundTrip')} /> <span>Khứ hồi (một khoản cho cả lượt đi và về)</span></label>}
       {showEndDate && <label className="field">{isStay ? 'Ngày trả phòng' : 'Ngày về'}<input type="date" min={expenseDate || tripStart} max={tripEnd} {...register('endDate', { setValueAs: (value) => value === '' || value == null ? null : value })} aria-invalid={Boolean(errors.endDate)} />{errors.endDate && <span>{errors.endDate.message}</span>}</label>}
       {isStay && nights > 0 && <p className="field field--wide field-hint" role="status">{nights} đêm · khoảng {formatCurrency(Math.round(Number(stayAmount || 0) / nights))}/đêm</p>}
-      <label className="field">{isStay ? 'Dự kiến (tổng)' : 'Dự kiến'}<input type="number" inputMode="numeric" min="0" step="1000" {...register('estimatedAmountVnd', { valueAsNumber: true })} aria-invalid={Boolean(errors.estimatedAmountVnd)} />{errors.estimatedAmountVnd && <span>{errors.estimatedAmountVnd.message}</span>}</label>
-      <label className="field">{isStay ? 'Thực tế (tổng)' : 'Thực tế'}<input type="number" inputMode="numeric" min="0" step="1000" placeholder="Chưa phát sinh" {...register('actualAmountVnd', { setValueAs: (value) => value === '' || value == null ? null : Number(value) })} aria-invalid={Boolean(errors.actualAmountVnd)} />{errors.actualAmountVnd && <span>{errors.actualAmountVnd.message}</span>}</label>
-      {formerPayerId
-        ? <p className="field field--wide field-hint">Người thanh toán: {formerName(formerPayerId)} — giữ nguyên cho khoản chi này.</p>
-        : <label className="field field--wide">Người thanh toán<select {...register('paidByUserId')} aria-invalid={Boolean(errors.paidByUserId)}>{activePeople.map((person) => <option key={person.userId} value={person.userId}>{person.displayName}</option>)}</select>{errors.paidByUserId && <span>{errors.paidByUserId.message}</span>}</label>}
-      <fieldset className="field field--wide participant-field"><legend>Người tham gia</legend><div>{activePeople.map((person) => <label key={person.userId}><input type="checkbox" value={person.userId} {...register('participantUserIds')} /> <span>{person.displayName}</span></label>)}</div>{formerParticipants.length > 0 && <p className="field-hint">Giữ nguyên: {formerParticipants.map((person) => person.displayName).join(', ')}</p>}{errors.participantUserIds && <span>{errors.participantUserIds.message}</span>}</fieldset>
-      <fieldset className="field field--wide split-field" aria-describedby={errors.splitMethod ? 'split-error' : undefined}>
-        <legend>Cách chia</legend>
-        <div className="split-field__methods">{(Object.keys(splitLabels) as SplitMethod[]).map((method) => <label key={method}><input type="radio" value={method} {...register('splitMethod')} /> <span>{splitLabels[method]}</span></label>)}</div>
-        {splitMethod !== 'equal' && selectedPeople.length > 0 && (
-          <div className="split-field__rows">
-            {selectedPeople.map((person) => splitMethod === 'shares'
-              ? <label key={`shares-${person.userId}`}><span>{person.displayName}</span><input type="number" inputMode="numeric" min="1" max={MAX_SHARE_UNITS} step="1" aria-label={`Số phần của ${person.displayName}`} {...register(`shareUnits.${person.userId}`, { setValueAs: toNumber })} /><small>{sharePreview ? formatCurrency(sharePreview.get(person.userId) ?? 0) : '—'}</small></label>
-              : <label key={`amounts-${person.userId}`}><span>{person.displayName}</span><input type="number" inputMode="numeric" min="0" step="1000" aria-label={`Số tiền của ${person.displayName}`} {...register(`shareAmounts.${person.userId}`, { setValueAs: toNumber })} /></label>)}
-            <p className="field-hint" role="status">{splitMethod === 'shares'
-              ? `Tính trên ${formatCurrency(splitTarget)}; phần lẻ do người thanh toán chịu nếu có tham gia.`
-              : `Đã chia ${formatCurrency(amountTotal)} / ${formatCurrency(splitTarget)}${amountTotal === splitTarget ? '' : ` · còn lệch ${formatCurrency(Math.abs(splitTarget - amountTotal))}`}`}</p>
-          </div>
-        )}
-        {errors.splitMethod && <span id="split-error">{errors.splitMethod.message}</span>}
-      </fieldset>
+      {moneyLocked ? (
+        <div className="field field--wide locked-money" role="note">
+          <strong>Phần tiền đã khóa vì có người đã rời nhóm</strong>
+          <p>Dự kiến {formatCurrency(expense!.estimatedAmountVnd)} · Thực tế {expense!.actualAmountVnd === null ? 'chưa phát sinh' : formatCurrency(expense!.actualAmountVnd)}</p>
+          <p>Trả bởi {nameOf(expense!.paidByUserId)} · {splitLabels[savedMethod]}: {expense!.participantUserIds.map(nameOf).join(', ')}</p>
+          <p className="field-hint">Vẫn sửa được tên, phân loại, ngày và ghi chú.</p>
+        </div>
+      ) : (
+        <>
+        <label className="field">{isStay ? 'Dự kiến (tổng)' : 'Dự kiến'}<input type="number" inputMode="numeric" min="0" step="1000" {...register('estimatedAmountVnd', { valueAsNumber: true })} aria-invalid={Boolean(errors.estimatedAmountVnd)} />{errors.estimatedAmountVnd && <span>{errors.estimatedAmountVnd.message}</span>}</label>
+        <label className="field">{isStay ? 'Thực tế (tổng)' : 'Thực tế'}<input type="number" inputMode="numeric" min="0" step="1000" placeholder="Chưa phát sinh" {...register('actualAmountVnd', { setValueAs: (value) => value === '' || value == null ? null : Number(value) })} aria-invalid={Boolean(errors.actualAmountVnd)} />{errors.actualAmountVnd && <span>{errors.actualAmountVnd.message}</span>}</label>
+        <label className="field field--wide">Người thanh toán<select {...register('paidByUserId')} aria-invalid={Boolean(errors.paidByUserId)}>{activePeople.map((person) => <option key={person.userId} value={person.userId}>{person.displayName}</option>)}</select>{errors.paidByUserId && <span>{errors.paidByUserId.message}</span>}</label>
+        <fieldset className="field field--wide participant-field"><legend>Người tham gia</legend><div>{activePeople.map((person) => <label key={person.userId}><input type="checkbox" value={person.userId} {...register('participantUserIds')} /> <span>{person.displayName}</span></label>)}</div>{errors.participantUserIds && <span>{errors.participantUserIds.message}</span>}</fieldset>
+        <fieldset className="field field--wide split-field" aria-describedby={errors.splitMethod ? 'split-error' : undefined}>
+          <legend>Cách chia</legend>
+          <div className="split-field__methods">{(Object.keys(splitLabels) as SplitMethod[]).map((method) => <label key={method}><input type="radio" value={method} {...register('splitMethod')} /> <span>{splitLabels[method]}</span></label>)}</div>
+          {splitMethod !== 'equal' && selectedPeople.length > 0 && (
+            <div className="split-field__rows">
+              {selectedPeople.map((person) => splitMethod === 'shares'
+                ? <label key={`shares-${person.userId}`}><span>{person.displayName}</span><input type="number" inputMode="numeric" min="1" max={MAX_SHARE_UNITS} step="1" aria-label={`Số phần của ${person.displayName}`} {...register(`shareUnits.${person.userId}`, { setValueAs: toNumber })} /><small>{sharePreview ? formatCurrency(sharePreview.get(person.userId) ?? 0) : '—'}</small></label>
+                : <label key={`amounts-${person.userId}`}><span>{person.displayName}</span><input type="number" inputMode="numeric" min="0" step="1000" aria-label={`Số tiền của ${person.displayName}`} {...register(`shareAmounts.${person.userId}`, { setValueAs: toNumber })} /></label>)}
+              <p className="field-hint" role="status">{splitMethod === 'shares'
+                ? `Tính trên ${formatCurrency(splitTarget)}; phần lẻ do người thanh toán chịu nếu có tham gia.`
+                : `Đã chia ${formatCurrency(amountTotal)} / ${formatCurrency(splitTarget)}${amountTotal === splitTarget ? '' : ` · còn lệch ${formatCurrency(Math.abs(splitTarget - amountTotal))}`}`}</p>
+            </div>
+          )}
+          {errors.splitMethod && <span id="split-error">{errors.splitMethod.message}</span>}
+        </fieldset>
+        </>
+      )}
       <label className="field field--wide">Ghi chú<textarea rows={3} maxLength={500} {...register('notes')} aria-invalid={Boolean(errors.notes)} />{errors.notes && <span>{errors.notes.message}</span>}</label>
       <div className="form__actions field--wide">
         <button className="button button--ghost" type="button" onClick={onCancel}>Hủy</button>

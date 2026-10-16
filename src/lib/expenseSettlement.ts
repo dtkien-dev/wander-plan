@@ -41,6 +41,10 @@ export const splitExpenseAmount = (amountVnd: number, expense: SplitInput): Memb
   return spreadRemainder(shares, remainder)
 }
 
+/** A024: someone who left the trip paid for or took part in this expense, so its money is frozen. */
+export const involvesFormerMember = (expense: Pick<Expense, 'paidByUserId' | 'participantUserIds'>, activeUserIds: ReadonlySet<string>) =>
+  !activeUserIds.has(expense.paidByUserId) || expense.participantUserIds.some((userId) => !activeUserIds.has(userId))
+
 /** Returns a Vietnamese error for an incomplete or mismatched split, or null when valid. */
 export const validateSplit = (expense: SplitInput & Pick<Expense, 'actualAmountVnd' | 'estimatedAmountVnd'>) => {
   const method = expense.splitMethod ?? 'equal'

@@ -36,3 +36,10 @@ it('labels settled balances and shows when each payment was confirmed', () => {
   expect(screen.getByText('Đã quyết toán xong.')).toBeInTheDocument()
   expect(screen.getByText('27/11 09:05')).toBeInTheDocument()
 })
+
+it('keeps a payment from someone who left without an undo control', () => {
+  render(<SettlementPanel balances={[]} transfers={[]} payments={[payment]} currentUserId="a" pending={false} personName={personName}
+    isFormer={(userId) => userId === 'b'} onConfirm={vi.fn()} onUndo={vi.fn()} />)
+  expect(screen.getByRole('region', { name: 'Đã thanh toán' })).toHaveTextContent('Bình đã trả An')
+  expect(screen.queryByRole('button', { name: /Hủy xác nhận/ })).not.toBeInTheDocument()
+})

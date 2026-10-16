@@ -1,4 +1,4 @@
-import { validateSplit } from './expenseSettlement'
+import { involvesFormerMember, validateSplit } from './expenseSettlement'
 import { actualOrEstimated, isGoogleMapsUrl, totalExpenses } from './format'
 import { inspectXlsxArchive } from './xlsxGuard'
 import type { Expense, ExpenseCategory, ExpenseDraft, ItineraryDraft, ItineraryItem, SplitMethod, Trip, TripImportDraft, TripPerson, WorkspaceData } from '../types'
@@ -136,14 +136,14 @@ const sameItinerary = (draft: ItineraryDraft, existing: ItineraryItem) =>
   draft.title === existing.title && draft.visitDate === existing.visitDate && draft.startTime === existing.startTime &&
   draft.endTime === existing.endTime && draft.estimatedCostVnd === existing.estimatedCostVnd &&
   draft.address === existing.address && draft.mapsUrl === existing.mapsUrl && draft.notes === existing.notes
-const sameExpense = (draft: ExpenseDraft, existing: Expense) =>
-  draft.title === existing.title && draft.category === existing.category && draft.expenseDate === existing.expenseDate &&
-  draft.endDate === existing.endDate &&
+const sameMoney = (draft: ExpenseDraft, existing: Expense) =>
   draft.estimatedAmountVnd === existing.estimatedAmountVnd && draft.actualAmountVnd === existing.actualAmountVnd &&
   draft.paidByUserId === existing.paidByUserId && [...draft.participantUserIds].sort().join('|') === [...existing.participantUserIds].sort().join('|') &&
   (draft.splitMethod ?? 'equal') === (existing.splitMethod ?? 'equal') &&
-  JSON.stringify(Object.entries(draft.splitValues ?? {}).sort()) === JSON.stringify(Object.entries(existing.splitValues ?? {}).sort()) &&
-  draft.notes === existing.notes
+  JSON.stringify(Object.entries(draft.splitValues ?? {}).sort()) === JSON.stringify(Object.entries(existing.splitValues ?? {}).sort())
+const sameExpense = (draft: ExpenseDraft, existing: Expense) =>
+  draft.title === existing.title && draft.category === existing.category && draft.expenseDate === existing.expenseDate &&
+  draft.endDate === existing.endDate && sameMoney(draft, existing) && draft.notes === existing.notes
 
 const parseItinerarySheet = (data: SheetData, trip: Trip, existing: ItineraryItem[]): ExcelPreviewRow<ItineraryDraft>[] => {
   if (!data.length) return []
@@ -258,6 +258,7 @@ const parseExpenseSheet = (data: SheetData, trip: Trip, existing: Expense[], peo
     }
     const errors: string[] = []
     if (rawSplitMethod && !parsedSplitMethod) errors.push('Cách chia phải là Chia đều, Theo phần hoặc Theo số tiền')
+    if (saved && involvesFormerMember(saved, activeIds) && !sameMoney(draft, saved)) errors.push('Khoản chi có người đã rời nhóm: không thể đổi số tiền, cách chia, người trả hay người tham gia')
     if (splitDetail?.unknown.length) errors.push('Chi tiết chia có email không thuộc chuyến đi hoặc thiếu số')
     else if (Object.keys(splitValues).some((userId) => !participantUserIds.includes(userId))) errors.push('Chi tiết chia chỉ được ghi cho người tham gia')
     else if (participantUserIds.length) {

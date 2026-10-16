@@ -76,6 +76,12 @@ describe('demo travel repository', () => {
     await travelRepository.recordSettlementPayment('demo-trip', 'demo-editor', 1_125_000, 0)
     await travelRepository.removeMember('demo-trip', 'demo-editor')
     expect((await travelRepository.loadWorkspace('demo-trip'))!.formerPeople).toEqual([{ userId: 'demo-editor', displayName: 'Người bạn đồng hành' }])
+    const after = (await travelRepository.loadWorkspace('demo-trip'))!
+    const locked = after.expenses[0]
+    await expect(travelRepository.deleteExpense(locked)).rejects.toThrow('không thể xóa')
+    await expect(travelRepository.saveExpense({ ...locked, actualAmountVnd: (locked.actualAmountVnd ?? 0) + 1000 }, 'demo-trip', locked)).rejects.toThrow('không thể đổi số tiền')
+    await travelRepository.saveExpense({ ...locked, title: 'Đã đổi tên' }, 'demo-trip', locked)
+    await expect(travelRepository.undoSettlementPayment(after.settlementPayments![0])).rejects.toThrow('giữ nguyên')
   })
   it('persists an optional own name across existing and newly created trips', async () => {
     await travelRepository.createTrip(draft('Other trip'), 'other-trip')

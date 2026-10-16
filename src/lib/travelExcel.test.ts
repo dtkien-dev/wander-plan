@@ -85,6 +85,11 @@ describe('travel Excel import', () => {
       ['Ăn tối sửa', 'Ăn uống', '2026-11-27', 0, 90000, '', 'ban@example.com', '', 'Theo số tiền', 'ban@example.com: 30000', 'old', 2],
     ] }], trip, [], [saved], demoWorkspace.people)
     expect(preview.expenses[0]).toMatchObject({ errors: [], action: 'update', data: { paidByUserId: 'gone', participantUserIds: ['demo-owner', 'gone'], splitValues: { 'demo-owner': 30000, gone: 60000 } } })
+    const changed = buildTravelExcelPreview('trip.xlsx', [{ sheet: 'ChiPhi', data: [
+      [...header, 'Cách chia', 'Chi tiết chia', 'ID', 'Version'],
+      ['Ăn tối', 'Ăn uống', '2026-11-27', 0, 120000, '', 'ban@example.com', '', 'Theo số tiền', 'ban@example.com: 60000', 'old', 2],
+    ] }], trip, [], [saved], demoWorkspace.people)
+    expect(changed.expenses[0].errors).toContain('Khoản chi có người đã rời nhóm: không thể đổi số tiền, cách chia, người trả hay người tham gia')
   })
 
   it('parses Vietnamese template rows and maps expense categories', () => {

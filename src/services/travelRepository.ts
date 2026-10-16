@@ -1,5 +1,5 @@
 import { demoWorkspace } from '../data/demoData'
-import { calculateExpenseSettlement, validateSplit } from '../lib/expenseSettlement'
+import { calculateExpenseSettlement, involvesFormerMember, validateSplit } from '../lib/expenseSettlement'
 import { supabase } from '../lib/supabase'
 import type { ArchivedTrip, ChecklistDraft, ChecklistItem, Expense, FormerPerson, SettlementPayment, SplitMethod, ExpenseDraft, ItineraryDraft, ItineraryItem, Trip, TripDraft, TripImportDraft, TripImportResult, TripPerson, TripInvitation, WorkspaceData } from '../types'
 
@@ -32,6 +32,7 @@ export interface TravelRepository {
   importTripData(draft: TripImportDraft, tripId: string): Promise<TripImportResult>
 }
 
+const activeIds = (data: WorkspaceData) => new Set(data.people.flatMap((person) => person.status === 'active' && person.userId ? [person.userId] : []))
 const delay = () => new Promise((resolve) => window.setTimeout(resolve, 180))
 const cloneDemo = (): WorkspaceData => JSON.parse(JSON.stringify(demoWorkspace)) as WorkspaceData
 
@@ -159,6 +160,7 @@ class DemoRepository implements TravelRepository {
 
   async undoSettlementPayment(payment: SettlementPayment) {
     const data = this.read(payment.tripId)
+    if (!activeIds(data).has(payment.fromUserId)) throw new Error('Người trả đã rời nhóm nên thanh toán này được giữ nguyên.')
     if (payment.toUserId !== data.currentUserId || !data.settlementPayments?.some((entry) => entry.id === payment.id)) throw new Error('Chỉ người nhận tiền được hủy xác nhận này, hoặc xác nhận đã được hủy.')
     data.settlementPayments = data.settlementPayments.filter((entry) => entry.id !== payment.id)
     this.write(data)
@@ -234,6 +236,12 @@ class DemoRepository implements TravelRepository {
     const data = this.read(tripId)
     const splitError = validateSplit(draft)
     if (splitError) throw new Error(splitError)
+    const saved = existing && data.expenses.find((expense) => expense.id === existing.id)
+    if (saved && involvesFormerMember(saved, activeIds(data)) && (draft.actualAmountVnd !== saved.actualAmountVnd || draft.estimatedAmountVnd !== saved.estimatedAmountVnd
+      || draft.paidByUserId !== saved.paidByUserId || [...draft.participantUserIds].sort().join() !== [...saved.participantUserIds].sort().join()
+      || (draft.splitMethod ?? 'equal') !== (saved.splitMethod ?? 'equal') || JSON.stringify(draft.splitValues ?? {}) !== JSON.stringify(saved.splitValues ?? {}))) {
+      throw new Error('Khoản chi có người đã rời nhóm: không thể đổi số tiền, cách chia hay người trả. Chỉ sửa được tên, phân loại, ngày và ghi chú.')
+    }
     if (existing) {
       data.expenses = data.expenses.map((expense) =>
         expense.id === existing.id ? { ...expense, ...draft, version: expense.version + 1 } : expense,
@@ -251,6 +259,7 @@ class DemoRepository implements TravelRepository {
 
   async deleteExpense(expense: Expense) {
     const data = this.read(expense.tripId)
+    if (involvesFormerMember(expense, activeIds(data))) throw new Error('Khoản chi có người đã rời nhóm nên không thể xóa.')
     data.expenses = data.expenses.filter((entry) => entry.id !== expense.id)
     this.write(data)
   }

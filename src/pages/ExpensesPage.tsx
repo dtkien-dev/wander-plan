@@ -5,7 +5,7 @@ import { Modal } from '../components/Modal'
 import { SettlementPanel } from '../components/SettlementPanel'
 import { StateView } from '../components/StateView'
 import { actualOrEstimated, describeExpenseDates, formatCurrency, formatDate, safePercent, totalExpenses } from '../lib/format'
-import { calculateExpenseSettlement, type SettlementTransfer } from '../lib/expenseSettlement'
+import { calculateExpenseSettlement, involvesFormerMember, type SettlementTransfer } from '../lib/expenseSettlement'
 import { downloadTravelExcelReport } from '../lib/travelExcel'
 import { useWorkspace, useWorkspaceMutations } from '../hooks/useWorkspace'
 import type { Expense, ExpenseCategory, ExpenseDraft, SettlementPayment, SplitMethod, TripImportDraft } from '../types'
@@ -43,6 +43,7 @@ export function ExpensesPage() {
   const total = totalExpenses(expenses)
   const activePeople = people.filter((person) => person.status === 'active' && person.userId)
   const peopleById = new Map(activePeople.map((person) => [person.userId!, person]))
+  const activeUserIds = new Set(peopleById.keys())
   const payments = data.settlementPayments ?? []
   const settlement = calculateExpenseSettlement(expenses, people, payments)
   const formerById = new Map((data.formerPeople ?? []).map((person) => [person.userId, person.displayName]))
@@ -127,10 +128,12 @@ export function ExpensesPage() {
         <div className={styles.categories}>{grouped.length ? grouped.map(([category, amount]) => <div key={category}><span>{labels[category]}</span><strong>{formatCurrency(amount)}</strong><div><i style={{ width: `${Math.max(safePercent(amount, total), amount > 0 ? 4 : 0)}%` }} /></div></div>) : <p>Chưa có phân bổ chi phí.</p>}</div>
       </section>
       {daily.length > 0 && <section className={styles.daily} aria-labelledby="daily-title"><header><p className="eyebrow">Theo từng ngày</p><h2 id="daily-title">Nhịp chi tiêu</h2></header><div>{daily.map(([date, amount]) => <article key={date}><time dateTime={date}>{formatDate(date)}</time><strong>{formatCurrency(amount)}</strong></article>)}</div></section>}
-      <SettlementPanel balances={settlement.balances} transfers={settlement.transfers} payments={payments} currentUserId={currentUserId} pending={mutations.recordPayment.isPending || mutations.undoPayment.isPending} personName={personName} onConfirm={(transfer) => void confirmPayment(transfer)} onUndo={(payment) => void undoPayment(payment)} />
+      <SettlementPanel balances={settlement.balances} transfers={settlement.transfers} payments={payments} currentUserId={currentUserId} pending={mutations.recordPayment.isPending || mutations.undoPayment.isPending} personName={personName} isFormer={(userId) => !activeUserIds.has(userId)} onConfirm={(transfer) => void confirmPayment(transfer)} onUndo={(payment) => void undoPayment(payment)} />
       {expenses.length === 0 ? <StateView state="empty" title="Chưa có khoản chi nào" message="Thêm khoản chi đầu tiên để theo dõi ngân sách và chia tiền cùng nhóm." actionLabel="Thêm khoản chi đầu tiên" onAction={() => { setFormError(''); setEditing(null) }} /> : (
         <section className={styles.list} aria-label="Danh sách chi phí">
-          {expenses.map((expense) => <article className={styles.expense} key={expense.id}><span className={styles.category}>{labels[expense.category]}</span><div><h2>{expense.title}</h2><p>{describeExpenseDates(expense)} · {expense.notes || 'Không có ghi chú'}</p><p className={styles.splitMeta}>Trả bởi {personName(expense.paidByUserId)} · {splitSummary(expense)}</p></div><div className={styles.amount}><strong>{formatCurrency(actualOrEstimated(expense))}</strong><small>{expense.actualAmountVnd === null ? 'Dự kiến' : 'Thực tế'}</small></div><div className={styles.actions}><button className="icon-button" type="button" onClick={() => { setFormError(''); setEditing(expense) }} aria-label={`Sửa ${expense.title}`}><Pencil size={18} /></button><button className="icon-button icon-button--danger" type="button" disabled={mutations.deleteExpense.isPending} onClick={() => void remove(expense)} aria-label={`Xóa ${expense.title}`}><Trash2 size={18} /></button></div></article>)}
+          {expenses.map((expense) => <article className={styles.expense} key={expense.id}><span className={styles.category}>{labels[expense.category]}</span><div><h2>{expense.title}</h2><p>{describeExpenseDates(expense)} · {expense.notes || 'Không có ghi chú'}</p><p className={styles.splitMeta}>Trả bởi {personName(expense.paidByUserId)} · {splitSummary(expense)}</p></div><div className={styles.amount}><strong>{formatCurrency(actualOrEstimated(expense))}</strong><small>{expense.actualAmountVnd === null ? 'Dự kiến' : 'Thực tế'}</small></div><div className={styles.actions}><button className="icon-button" type="button" onClick={() => { setFormError(''); setEditing(expense) }} aria-label={`Sửa ${expense.title}`}><Pencil size={18} /></button>{involvesFormerMember(expense, activeUserIds)
+            ? <button className="icon-button icon-button--danger" type="button" disabled title="Có người đã rời nhóm nên không thể xóa" aria-label={`Không thể xóa ${expense.title} vì có người đã rời nhóm`}><Trash2 size={18} /></button>
+            : <button className="icon-button icon-button--danger" type="button" disabled={mutations.deleteExpense.isPending} onClick={() => void remove(expense)} aria-label={`Xóa ${expense.title}`}><Trash2 size={18} /></button>}</div></article>)}
         </section>
       )}
       <Modal open={editing !== undefined} title={editing ? 'Chỉnh sửa chi phí' : 'Thêm chi phí'} onClose={() => setEditing(undefined)}>

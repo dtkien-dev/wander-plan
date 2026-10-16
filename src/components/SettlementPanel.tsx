@@ -21,11 +21,12 @@ interface SettlementPanelProps {
   currentUserId: string
   pending: boolean
   personName: (userId: string) => string
+  isFormer?: (userId: string) => boolean
   onConfirm: (transfer: SettlementTransfer) => void
   onUndo: (payment: SettlementPayment) => void
 }
 
-export function SettlementPanel({ balances, transfers, payments, currentUserId, pending, personName, onConfirm, onUndo }: SettlementPanelProps) {
+export function SettlementPanel({ balances, transfers, payments, currentUserId, pending, personName, isFormer = () => false, onConfirm, onUndo }: SettlementPanelProps) {
   return (
     <section className={styles.settlement} aria-labelledby="settlement-title">
       <header><span><HandCoins size={22} /></span><div><p className="eyebrow">Quyết toán thực tế</p><h2 id="settlement-title">Ai cần trả cho ai?</h2><p className={styles.settlementHint}>Người nhận tiền xác nhận khi đã nhận; số dư tự tính lại.</p></div></header>
@@ -46,7 +47,7 @@ export function SettlementPanel({ balances, transfers, payments, currentUserId, 
               <span><strong>{personName(payment.fromUserId)}</strong> đã trả <strong>{personName(payment.toUserId)}</strong></span>
               <span className={styles.paymentAmount}>{formatCurrency(payment.amountVnd)}</span>
               <time dateTime={payment.createdAt}>{formatPaidAt(payment.createdAt)}</time>
-              {payment.toUserId === currentUserId && <button className="button button--ghost" type="button" disabled={pending} onClick={() => onUndo(payment)} aria-label={`Hủy xác nhận ${formatCurrency(payment.amountVnd)} từ ${personName(payment.fromUserId)}`}><Undo2 size={16} /> Hủy</button>}
+              {payment.toUserId === currentUserId && !isFormer(payment.fromUserId) && <button className="button button--ghost" type="button" disabled={pending} onClick={() => onUndo(payment)} aria-label={`Hủy xác nhận ${formatCurrency(payment.amountVnd)} từ ${personName(payment.fromUserId)}`}><Undo2 size={16} /> Hủy</button>}
             </li>
           ))}</ul>
         </section>
