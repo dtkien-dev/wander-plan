@@ -1,6 +1,6 @@
 # WanderPlan — bảng kế hoạch sản phẩm tổng hợp
 
-Chủ sở hữu: PO. Cập nhật: 17/10/2026 sau xác minh production 0.9.3 (Asia/Saigon). Tracker thực thi: `wp-20261014-01` (bundle `2026-10-14-no1-website-improvements`).
+Chủ sở hữu: PO. Cập nhật: 18/10/2026 sau phát hành 0.10.0 (Asia/Saigon). Tracker thực thi: `wp-20261014-01` (bundle `2026-10-14-no1-website-improvements`).
 File này là bảng kế hoạch chung cho IT, QA, ITS, BA, ITO. Lịch theo ngày chi tiết: [daily-schedule-2026-10-15.md](daily-schedule-2026-10-15.md).
 
 ## Quy trình mỗi đợt
@@ -37,6 +37,8 @@ UAT hiện tại: Supabase stack đầy đủ chạy local (Auth, Realtime, Post
 | 0.9.0 | 16/10 | R10: chia đều/theo phần/theo số tiền; chặn lưu khi tổng chia lệch; Excel thêm cột Cách chia/Chi tiết chia. |
 | 0.9.1 | 16/10 | QA tổng hợp R16/R08: chỉ loại thành viên khi đã quyết toán xong; khoản cũ giữ người đã rời và vẫn sửa được; nút Đóng 44px; gia cố quyền. |
 | 0.9.2 | 17/10 | Khóa phần tiền và không cho xóa khoản chi có người đã rời nhóm (vẫn sửa tên/phân loại/ngày/ghi chú); mock UAT .ics, Excel, Google, email, Realtime. |
+| 0.9.3 | 17/10 | Sửa đọc tiền Excel, phân trang đầy đủ, chống ghi demo cũ, tải workspace song song. |
+| 0.10.0 | 18/10 | R11: cảnh báo trùng giờ trong lịch trình (không chặn lưu), đánh dấu “Trùng giờ” trong danh sách. |
 
 
 ## Bảng kế hoạch
@@ -56,7 +58,7 @@ Thứ tự theo chỉ đạo khách hàng 15/10: các đợt tính năng/sửa l
 | R08 | P18 | QA | QA tổng hợp, security, chuẩn bị bản phát hành | Cao | Hoàn tất 0.9.1 | P14–P17 | Kết quả và giới hạn rõ cho từng tính năng. |
 | R09 | P14 | UX/Feature | **Tên hiển thị thành viên** | Cao | Đã phát hành 0.5.0 | — | Mỗi người tự đặt, tùy chọn, dùng chung mọi chuyến; chưa đặt thì hiện phần trước @; chủ nhóm không sửa tên người khác. Email chỉ hiện cho người cùng chuyến, tên dài không tràn. |
 | R10 | P20 | Feature | Chia tiền **không đều** (theo phần hoặc số tiền) | Trung bình | Đã phát hành 0.9.0 | R06 | Mỗi khoản chọn chia đều/theo phần/theo số tiền. Số tiền phải khớp Thực tế (chưa có thì Dự kiến); lệch thì chặn lưu và báo chênh lệch. Phần lẻ khi chia theo phần: người trả chịu nếu có tham gia, không thì rải theo thứ tự cố định. Excel thêm cột Cách chia/Chi tiết chia; file cũ = chia đều. |
-| R11 | P24 | UX | Lịch trình: cảnh báo trùng giờ cùng ngày (hoạt động nhiều ngày: hoãn) | Thấp | Chờ duyệt go-live 0.10.0 | — | A031: khoảng [bắt đầu, kết thúc) giao nhau mới trùng; cảnh báo không chặn lưu; dữ liệu cũ không đổi. |
+| R11 | P24 | UX | Lịch trình: cảnh báo trùng giờ cùng ngày (hoạt động nhiều ngày: hoãn) | Thấp | Đã phát hành 0.10.0 | — | A031: khoảng [bắt đầu, kết thúc) giao nhau mới trùng; cảnh báo không chặn lưu; dữ liệu cũ không đổi. |
 | R12 | ITS follow-up | Security | Allowlist HTTPS cho Google Maps URL ở database (hiện chỉ kiểm tra ở form) | Trung bình | Đã phát hành 0.4.2 | — | Từ chối URL không phải https/Google Maps qua API trực tiếp; dữ liệu cũ được kiểm tra trước khi thêm ràng buộc. |
 | R13 | ITS follow-up | Security | Giới hạn kích thước file Excel trước khi giải nén | Trung bình | Đã phát hành 0.4.2 (giới hạn: dựa trên kích thước file tự khai báo) | — | File quá lớn bị từ chối trước khi đọc; thông báo rõ. |
 | R14 | R14 | Security | Ghim GitHub Actions theo commit SHA | Thấp | Hoàn tất16/10 | — |7 tham chiếu/5 action chính thức ghim SHA; CI/Pages đạt; README có hướng dẫn cập nhật. App giữ0.5.0. |
@@ -113,5 +115,5 @@ A029/E025: hồ sơ chia sẻ đã làm sạch và push nhánh `codex/portable-w
 
 A030: nhánh bàn giao hiện tại là `docs/portable-workflow`. Mọi nhánh mới đặt theo mục đích Git, không dùng prefix tên agent/công cụ.
 
-## P24 — R11 cảnh báo trùng giờ, chờ duyệt go-live 17/10
-Khách hàng chốt A031. Bản 0.10.0 (`ab7a517`, nhánh `feat/itinerary-overlap-warning`): form thêm/sửa cảnh báo trùng giờ (không chặn lưu), danh sách đánh dấu “Trùng giờ”. 136 test, lint/build/audit đạt; UAT local đạt. Không đổi database. Hoạt động nhiều ngày hoãn. [Release note 0.10.0](../docs/releases/2026-10-17-0.10.0.md).
+## P24 — R11 cảnh báo trùng giờ, hoàn tất 18/10
+Khách hàng chốt A031. Bản 0.10.0 (`ab7a517`, nhánh `feat/itinerary-overlap-warning`): form thêm/sửa cảnh báo trùng giờ (không chặn lưu), danh sách đánh dấu “Trùng giờ”. 136 test, lint/build/audit đạt; UAT local đạt. Không đổi database. Hoạt động nhiều ngày hoãn. Go-live A032: PR #4 merge `d36d741`, CI/Pages đạt, production 0.10.0 xác nhận; chưa smoke có đăng nhập trên production. [Release note 0.10.0](../docs/releases/2026-10-17-0.10.0.md).

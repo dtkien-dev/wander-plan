@@ -46,3 +46,7 @@ E026 completed: commit 79781f087a282f53678418ba5791166c9423d23e (docs: use purpo
 <!-- workflow-action:E027 status:completed -->
 
 E027 result: feature commit ab7a517 on feat/itinerary-overlap-warning. QA/UAT/ITS PASS as recorded in docs/releases/2026-10-17-0.10.0.md; QA activity removed from UAT data. Not pushed; go-live (push branch, PR, merge main → Pages) needs customer approval.
+
+## A032 / E028 — Go-live 0.10.0
+18/10/2026. Customer approved go-live. First push was refused (403: fine-grained token without write access); the customer re-authenticated GitHub CLI, then the branch was pushed non-force. PR #4 verify passed; merged with a merge commit as d36d741. main CI and Deploy GitHub Pages succeeded; production app-version 0.10.0 and the itinerary chunk contains the warning. No migration; production data untouched. Authenticated production smoke not run.
+<!-- workflow-action:E028 status:completed -->
