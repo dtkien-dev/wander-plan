@@ -236,6 +236,10 @@ Dashboard reminders use the trip timezone and show upcoming/ongoing/completed st
 
 Excel imports preserve stable ID/version checks, payer and participant data; deleting a spreadsheet row does not delete app data. Expense settlement remains an accounting view, not a payment service.
 
+Money cells accept whole đồng as numbers or text, with optional consistent thousands separators (`1.234.567`, `1,234,567` or `1 234 567`). Decimal text, scientific-notation text, currency labels and values outside JavaScript's safe integer range are rejected rather than silently rewritten. Use numeric cells or plain whole amounts when a file is rejected.
+
+Collection reads fetch every API page, including undone payment rows used by the duplicate-record guard. Each page uses a stable order and exact count; a changed count or incomplete response fails the load so the user can retry instead of seeing partial totals. This is not a transactional snapshot across tables/pages: concurrent edits can still require a refresh, and database version/payment-count checks remain authoritative. Demo expense and itinerary edits/deletions also reject stale versions; browser storage still does not provide transactions across simultaneous tab writes.
+
 ## Delivery workflow
 
 Plan → code → QA → security review/test → go-live → release notes and next-day plan. A failed QA/security gate returns to code and the affected checks. Record unperformed checks explicitly; deployment alone does not establish a passing result.

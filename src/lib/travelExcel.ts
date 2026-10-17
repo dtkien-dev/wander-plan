@@ -84,13 +84,15 @@ const toTimeValue = (value: CellValue | undefined) => {
 
 const toMoney = (value: CellValue | undefined, optional = false) => {
   if (value === null || value === undefined || value === '') return optional ? null : Number.NaN
-  if (typeof value === 'number') return Number.isInteger(value) ? value : Number.NaN
-  const text = String(value).trim()
+  if (typeof value === 'number') return Number.isSafeInteger(value) ? value : Number.NaN
+  if (typeof value !== 'string') return Number.NaN
+  const text = value.trim()
   if (!text) return optional ? null : Number.NaN
-  const normalized = text.replace(/[^\d-]/g, '')
-  if (!normalized || normalized === '-') return Number.NaN
+  // Accept whole đồng or consistently grouped thousands; never repair malformed money.
+  if (!/^-?(?:\d+|\d{1,3}([., \u00a0])\d{3}(?:\1\d{3})*)$/.test(text)) return Number.NaN
+  const normalized = text.replace(/[., \u00a0]/g, '')
   const parsed = Number(normalized)
-  return Number.isInteger(parsed) ? parsed : Number.NaN
+  return Number.isSafeInteger(parsed) ? parsed : Number.NaN
 }
 
 const categoryMap: Record<string, ExpenseCategory> = {

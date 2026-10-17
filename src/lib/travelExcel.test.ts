@@ -11,6 +11,23 @@ const trip: Trip = {
 }
 
 describe('travel Excel import', () => {
+  it.each(['1e3', 'abc123', '1.5', '12,34', '1.000,000', true, '9007199254740992', 9007199254740992])('rejects malformed or unsafe money: %s', (amount) => {
+    const preview = buildTravelExcelPreview('money.xlsx', [{ sheet: 'ChiPhi', data: [
+      ['Khoản chi', 'Phân loại', 'Ngày', 'Dự kiến', 'Thực tế', 'Người thanh toán', 'Người tham gia', 'Ghi chú'],
+      ['Ăn sáng', 'Ăn uống', '2026-11-28', amount, '', 'ban@example.com', 'ban@example.com', ''],
+    ] }], trip, [], [], demoWorkspace.people)
+    expect(preview.expenses[0].errors).toContain('Số tiền dự kiến phải là số nguyên không âm')
+    expect(getImportDraft(preview).expenses).toEqual([])
+  })
+
+  it.each(['1234567', '1.234.567', '1,234,567', '1 234 567', '1\u00a0234\u00a0567', 1234567])('accepts whole money with consistent thousands groups: %s', (amount) => {
+    const preview = buildTravelExcelPreview('money.xlsx', [{ sheet: 'ChiPhi', data: [
+      ['Khoản chi', 'Phân loại', 'Ngày', 'Dự kiến', 'Thực tế', 'Người thanh toán', 'Người tham gia', 'Ghi chú'],
+      ['Ăn sáng', 'Ăn uống', '2026-11-28', amount, '', 'ban@example.com', 'ban@example.com', ''],
+    ] }], trip, [], [], demoWorkspace.people)
+    expect(preview.expenses[0]).toMatchObject({ errors: [], data: { estimatedAmountVnd: 1234567, actualAmountVnd: null } })
+  })
+
   it('reads optional end dates and keeps saved ranges when the column is absent', () => {
     const header = ['Khoản chi', 'Phân loại', 'Ngày', 'Dự kiến', 'Thực tế', 'Người thanh toán', 'Người tham gia', 'Ghi chú']
     const ranged = buildTravelExcelPreview('trip.xlsx', [{ sheet: 'ChiPhi', data: [
