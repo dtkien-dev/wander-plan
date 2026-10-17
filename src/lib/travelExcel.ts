@@ -2,6 +2,7 @@ import { involvesFormerMember, validateSplit } from './expenseSettlement'
 import { actualOrEstimated, isGoogleMapsUrl, totalExpenses } from './format'
 import { inspectXlsxArchive } from './xlsxGuard'
 import type { Expense, ExpenseCategory, ExpenseDraft, ItineraryDraft, ItineraryItem, SplitMethod, Trip, TripImportDraft, TripPerson, WorkspaceData } from '../types'
+import type { Cell } from 'write-excel-file/browser'
 
 type CellValue = string | number | boolean | Date | null
 type SheetData = CellValue[][]
@@ -385,7 +386,41 @@ const reportMoneyCell = (value: number | null) => value === null
   : { value, type: Number, format: '#,##0', align: 'right' as const }
 const reportDateCell = (value: string) => ({ value: excelDate(value), type: Date, format: 'dd/mm/yyyy', align: 'center' as const })
 const reportHeaderRow = (headers: string[]) => headers.map((value) => ({ value, ...reportHeaderStyle }))
-const wrapCell = (value: string) => ({ value, wrap: true })
+
+type ReportCell = Cell
+const wrapColumns = new Set(['Địa chỉ', 'Ghi chú', 'Người tham gia', 'Chi tiết chia'])
+const cellText = (cell: ReportCell) => {
+  const value = cell !== null && typeof cell === 'object' && 'value' in cell ? cell.value : cell
+  if (value === null || value === undefined) return ''
+  if (value instanceof Date) return '00/00/0000'
+  if (typeof value === 'number' && cell !== null && typeof cell === 'object' && 'format' in cell && cell.format === '#,##0') return value.toLocaleString('en-US')
+  return String(value)
+}
+// shortcut: widths count characters, not Arial glyph metrics; switch to measured text if columns look off in Excel.
+// The writer has no auto-fit, so widths come from the longest text and tall rows get an estimated height.
+const fitDataSheet = (data: ReportCell[][]) => {
+  const headers = data[0].map(cellText)
+  const widths = headers.map((header, column) => {
+    const longest = Math.max(header.length + 2, ...data.slice(1).map((row) => cellText(row[column]).length + 1))
+    return Math.min(Math.max(longest, 10), wrapColumns.has(header) ? 40 : 50)
+  })
+  const rows = data.map((row, index) => {
+    if (index === 0) return row
+    const lines = Math.max(1, ...row.map((cell, column) => wrapColumns.has(headers[column])
+      ? cellText(cell).split('\n').reduce((total, line) => total + Math.max(1, Math.ceil(line.length / (widths[column] - 1))), 0)
+      : 1))
+    return row.map((cell, column) => {
+      const style = {
+        ...(wrapColumns.has(headers[column]) ? { wrap: true } : {}),
+        ...(lines > 1 ? { alignVertical: 'top' as const } : {}),
+        ...(lines > 1 && column === 0 ? { height: lines * 13 + 4 } : {}),
+      }
+      if (!Object.keys(style).length || (cell === null && column !== 0)) return cell
+      return cell !== null && typeof cell === 'object' && 'value' in cell ? { ...cell, ...style } : { value: cell ?? '', ...style } as Cell
+    })
+  })
+  return { data: rows, columns: widths.map((width) => ({ width })) }
+}
 
 export const buildTravelExcelReportSheets = (workspace: WorkspaceData, exportedAt = new Date()) => {
   const total = totalExpenses(workspace.expenses)
@@ -428,7 +463,7 @@ export const buildTravelExcelReportSheets = (workspace: WorkspaceData, exportedA
       .sort((a, b) => `${a.visitDate}|${a.startTime}`.localeCompare(`${b.visitDate}|${b.startTime}`))
       .map((item) => [
         item.title, reportDateCell(item.visitDate), item.endDate ? reportDateCell(item.endDate) : null, item.startTime, item.endTime,
-        reportMoneyCell(item.estimatedCostVnd), wrapCell(item.address), item.mapsUrl, wrapCell(item.notes), item.id, item.version,
+        reportMoneyCell(item.estimatedCostVnd), item.address, item.mapsUrl, item.notes, item.id, item.version,
       ]),
   ]
   const expenseData = [
@@ -439,7 +474,7 @@ export const buildTravelExcelReportSheets = (workspace: WorkspaceData, exportedA
         expense.title, categoryLabels[expense.category], reportDateCell(expense.expenseDate),
         expense.endDate ? reportDateCell(expense.endDate) : null,
         reportMoneyCell(expense.estimatedAmountVnd), reportMoneyCell(expense.actualAmountVnd), memberEmail(expense.paidByUserId),
-        expense.participantUserIds.map(memberEmail).filter(Boolean).join(', '), wrapCell(expense.notes),
+        expense.participantUserIds.map(memberEmail).filter(Boolean).join(', '), expense.notes,
         splitMethodLabels[expense.splitMethod ?? 'equal'], formatSplitDetail(expense, memberEmail),
         reportMoneyCell(actualOrEstimated(expense)), expense.actualAmountVnd === null ? 'Dự kiến' : 'Thực tế', expense.id, expense.version,
       ]),
@@ -447,8 +482,8 @@ export const buildTravelExcelReportSheets = (workspace: WorkspaceData, exportedA
 
   return [
     { sheet: 'TongQuan', data: summaryData, showGridLines: false, columns: [{ width: 30 }, { width: 24 }, { width: 3 }, { width: 22 }, { width: 20 }] },
-    { sheet: 'LichTrinh', data: itineraryData, stickyRowsCount: 1, columns: [...itineraryWidths, { width: 38 }, { width: 12 }] },
-    { sheet: 'ChiPhi', data: expenseData, stickyRowsCount: 1, columns: [...expenseWidths, { width: 18 }, { width: 14 }, { width: 38 }, { width: 12 }] },
+    { sheet: 'LichTrinh', stickyRowsCount: 1, ...fitDataSheet(itineraryData) },
+    { sheet: 'ChiPhi', stickyRowsCount: 1, ...fitDataSheet(expenseData) },
   ]
 }
 
