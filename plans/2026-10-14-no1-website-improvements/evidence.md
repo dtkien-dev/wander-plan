@@ -70,3 +70,7 @@ E027 result: feature commit ab7a517 on feat/itinerary-overlap-warning. QA/UAT/IT
 ## A037 / E033 — Toasts with local history and Excel auto-fit (0.12.0)
 18/10/2026. Customer decisions A037. Branch feat/toasts-excel-autofit from origin/main 82296b1. 147 tests, lint, tsc; regenerated workbook widths/heights checked. UAT local: export toast hides after 3 s, bell history per account, Escape closes, no overflow at 320/375/768 on all pages; fixed top-bar overflow, mobile panel stacking/position and time format. Error toast and Excel-in-Excel not checked in the browser. No database change. Not pushed.
 <!-- workflow-action:E033 status:completed -->
+
+## A038 / E034 — Go-live 0.12.0
+18/10/2026. Customer approved go-live. Branch pushed non-force; PR #10 verify passed; merged with a merge commit as cb2d549. main CI and Deploy GitHub Pages succeeded; production app-version 0.12.0; live bundle contains the toast region, history panel and per-account storage key; signed-out load has no console errors. No database change. Authenticated production smoke not run.
+<!-- workflow-action:E034 status:completed -->

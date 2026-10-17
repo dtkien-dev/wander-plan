@@ -1,4 +1,7 @@
 # Decisions
+## A038 — Go-live 0.12.0,18/10/2026
+Customer approved: push feat/toasts-excel-autofit, PR to main, merge when CI passes and verify production. Scope limited to 0.12.0.
+
 ## A037 — Toasts with local history and Excel auto-fit,18/10/2026
 Customer chose: Excel columns sized to content with wrapped long columns and estimated row heights; action messages as toasts that hide after 3 s (errors stay until closed); history of the user's own action results kept per account in this browser (max 50, delete one/all, via a bell), not on the server. Local commits authorized; go-live needs separate approval.
 

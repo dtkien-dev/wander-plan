@@ -1,6 +1,6 @@
 # WanderPlan — bảng kế hoạch sản phẩm tổng hợp
 
-Chủ sở hữu: PO. Cập nhật: 18/10/2026 sau phát hành 0.11.1 (Asia/Saigon). Tracker thực thi: `wp-20261014-01` (bundle `2026-10-14-no1-website-improvements`).
+Chủ sở hữu: PO. Cập nhật: 18/10/2026 sau phát hành 0.12.0 (Asia/Saigon). Tracker thực thi: `wp-20261014-01` (bundle `2026-10-14-no1-website-improvements`).
 File này là bảng kế hoạch chung cho IT, QA, ITS, BA, ITO. Lịch theo ngày chi tiết: [daily-schedule-2026-10-15.md](daily-schedule-2026-10-15.md).
 
 ## Quy trình mỗi đợt
@@ -41,6 +41,7 @@ UAT hiện tại: Supabase stack đầy đủ chạy local (Auth, Realtime, Post
 | 0.10.0 | 18/10 | R11: cảnh báo trùng giờ trong lịch trình (không chặn lưu), đánh dấu “Trùng giờ” trong danh sách. |
 | 0.11.0 | 18/10 | R11: hoạt động nhiều ngày (“Đến ngày”), hiện ở mọi ngày, cảnh báo trùng giờ qua nhiều ngày, Excel cột Đến ngày; migration `20261018000000`. |
 | 0.11.1 | 18/10 | Excel dễ đọc: chữ tiêu đề trắng (sửa lỗi màu), “Đến ngày” cạnh “Ngày”, đường lưới, xuống dòng Địa chỉ/Ghi chú. |
+| 0.12.0 | 18/10 | Thông báo trôi tự tắt 3 giây (lỗi giữ đến khi đóng), lịch sử 50 thông báo trên thiết bị theo tài khoản qua chuông; Excel tự giãn cột/dòng. |
 
 
 ## Bảng kế hoạch
@@ -126,5 +127,5 @@ Khách hàng chốt A033. Bản 0.11.0 (nhánh `feat/multi-day-itinerary`): “�
 ## A035 — Excel dễ đọc (0.11.1), hoàn tất 18/10
 Kiểm tra file Excel xuất ra theo yêu cầu khách hàng: sửa lỗi màu chữ tiêu đề (đen trên nền xanh đậm), đưa “Đến ngày” cạnh “Ngày”, bật đường lưới và xuống dòng cho Địa chỉ/Ghi chú. Không đổi database. Go-live A036: PR #8 merge `40ea587`, CI/Pages đạt, production 0.11.1 xác nhận. [Release note 0.11.1](../docs/releases/2026-10-18-0.11.1.md).
 
-## P26 — Thông báo trôi + lịch sử trên thiết bị, Excel tự giãn (0.12.0), chờ duyệt go-live 18/10
-Khách hàng chốt A037: thông báo trôi tự tắt sau 3 giây (lỗi giữ đến khi đóng), lịch sử 50 thông báo của chính mình lưu trên trình duyệt theo tài khoản, xem/xoá qua chuông; Excel tự tính độ rộng cột và chiều cao dòng. Không đổi database. [Release note 0.12.0](../docs/releases/2026-10-18-0.12.0.md).
+## P26 — Thông báo trôi + lịch sử trên thiết bị, Excel tự giãn (0.12.0), hoàn tất 18/10
+Khách hàng chốt A037: thông báo trôi tự tắt sau 3 giây (lỗi giữ đến khi đóng), lịch sử 50 thông báo của chính mình lưu trên trình duyệt theo tài khoản, xem/xoá qua chuông; Excel tự tính độ rộng cột và chiều cao dòng. Không đổi database. Go-live A038: PR #10 merge `cb2d549`, CI/Pages đạt, production 0.12.0 xác nhận. [Release note 0.12.0](../docs/releases/2026-10-18-0.12.0.md).
