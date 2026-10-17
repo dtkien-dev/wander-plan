@@ -1,6 +1,6 @@
 # WanderPlan — bảng kế hoạch sản phẩm tổng hợp
 
-Chủ sở hữu: PO. Cập nhật: 18/10/2026 sau phát hành 0.10.0 (Asia/Saigon). Tracker thực thi: `wp-20261014-01` (bundle `2026-10-14-no1-website-improvements`).
+Chủ sở hữu: PO. Cập nhật: 18/10/2026 sau phát hành 0.11.0 (Asia/Saigon). Tracker thực thi: `wp-20261014-01` (bundle `2026-10-14-no1-website-improvements`).
 File này là bảng kế hoạch chung cho IT, QA, ITS, BA, ITO. Lịch theo ngày chi tiết: [daily-schedule-2026-10-15.md](daily-schedule-2026-10-15.md).
 
 ## Quy trình mỗi đợt
@@ -39,6 +39,7 @@ UAT hiện tại: Supabase stack đầy đủ chạy local (Auth, Realtime, Post
 | 0.9.2 | 17/10 | Khóa phần tiền và không cho xóa khoản chi có người đã rời nhóm (vẫn sửa tên/phân loại/ngày/ghi chú); mock UAT .ics, Excel, Google, email, Realtime. |
 | 0.9.3 | 17/10 | Sửa đọc tiền Excel, phân trang đầy đủ, chống ghi demo cũ, tải workspace song song. |
 | 0.10.0 | 18/10 | R11: cảnh báo trùng giờ trong lịch trình (không chặn lưu), đánh dấu “Trùng giờ” trong danh sách. |
+| 0.11.0 | 18/10 | R11: hoạt động nhiều ngày (“Đến ngày”), hiện ở mọi ngày, cảnh báo trùng giờ qua nhiều ngày, Excel cột Đến ngày; migration `20261018000000`. |
 
 
 ## Bảng kế hoạch
@@ -58,7 +59,7 @@ Thứ tự theo chỉ đạo khách hàng 15/10: các đợt tính năng/sửa l
 | R08 | P18 | QA | QA tổng hợp, security, chuẩn bị bản phát hành | Cao | Hoàn tất 0.9.1 | P14–P17 | Kết quả và giới hạn rõ cho từng tính năng. |
 | R09 | P14 | UX/Feature | **Tên hiển thị thành viên** | Cao | Đã phát hành 0.5.0 | — | Mỗi người tự đặt, tùy chọn, dùng chung mọi chuyến; chưa đặt thì hiện phần trước @; chủ nhóm không sửa tên người khác. Email chỉ hiện cho người cùng chuyến, tên dài không tràn. |
 | R10 | P20 | Feature | Chia tiền **không đều** (theo phần hoặc số tiền) | Trung bình | Đã phát hành 0.9.0 | R06 | Mỗi khoản chọn chia đều/theo phần/theo số tiền. Số tiền phải khớp Thực tế (chưa có thì Dự kiến); lệch thì chặn lưu và báo chênh lệch. Phần lẻ khi chia theo phần: người trả chịu nếu có tham gia, không thì rải theo thứ tự cố định. Excel thêm cột Cách chia/Chi tiết chia; file cũ = chia đều. |
-| R11 | P24/P25 | UX/Feature | Lịch trình: cảnh báo trùng giờ (0.10.0); hoạt động nhiều ngày “Đến ngày” (0.11.0) | Thấp | 0.10.0 đã phát hành; 0.11.0 chờ duyệt go-live | — | A031/A033: khoảng [bắt đầu, kết thúc) giao nhau mới trùng, tính liên tục qua nhiều ngày; không chặn lưu; hoạt động nhiều ngày hiện ở mọi ngày; Excel cột Đến ngày. |
+| R11 | P24/P25 | UX/Feature | Lịch trình: cảnh báo trùng giờ (0.10.0); hoạt động nhiều ngày “Đến ngày” (0.11.0) | Thấp | Đã phát hành 0.10.0 và 0.11.0 | — | A031/A033: khoảng [bắt đầu, kết thúc) giao nhau mới trùng, tính liên tục qua nhiều ngày; không chặn lưu; hoạt động nhiều ngày hiện ở mọi ngày; Excel cột Đến ngày. |
 | R12 | ITS follow-up | Security | Allowlist HTTPS cho Google Maps URL ở database (hiện chỉ kiểm tra ở form) | Trung bình | Đã phát hành 0.4.2 | — | Từ chối URL không phải https/Google Maps qua API trực tiếp; dữ liệu cũ được kiểm tra trước khi thêm ràng buộc. |
 | R13 | ITS follow-up | Security | Giới hạn kích thước file Excel trước khi giải nén | Trung bình | Đã phát hành 0.4.2 (giới hạn: dựa trên kích thước file tự khai báo) | — | File quá lớn bị từ chối trước khi đọc; thông báo rõ. |
 | R14 | R14 | Security | Ghim GitHub Actions theo commit SHA | Thấp | Hoàn tất16/10 | — |7 tham chiếu/5 action chính thức ghim SHA; CI/Pages đạt; README có hướng dẫn cập nhật. App giữ0.5.0. |
@@ -118,5 +119,5 @@ A030: nhánh bàn giao hiện tại là `docs/portable-workflow`. Mọi nhánh m
 ## P24 — R11 cảnh báo trùng giờ, hoàn tất 18/10
 Khách hàng chốt A031. Bản 0.10.0 (`ab7a517`, nhánh `feat/itinerary-overlap-warning`): form thêm/sửa cảnh báo trùng giờ (không chặn lưu), danh sách đánh dấu “Trùng giờ”. 136 test, lint/build/audit đạt; UAT local đạt. Không đổi database. Hoạt động nhiều ngày hoãn. Go-live A032: PR #4 merge `d36d741`, CI/Pages đạt, production 0.10.0 xác nhận; chưa smoke có đăng nhập trên production. [Release note 0.10.0](../docs/releases/2026-10-17-0.10.0.md).
 
-## P25 — R11 hoạt động nhiều ngày, chờ duyệt go-live 18/10
-Khách hàng chốt A033. Bản 0.11.0 (nhánh `feat/multi-day-itinerary`): “Đến ngày” tùy chọn, giờ bắt đầu ở ngày đầu và giờ kết thúc ở ngày cuối, hiện ở mọi ngày (“Ngày k/n”), cảnh báo trùng giờ liên tục qua ngày, Excel cột Đến ngày. Có migration `20261018000000` (áp trước frontend). 141 test, 281 SQL, UAT local đạt. [Release note 0.11.0](../docs/releases/2026-10-18-0.11.0.md).
+## P25 — R11 hoạt động nhiều ngày, hoàn tất 18/10
+Khách hàng chốt A033. Bản 0.11.0 (nhánh `feat/multi-day-itinerary`): “Đến ngày” tùy chọn, giờ bắt đầu ở ngày đầu và giờ kết thúc ở ngày cuối, hiện ở mọi ngày (“Ngày k/n”), cảnh báo trùng giờ liên tục qua ngày, Excel cột Đến ngày. Có migration `20261018000000` (áp trước frontend). 141 test, 281 SQL, UAT local đạt. Go-live A034: migration áp production trước, PR #6 merge `b113a60`, CI/Pages đạt, production 0.11.0 xác nhận; chưa smoke có đăng nhập trên production. [Release note 0.11.0](../docs/releases/2026-10-18-0.11.0.md).

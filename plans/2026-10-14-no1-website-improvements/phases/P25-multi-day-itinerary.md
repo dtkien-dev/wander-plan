@@ -1,5 +1,5 @@
 # P25: R11 multi-day itinerary activities
-Status: Awaiting go-live approval
+Status: Completed
 Depends on: P24 completed; production 0.10.0
 Wave: 26
 Owner: Claude Code
@@ -11,10 +11,11 @@ Produces: Optional end date for itinerary activities (A033).
 - [x] App: model/repository/demo, form "Đến ngày", interval overlap, list under every day, Excel column.
 - [x] QA: 141 tests, lint, tsc, demo build, 281 embedded + full local SQL, audit 0; UAT local Supabase + uat mode PASS; one UAT finding fixed (warning showed only times for multi-day clash).
 - [x] ITS: scoped review, no finding.
-- [ ] Go-live approval; ITO: apply migration to production before frontend, merge, verify; PO release note.
+- [x] Go-live approval; ITO: apply migration to production before frontend, merge, verify; PO release note.
 
 ## Acceptance
 A033 holds in UI, DB and Excel; single-day items, old Excel files and the 0.10.0 frontend keep working.
 
 ## Recovery
 Frontend revert is safe: the nullable column is ignored by 0.10.0 and the import RPC keeps stored end dates for clients that omit it. Forward fix for the migration; no destructive rollback.
+Released 18/10 under A034: migration 20261018000000 applied to production first and verified; PR #6 merged as b113a60; CI/Pages succeeded; live app-version 0.11.0. Authenticated production smoke not run.
