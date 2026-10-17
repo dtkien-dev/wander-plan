@@ -2,7 +2,11 @@ import { useEffect, useRef, useState } from 'react'
 import { Bell } from 'lucide-react'
 import { useNotifications } from '../providers/NotificationProvider'
 
-const timeFormatter = new Intl.DateTimeFormat('vi-VN', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })
+const pad = (value: number) => String(value).padStart(2, '0')
+const formatTime = (iso: string) => {
+  const date = new Date(iso)
+  return `${pad(date.getDate())}/${pad(date.getMonth() + 1)} ${pad(date.getHours())}:${pad(date.getMinutes())}`
+}
 
 export function NotificationBell() {
   const { history, remove, clear } = useNotifications()
@@ -33,7 +37,7 @@ export function NotificationBell() {
             <ul>
               {history.map((entry) => (
                 <li key={entry.id} className={entry.kind === 'error' ? 'is-error' : undefined}>
-                  <div><time dateTime={entry.at}>{timeFormatter.format(new Date(entry.at))}</time><p>{entry.message}</p></div>
+                  <div><time dateTime={entry.at}>{formatTime(entry.at)}</time><p>{entry.message}</p></div>
                   <button className="notification-panel__remove" type="button" onClick={() => remove(entry.id)} aria-label={`Xoá thông báo: ${entry.message}`}>Xoá</button>
                 </li>
               ))}
