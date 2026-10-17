@@ -1,5 +1,7 @@
 # Agent Guide
 
+For every new session or device, start at [docs/agent/README.md](docs/agent/README.md), then follow its workflow and handoff links to the Git-tracked active plan. These documents contain the shared delivery rules; do not depend on another machine's chat, private skills or absolute worktree paths. Fetch and reconcile remote state before executing a checkpoint. Push/merge to main triggers production deployment and requires the current batch's go-live approval.
+
 Read `package.json` and `package-lock.json` for current tooling; `README.md` owns setup and upgrade instructions.
 
 - For sign-in/session changes, read `src/providers/AuthProvider.tsx`, `src/pages/LoginPage.tsx`, and their tests. Authentication does not accept trip invitations.

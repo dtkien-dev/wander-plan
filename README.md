@@ -2,6 +2,8 @@
 
 WanderPlan is a collaborative travel-planning web application for trips, itineraries, members, shared checklists and expenses. Members collaborate through Supabase; demo mode stores data privately in the browser.
 
+For development across devices or coding agents, start with [the shared project handoff](docs/agent/README.md). It links the delivery workflow, current tracker, decisions and verification evidence committed with the code.
+
 ## Business capabilities
 
 | Role | Capabilities |

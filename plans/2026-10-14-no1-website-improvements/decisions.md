@@ -1,0 +1,32 @@
+# Decisions
+## A024 — Lock money on expenses with former members,16/10/2026
+Customer answered yes to locking amount edits, then chose the full lock: expenses involving a former member keep estimate/actual, split, payer and participants unchanged and cannot be deleted; title, category, dates and notes stay editable. Remaining unverified paths (Excel/.ics downloads, Google round trip, hosted email/Realtime) are to be covered by simulated/mock UAT. R07/R11/R15/R17/R18 rules still to be decided with the customer.
+
+## A023 — Removing members with money involvement,16/10/2026
+QA defect D1 (expenses with a removed payer/participant could no longer be edited). Customer chose: the owner cannot remove a member until that member's balance is settled — no remaining debt and nothing still owed to them (actual expenses minus recorded payments = 0); estimate-only expenses (no actual yet) involving them also block removal until an actual is entered and settled or they are taken off it. After a settled member is removed, old expenses keep their name shown as "(đã rời nhóm)" and stay editable; who paid/took part is preserved; former members cannot be added to other expenses.
+
+## A020 — R10 unequal split rules,16/10/2026
+Customer chose (AskUserQuestion): each expense chooses equal (default, unchanged), by shares (e.g. A 2, B 1) or by exact amounts. Exact amounts must total the expense's actual amount, or the estimate while no actual exists; when the amount no longer matches (e.g. actual entered/edited), saving is blocked with the difference shown until splits are re-entered — no automatic scaling. Share rounding: leftover đồng go to the payer when the payer participates; otherwise spread in the existing fixed order (same as equal split). Excel: add new columns for split method and split details; old files without them import as equal split. Not yet implemented; next batch P20.
+
+## A019 — R06 settlement rules,16/10/2026
+Customer chose (AskUserQuestion): next batch R06; only the recipient marks a transfer paid and undoes it; a mark is stored as a payment record so balances recompute when expenses change. Amount = current suggested transfer, no partial amounts, no Excel, no payment processing. R10 remains undecided.
+
+## A017 — Archive rules,16/10/2026
+Customer explicitly chose: only trip owner archives/restores; archived contents hidden until restored. R05 now ready for BA/implementation after current R14 delivery. Keep all data/history; do not implement R06 settlement permissions without a separate decision.
+
+## A015 — Codex continuation,16/10/2026
+User authorizes continuing agreed delivery workflow. P14 implements A014 R09/R04 rules; completed0.5.0 under E016. Checklist RPCs enforce member authorization and trip-before-item locks; removal tombstones preserve scoped Realtime. Existing profile choices preserved; email-as-name falls back to local part. Future business rules remain undecided as listed in roadmap.
+
+Proposed, not approved: D01 pending reserves seat, owner can revoke; D02 explicit accept/decline; D03 copy cleanup before multi-trip; D04 measure performance then lazy/guards/cache/realtime; D05 banner/calendar first; D06 keep current hosting.
+
+## Open Questions
+Q01 optional seat policy; blocks final product approval of P01.
+1. Reserve pending seats (Recommended): revoke frees seat, clear messaging.
+2. Count accepted only: acceptance can fail when full; changes capacity design.
+Draft default: 1. Display order matches user-input tool.
+Final approval not requested this turn; incorporate feedback first.
+
+2026-10-14: User explicitly approved execution and authorized model/effort selection and subagents. D01–D06 accepted; Q01 resolved to proposed reserve-seat policy. Keycloak/backend questions are advice, not authorization to create another repository.
+
+## A018 — Unified UI release,16/10/2026
+Customer explicitly requests reviewing all website interfaces and releasing together. Preserve green identity and business/data/permission contracts; apply compact Group settings, clearer hierarchy and coordinated responsive changes across all routes. One gated0.7.0 release completed; no per-page deployments or database changes.
