@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { countNights, describeExpenseDates, isGoogleMapsUrl, safePercent, totalExpenses } from './format'
+import { addDays, countNights, describeExpenseDates, isGoogleMapsUrl, safePercent, totalExpenses } from './format'
 
 describe('travel format helpers', () => {
   it('uses actual cost when available and estimated cost otherwise', () => {
@@ -30,5 +30,6 @@ describe('travel format helpers', () => {
 
   it('counts nights across month boundaries', () => {
     expect(countNights('2026-11-29', '2026-12-02')).toBe(3)
+    expect(addDays('2026-11-29', 3)).toBe('2026-12-02')
   })
 })
