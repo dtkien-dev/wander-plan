@@ -4,6 +4,7 @@ import { ItineraryForm } from '../components/ItineraryForm'
 import { Modal } from '../components/Modal'
 import { StateView } from '../components/StateView'
 import { formatCurrency, formatDate } from '../lib/format'
+import { findOverlaps } from '../lib/itineraryOverlap'
 import { downloadTravelExcelReport } from '../lib/travelExcel'
 import { useWorkspace, useWorkspaceMutations } from '../hooks/useWorkspace'
 import type { ItineraryDraft, ItineraryItem, TripImportDraft } from '../types'
@@ -87,7 +88,7 @@ export function ItineraryPage() {
                 {items.map((item) => (
                   <li className={styles.item} key={item.id}>
                     <div className={styles.time}><Clock3 size={18} /><strong>{item.startTime}</strong><span>{item.endTime}</span></div>
-                    <article><div className={styles.itemTitle}><h2>{item.title}</h2><strong>{formatCurrency(item.estimatedCostVnd)}</strong></div><p><MapPin size={17} /> {item.address}</p>{item.notes && <p className={styles.note}>{item.notes}</p>}<div className={styles.actions}>{item.mapsUrl && <a className="button button--soft" href={item.mapsUrl} target="_blank" rel="noreferrer"><ExternalLink size={17} /> Chỉ đường</a>}<button className="icon-button" type="button" onClick={() => { setFormError(''); setEditing(item) }} aria-label={`Sửa ${item.title}`}><Pencil size={18} /></button><button className="icon-button icon-button--danger" type="button" disabled={mutations.deleteItinerary.isPending} onClick={() => void remove(item)} aria-label={`Xóa ${item.title}`}><Trash2 size={18} /></button></div></article>
+                    <article><div className={styles.itemTitle}><h2>{item.title}</h2><strong>{formatCurrency(item.estimatedCostVnd)}</strong></div>{findOverlaps(item, items).length > 0 && <span className={styles.clash}>Trùng giờ</span>}<p><MapPin size={17} /> {item.address}</p>{item.notes && <p className={styles.note}>{item.notes}</p>}<div className={styles.actions}>{item.mapsUrl && <a className="button button--soft" href={item.mapsUrl} target="_blank" rel="noreferrer"><ExternalLink size={17} /> Chỉ đường</a>}<button className="icon-button" type="button" onClick={() => { setFormError(''); setEditing(item) }} aria-label={`Sửa ${item.title}`}><Pencil size={18} /></button><button className="icon-button icon-button--danger" type="button" disabled={mutations.deleteItinerary.isPending} onClick={() => void remove(item)} aria-label={`Xóa ${item.title}`}><Trash2 size={18} /></button></div></article>
                   </li>
                 ))}
               </ol>
@@ -97,7 +98,7 @@ export function ItineraryPage() {
       )}
       <Modal open={editing !== undefined} title={editing ? 'Chỉnh sửa địa điểm' : 'Thêm địa điểm'} onClose={() => setEditing(undefined)}>
         {formError && <div className="form-error-banner" role="alert">{formError}</div>}
-        <ItineraryForm item={editing ?? undefined} tripStart={trip.startDate} tripEnd={trip.endDate} pending={mutations.itinerary.isPending} onSubmit={save} onCancel={() => setEditing(undefined)} />
+        <ItineraryForm item={editing ?? undefined} tripStart={trip.startDate} tripEnd={trip.endDate} itinerary={itinerary} pending={mutations.itinerary.isPending} onSubmit={save} onCancel={() => setEditing(undefined)} />
       </Modal>
       {importOpen && <Suspense fallback={<StateView state="loading" />}><ExcelImportModal open={importOpen} trip={trip} itinerary={itinerary} expenses={data.expenses} people={data.people} pending={mutations.importTripData.isPending} onClose={() => setImportOpen(false)} onSubmit={importData} /></Suspense>}
     </div>

@@ -56,7 +56,7 @@ Thứ tự theo chỉ đạo khách hàng 15/10: các đợt tính năng/sửa l
 | R08 | P18 | QA | QA tổng hợp, security, chuẩn bị bản phát hành | Cao | Hoàn tất 0.9.1 | P14–P17 | Kết quả và giới hạn rõ cho từng tính năng. |
 | R09 | P14 | UX/Feature | **Tên hiển thị thành viên** | Cao | Đã phát hành 0.5.0 | — | Mỗi người tự đặt, tùy chọn, dùng chung mọi chuyến; chưa đặt thì hiện phần trước @; chủ nhóm không sửa tên người khác. Email chỉ hiện cho người cùng chuyến, tên dài không tràn. |
 | R10 | P20 | Feature | Chia tiền **không đều** (theo phần hoặc số tiền) | Trung bình | Đã phát hành 0.9.0 | R06 | Mỗi khoản chọn chia đều/theo phần/theo số tiền. Số tiền phải khớp Thực tế (chưa có thì Dự kiến); lệch thì chặn lưu và báo chênh lệch. Phần lẻ khi chia theo phần: người trả chịu nếu có tham gia, không thì rải theo thứ tự cố định. Excel thêm cột Cách chia/Chi tiết chia; file cũ = chia đều. |
-| R11 | BA đề xuất | UX | Lịch trình: cảnh báo trùng giờ cùng ngày; hoạt động nhiều ngày | Thấp | Cần chốt | — | Cảnh báo không chặn lưu; dữ liệu cũ không đổi. |
+| R11 | P24 | UX | Lịch trình: cảnh báo trùng giờ cùng ngày (hoạt động nhiều ngày: hoãn) | Thấp | Chờ duyệt go-live 0.10.0 | — | A031: khoảng [bắt đầu, kết thúc) giao nhau mới trùng; cảnh báo không chặn lưu; dữ liệu cũ không đổi. |
 | R12 | ITS follow-up | Security | Allowlist HTTPS cho Google Maps URL ở database (hiện chỉ kiểm tra ở form) | Trung bình | Đã phát hành 0.4.2 | — | Từ chối URL không phải https/Google Maps qua API trực tiếp; dữ liệu cũ được kiểm tra trước khi thêm ràng buộc. |
 | R13 | ITS follow-up | Security | Giới hạn kích thước file Excel trước khi giải nén | Trung bình | Đã phát hành 0.4.2 (giới hạn: dựa trên kích thước file tự khai báo) | — | File quá lớn bị từ chối trước khi đọc; thông báo rõ. |
 | R14 | R14 | Security | Ghim GitHub Actions theo commit SHA | Thấp | Hoàn tất16/10 | — |7 tham chiếu/5 action chính thức ghim SHA; CI/Pages đạt; README có hướng dẫn cập nhật. App giữ0.5.0. |
@@ -112,3 +112,6 @@ P23 theo yêu cầu khách hàng: đưa hồ sơ plans vào Git và thêm [docs/
 A029/E025: hồ sơ chia sẻ đã làm sạch và push nhánh `codex/portable-workflow-clean`; gói đầu `1f8c3df` đã xác nhận trên remote. Đọc checkpoint mới nhất sau fetch. Không merge main/deploy; giữ các quyết định nghiệp vụ còn mở.
 
 A030: nhánh bàn giao hiện tại là `docs/portable-workflow`. Mọi nhánh mới đặt theo mục đích Git, không dùng prefix tên agent/công cụ.
+
+## P24 — R11 cảnh báo trùng giờ, chờ duyệt go-live 17/10
+Khách hàng chốt A031. Bản 0.10.0 (`ab7a517`, nhánh `feat/itinerary-overlap-warning`): form thêm/sửa cảnh báo trùng giờ (không chặn lưu), danh sách đánh dấu “Trùng giờ”. 136 test, lint/build/audit đạt; UAT local đạt. Không đổi database. Hoạt động nhiều ngày hoãn. [Release note 0.10.0](../docs/releases/2026-10-17-0.10.0.md).

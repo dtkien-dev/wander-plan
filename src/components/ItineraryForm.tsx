@@ -2,6 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { isGoogleMapsUrl } from '../lib/format'
+import { findOverlaps } from '../lib/itineraryOverlap'
 import type { ItineraryDraft, ItineraryItem } from '../types'
 
 const createSchema = (tripStart: string, tripEnd: string) => z.object({
@@ -21,19 +22,22 @@ interface ItineraryFormProps {
   item?: ItineraryItem
   tripStart: string
   tripEnd: string
+  itinerary: ItineraryItem[]
   pending: boolean
   onSubmit: (draft: ItineraryDraft) => Promise<void>
   onCancel: () => void
 }
 
-export function ItineraryForm({ item, tripStart, tripEnd, pending, onSubmit, onCancel }: ItineraryFormProps) {
-  const { register, handleSubmit, formState: { errors } } = useForm<ItineraryDraft>({
+export function ItineraryForm({ item, tripStart, tripEnd, itinerary, pending, onSubmit, onCancel }: ItineraryFormProps) {
+  const { register, handleSubmit, watch, formState: { errors } } = useForm<ItineraryDraft>({
     resolver: zodResolver(createSchema(tripStart, tripEnd)),
     defaultValues: item ?? {
       title: '', visitDate: tripStart, startTime: '08:00', endTime: '09:30', estimatedCostVnd: 0,
       address: '', mapsUrl: '', notes: '',
     },
   })
+  const [visitDate, startTime, endTime] = watch(['visitDate', 'startTime', 'endTime'])
+  const clashes = findOverlaps({ id: item?.id, visitDate, startTime, endTime }, itinerary)
   return (
     <form className="form" onSubmit={handleSubmit(onSubmit)}>
       <label className="field field--wide">Tên địa điểm<input {...register('title')} aria-invalid={Boolean(errors.title)} />{errors.title && <span>{errors.title.message}</span>}</label>
@@ -41,6 +45,7 @@ export function ItineraryForm({ item, tripStart, tripEnd, pending, onSubmit, onC
       <label className="field">Chi phí dự kiến<input type="number" inputMode="numeric" min="0" step="1000" {...register('estimatedCostVnd', { valueAsNumber: true })} aria-invalid={Boolean(errors.estimatedCostVnd)} />{errors.estimatedCostVnd && <span>{errors.estimatedCostVnd.message}</span>}</label>
       <label className="field">Bắt đầu<input type="time" {...register('startTime')} aria-invalid={Boolean(errors.startTime)} />{errors.startTime && <span>{errors.startTime.message}</span>}</label>
       <label className="field">Kết thúc<input type="time" {...register('endTime')} aria-invalid={Boolean(errors.endTime)} />{errors.endTime && <span>{errors.endTime.message}</span>}</label>
+      {clashes.length > 0 && <p className="form-warning field--wide" role="status">Trùng giờ với {clashes.map((clash) => `“${clash.title}” (${clash.startTime}–${clash.endTime})`).join(', ')}. Bạn vẫn có thể lưu.</p>}
       <label className="field field--wide">Địa chỉ<input {...register('address')} aria-invalid={Boolean(errors.address)} />{errors.address && <span>{errors.address.message}</span>}</label>
       <label className="field field--wide">Google Maps URL<input type="url" placeholder="https://maps.app.goo.gl/..." {...register('mapsUrl')} aria-invalid={Boolean(errors.mapsUrl)} />{errors.mapsUrl && <span>{errors.mapsUrl.message}</span>}</label>
       <label className="field field--wide">Ghi chú<textarea rows={3} {...register('notes')} aria-invalid={Boolean(errors.notes)} />{errors.notes && <span>{errors.notes.message}</span>}</label>

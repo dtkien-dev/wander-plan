@@ -40,3 +40,9 @@ User requests remote publication and directs future branch names to use purpose-
 <!-- workflow-action:E026 status:completed -->
 
 E026 completed: commit 79781f087a282f53678418ba5791166c9423d23e (docs: use purpose-based branch names) pushed non-force to refs/heads/docs/portable-workflow; exact remote SHA read back successfully. AGENTS/shared workflow/current handoff updated; credential/privacy/link/manifest/whitespace checks passed; full outgoing scan excludes unsanitized candidates. Coordinator reuse/behavior/quality/efficiency pass found no further issue. Prior remote branch retained, no deletion/main merge/deploy. Resolve latest checkpoint SHA from Git log; execute remains Active.
+
+## A031 / E027 — R11 itinerary overlap warning
+17/10/2026. Customer selected R11 and its rules (A031). Branch feat/itinerary-overlap-warning from origin/main 97af85a. Scope: P24 owned files only; frontend-only, no migration/RPC/Excel/demo storage change. No push to main or deployment without go-live approval.
+<!-- workflow-action:E027 status:completed -->
+
+E027 result: feature commit ab7a517 on feat/itinerary-overlap-warning. QA/UAT/ITS PASS as recorded in docs/releases/2026-10-17-0.10.0.md; QA activity removed from UAT data. Not pushed; go-live (push branch, PR, merge main → Pages) needs customer approval.

@@ -10,7 +10,7 @@ Execute mode: Active
 Resume instruction: Resolve plans/2026-10-14-no1-website-improvements from the current clone root (tracker wp-20261014-01). Read docs/agent/README.md and workflow.md, then this index and every manifest file. Keep this exact repository-relative bundle as the execution source of truth; update it until explicit exit. If the execute skill is installed, it may be used with this resolved path.
 Workspace: Current clone root; never reuse another device's absolute path.
 Repository: origin/main baseline 6becd6f938430c50432a7ef93f4240ebdf762410; local implementation branch docs/portable-workflow. Fetch before resume.
-Active action: None — E026 purpose-based naming policy and docs/portable-workflow published.
+Active action: None — E027 complete locally; P24 awaiting go-live approval.
 
 <!-- workflow-active-snapshot:start version:2 -->
 ## Active Snapshot
@@ -61,4 +61,5 @@ phases/P20-unequal-split.md
 phases/P21-integrated-qa.md
 phases/P22-former-money-lock-mock-uat.md
 phases/P23-portable-workflow.md
+phases/P24-itinerary-overlap-warning.md
 <!-- workflow-manifest:end -->
