@@ -138,3 +138,11 @@ P11 final:CI38746599479 and Pages38746599434 success on2d50f47. Public app-versi
 - [x] Coordinator docs-only ITS and simplify reuse/behavior/quality/efficiency passes; no runtime changes or outstanding finding.
 - [x] Portable workflow, same tracker, relative links and release reconciliation prepared for Git sharing.
 NOT RUN: fresh full-stack/browser/hosted authenticated QA, hosted migration history, real Google/email/Realtime. No runtime/schema edits justify rerunning service tests for this docs package; remaining release follow-ups remain explicit. Local dependency engine warning and existing build warnings retained. Push not authorized/performed in P23.
+
+## A029 / E025 — Sanitized remote handoff
+- [x] Private original preserved outside tracked tree; shared historical evidence minimized and unnecessary financial/internal details removed.
+- [x] Fresh branch from 6becd6f; original unsanitized candidates excluded from outgoing ancestry.
+- [x] 38 file snapshot checks: credential/private-history patterns, no outgoing binary, relative links/manifest and whitespace passed; positive/negative scanner controls passed.
+- [x] Package 1f8c3df pushed non-force; exact remote branch SHA independently read back.
+- [x] Shared completion checkpoint prepared for the same authorized branch. No runtime/schema/CI changes, main merge or deploy.
+Limits: pattern/manual review is not a proof against arbitrary encodings/steganography; pre-existing remote history was not rewritten or comprehensively audited.

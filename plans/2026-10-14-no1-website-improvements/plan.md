@@ -1,6 +1,6 @@
 # Proposed roadmap
-Current status: In progress — P23 privacy cleanup completed; A029 authorized sanitized branch publication is being verified. Historical notes below describe their original batch only.
-Current executable batch: E025 authorized clean handoff push; future undecided features remain backlog.
+Current status: Implemented — P23 privacy cleanup and A029 sanitized branch publication completed. Historical notes below describe their original batch only.
+Current executable batch: None — clean handoff published; future undecided features remain backlog.
 Serial priority order; waves are dependencies, not five-hour promises.
 
 | ID | Phase | Depends on | Wave | Model/effort | Ownership |

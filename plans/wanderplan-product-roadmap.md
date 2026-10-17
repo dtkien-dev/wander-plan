@@ -108,3 +108,5 @@ Claude Code (E023) phát hành 0.9.2 (`ea623eb`) theo quy tắc khách hàng A02
 Production đã là 0.9.3 tại `6becd6f` (PR #1): sửa đọc tiền Excel, phân trang đầy đủ, chống ghi demo cũ và tải workspace song song. CI/Pages thành công; metadata public 0.9.3 xác nhận. Kiểm tra lại local: 129 app tests/270 SQL, lint/build đạt; không có migration mới. Hosted smoke có đăng nhập chưa kiểm lại. [Release note](../docs/releases/2026-10-17-0.9.3-pre-release.md).
 
 P23 theo yêu cầu khách hàng: đưa hồ sơ plans vào Git và thêm [docs/agent](../docs/agent/README.md), giữ cùng tracker và quy trình PO → BA → IT → UAT/QA → ITS → duyệt go-live → ITO → PO. Không chọn thêm feature chưa chốt. R07/R11/R15/R17/R18 vẫn là quyết định đợt sau; lịch cũ phía trên là lịch sử, không phải lệnh chạy. Bước tiếp theo: chia sẻ nhánh bàn giao sau khi được phép push; sau đó chốt môi trường/tài khoản cho R15.
+
+A029/E025: hồ sơ chia sẻ đã làm sạch và push nhánh `codex/portable-workflow-clean`; gói đầu `1f8c3df` đã xác nhận trên remote. Đọc checkpoint mới nhất sau fetch. Không merge main/deploy; giữ các quyết định nghiệp vụ còn mở.

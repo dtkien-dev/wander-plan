@@ -118,3 +118,5 @@ P22 hoàn tất 17/10 — Claude Code phát hành 0.9.2 (`ea623eb`): khóa phầ
 
 ## Checkpoint mới nhất — 17/10/2026, P23
 Lịch và ghi chú phía trên là lịch sử. Production xác minh 0.9.3 tại `6becd6f`, CI/Pages thành công; 129 app tests/270 embedded SQL, lint/build local đạt. P23 đồng bộ code, sửa hồ sơ và đưa plans/quy trình vào Git cho nhiều thiết bị. Xem [hướng dẫn](../docs/agent/README.md) và [tracker](2026-10-14-no1-website-improvements/index.md) để tiếp tục; R15 hosted/Google thật chưa kiểm lại. Không tự chạy feature hoặc deploy theo ngày.
+
+A029/E025: hồ sơ chia sẻ đã làm sạch và push nhánh `codex/portable-workflow-clean`; gói đầu `1f8c3df` đã xác nhận trên remote. Đọc checkpoint mới nhất sau fetch. Không merge main/deploy; giữ các quyết định nghiệp vụ còn mở.

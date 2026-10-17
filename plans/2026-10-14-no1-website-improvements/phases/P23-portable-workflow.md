@@ -23,5 +23,7 @@ Completed locally 17/10: both checkouts synced; 129 app/270 embedded SQL/lint/de
 
 ## A029 privacy cleanup and branch publication
 - [x] Preserve private original outside tracked tree; minimize shared historical evidence and remove sensitive identifiers/real amounts.
-- [~] Validate fresh outgoing tree/history, commit and push codex/portable-workflow-clean only.
-- [ ] Verify remote exact SHA and record publication without deploying main.
+- [x] Validate fresh outgoing tree/history, commit and push codex/portable-workflow-clean only.
+- [x] Verify remote exact SHA and record publication without deploying main.
+
+E025 complete: clean package 1f8c3df pushed and exact remote SHA verified. Original local candidate commits excluded from ancestry; no main merge/deploy. This checkpoint is a documentation-only follow-up on the same sharing branch.
