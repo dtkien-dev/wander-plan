@@ -21,7 +21,7 @@ const dateParts = (value: string): [number, number, number] => {
 
 export const formatDate = (value: string) => dateFormatter.format(new Date(...dateParts(value)))
 
-const formatDayMonth = (value: string) => `${value.slice(8, 10)}/${value.slice(5, 7)}`
+export const formatDayMonth = (value: string) => `${value.slice(8, 10)}/${value.slice(5, 7)}`
 
 export const countNights = (checkIn: string, checkOut: string) =>
   Math.round((Date.UTC(...dateParts(checkOut)) - Date.UTC(...dateParts(checkIn))) / 86_400_000)

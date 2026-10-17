@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
-import { isGoogleMapsUrl } from '../lib/format'
+import { formatDayMonth, isGoogleMapsUrl } from '../lib/format'
 import { findOverlaps } from '../lib/itineraryOverlap'
 import type { ItineraryDraft, ItineraryItem } from '../types'
 
@@ -49,7 +49,7 @@ export function ItineraryForm({ item, tripStart, tripEnd, itinerary, pending, on
       <label className="field">Bắt đầu<input type="time" {...register('startTime')} aria-invalid={Boolean(errors.startTime)} />{errors.startTime && <span>{errors.startTime.message}</span>}</label>
       <label className="field">Kết thúc<input type="time" {...register('endTime')} aria-invalid={Boolean(errors.endTime)} />{errors.endTime && <span>{errors.endTime.message}</span>}</label>
       <label className="field">Chi phí dự kiến<input type="number" inputMode="numeric" min="0" step="1000" {...register('estimatedCostVnd', { valueAsNumber: true })} aria-invalid={Boolean(errors.estimatedCostVnd)} />{errors.estimatedCostVnd && <span>{errors.estimatedCostVnd.message}</span>}</label>
-      {clashes.length > 0 && <p className="form-warning field--wide" role="status">Trùng giờ với {clashes.map((clash) => `“${clash.title}” (${clash.startTime}–${clash.endTime})`).join(', ')}. Bạn vẫn có thể lưu.</p>}
+      {clashes.length > 0 && <p className="form-warning field--wide" role="status">Trùng giờ với {clashes.map((clash) => `“${clash.title}” (${clash.endDate ? `${formatDayMonth(clash.visitDate)} ${clash.startTime} → ${formatDayMonth(clash.endDate)} ${clash.endTime}` : `${clash.startTime}–${clash.endTime}`})`).join(', ')}. Bạn vẫn có thể lưu.</p>}
       <label className="field field--wide">Địa chỉ<input {...register('address')} aria-invalid={Boolean(errors.address)} />{errors.address && <span>{errors.address.message}</span>}</label>
       <label className="field field--wide">Google Maps URL<input type="url" placeholder="https://maps.app.goo.gl/..." {...register('mapsUrl')} aria-invalid={Boolean(errors.mapsUrl)} />{errors.mapsUrl && <span>{errors.mapsUrl.message}</span>}</label>
       <label className="field field--wide">Ghi chú<textarea rows={3} {...register('notes')} aria-invalid={Boolean(errors.notes)} />{errors.notes && <span>{errors.notes.message}</span>}</label>

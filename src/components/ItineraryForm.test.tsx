@@ -23,6 +23,12 @@ describe('ItineraryForm overlap warning', () => {
     expect(screen.queryByRole('status')).not.toBeInTheDocument()
   })
 
+  it('names the dates of an overlapping multi-day activity', () => {
+    renderForm({ itinerary: [{ ...museum, id: 'trek', title: 'Trekking', endDate: '2026-11-29', startTime: '20:00', endTime: '08:00' }] })
+    fireEvent.change(screen.getByLabelText('Ngày đến'), { target: { value: '2026-11-28' } })
+    expect(screen.getByRole('status')).toHaveTextContent('Trùng giờ với “Trekking” (27/11 20:00 → 29/11 08:00)')
+  })
+
   it('does not warn about the item being edited', () => {
     renderForm({ item: museum })
     expect(screen.queryByRole('status')).not.toBeInTheDocument()
