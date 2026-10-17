@@ -1,4 +1,7 @@
 # Decisions
+## A031 — R11 itinerary overlap warning,17/10/2026
+Customer chose (AskUserQuestion): next batch R11. Two activities on the same date overlap when their [start, end) ranges intersect; 09:00–10:00 and 10:00–11:00 do not overlap. The warning never blocks saving; existing data is unchanged. Multi-day activities are deferred (not in this batch). No database, Excel or demo-storage change.
+
 ## A024 — Lock money on expenses with former members,16/10/2026
 Customer answered yes to locking amount edits, then chose the full lock: expenses involving a former member keep estimate/actual, split, payer and participants unchanged and cannot be deleted; title, category, dates and notes stay editable. Remaining unverified paths (Excel/.ics downloads, Google round trip, hosted email/Realtime) are to be covered by simulated/mock UAT. R07/R11/R15/R17/R18 rules still to be decided with the customer.
 
