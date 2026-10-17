@@ -1,4 +1,7 @@
 # Decisions
+## A032 — Go-live 0.10.0,18/10/2026
+Customer approved: push feat/itinerary-overlap-warning, open PR, merge main after CI passes and verify production. Scope limited to 0.10.0 (R11).
+
 ## A031 — R11 itinerary overlap warning,17/10/2026
 Customer chose (AskUserQuestion): next batch R11. Two activities on the same date overlap when their [start, end) ranges intersect; 09:00–10:00 and 10:00–11:00 do not overlap. The warning never blocks saving; existing data is unchanged. Multi-day activities are deferred (not in this batch). No database, Excel or demo-storage change.
 
