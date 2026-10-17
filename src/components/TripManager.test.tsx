@@ -1,6 +1,10 @@
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { TripManager } from './TripManager'
+import type { ReactNode } from 'react'
+import { NotificationProvider } from '../providers/NotificationProvider'
+
+const wrapper = ({ children }: { children: ReactNode }) => <NotificationProvider accountKey="test">{children}</NotificationProvider>
 
 const mocks = vi.hoisted(() => ({
   context: { tripId: null as string | null, selectTrip: vi.fn(), trips: {} as Record<string, unknown>, invitations: {} as Record<string, unknown>, archivedTrips: {} as Record<string, unknown> },
@@ -53,7 +57,7 @@ describe('TripManager', () => {
     mocks.context.archivedTrips = { data: [{ id: 'old-trip', name: 'Chuyến Huế cũ', archivedAt: '2026-10-16T12:00:00Z', version: 3 }], isError: false }
     const restore = vi.fn().mockRejectedValueOnce(new Error('Mất kết nối')).mockResolvedValue(undefined)
     mocks.mutations.archiveTrip.mutateAsync = restore
-    render(<TripManager />)
+    render(<TripManager />, { wrapper })
     fireEvent.click(screen.getByRole('button', { name: 'Đã lưu trữ (1)' }))
     expect(screen.getByRole('dialog')).toHaveTextContent('Nội dung được giữ kín')
     fireEvent.click(screen.getByRole('button', { name: 'Khôi phục Chuyến Huế cũ' }))
@@ -68,7 +72,7 @@ describe('TripManager', () => {
       { id: 'trip-a', name: 'Đà Lạt tôi yêu', destination: 'Đà Lạt', startDate: '2026-11-27', endDate: '2026-11-30' },
       { id: 'trip-b', name: 'Huế', destination: 'Huế', startDate: '2027-02-10', endDate: '2027-02-12' },
     ] }
-    render(<TripManager />)
+    render(<TripManager />, { wrapper })
     const selector = screen.getByRole('combobox', { name: 'Chuyến đang xem' })
     expect(selector).toHaveTextContent('Đà Lạt tôi yêu')
     expect(selector).toHaveAttribute('aria-expanded', 'false')
@@ -89,7 +93,7 @@ describe('TripManager', () => {
       { id: 'trip-a', name: 'Đà Lạt', destination: 'Đà Lạt', startDate: '2026-11-27', endDate: '2026-11-30' },
       { id: 'trip-b', name: 'Huế', destination: 'Huế', startDate: '2027-02-10', endDate: '2027-02-12' },
     ] }
-    const { rerender } = render(<TripManager />)
+    const { rerender } = render(<TripManager />, { wrapper })
     const selector = screen.getByRole('combobox', { name: 'Chuyến đang xem' })
 
     fireEvent.keyDown(selector, { key: 'ArrowDown' })
@@ -105,35 +109,35 @@ describe('TripManager', () => {
     expect(mocks.context.selectTrip).toHaveBeenCalledWith('trip-b')
 
     mocks.mutations.respondInvitation.isPending = true
-    rerender(<TripManager />)
+    rerender(<TripManager />, { wrapper })
     expect(selector).toHaveAttribute('aria-disabled', 'true')
     fireEvent.keyDown(selector, { key: 'ArrowDown' })
     expect(selector).toHaveAttribute('aria-expanded', 'false')
   })
 
   it('accepts and declines incoming invitations through the mutation contract', async () => {
-    render(<TripManager />)
+    render(<TripManager />, { wrapper })
     fireEvent.click(screen.getByRole('button', { name: 'Nhận lời mời' }))
     await waitFor(() => expect(mocks.mutations.respondInvitation.mutateAsync).toHaveBeenCalledWith({ tripId: 'invited-trip', accept: true }))
-    expect(await screen.findByRole('status')).toHaveTextContent('Bạn đã tham gia chuyến đi.')
+    expect(await screen.findByText('Bạn đã tham gia chuyến đi.')).toBeInTheDocument()
 
     fireEvent.click(screen.getByRole('button', { name: 'Từ chối' }))
     await waitFor(() => expect(mocks.mutations.respondInvitation.mutateAsync).toHaveBeenLastCalledWith({ tripId: 'invited-trip', accept: false }))
-    expect(await screen.findByRole('status')).toHaveTextContent('Đã từ chối lời mời.')
+    expect(await screen.findByText('Đã từ chối lời mời.')).toBeInTheDocument()
   })
 
   it('shows an invitation action error without hiding the pending invitation', async () => {
     mocks.mutations.respondInvitation = { mutateAsync: vi.fn().mockRejectedValue(new Error('Tạm thời không thể tham gia.')), isPending: false }
-    render(<TripManager />)
+    render(<TripManager />, { wrapper })
 
     fireEvent.click(screen.getByRole('button', { name: 'Nhận lời mời' }))
 
-    expect(await screen.findByRole('status')).toHaveTextContent('Tạm thời không thể tham gia.')
+    expect(await screen.findByRole('alert')).toHaveTextContent('Tạm thời không thể tham gia.')
     expect(screen.getByText('Chuyến Huế')).toBeInTheDocument()
   })
 
   it('validates that the end date is not before the start date', async () => {
-    render(<TripManager />)
+    render(<TripManager />, { wrapper })
     openCreateForm()
     fillCreateForm({ 'Ngày kết thúc': '2027-02-09' })
     fireEvent.click(screen.getByRole('button', { name: 'Tạo chuyến đi' }))
@@ -143,7 +147,7 @@ describe('TripManager', () => {
   })
 
   it('submits the validated trip draft with one stable request id', async () => {
-    render(<TripManager />)
+    render(<TripManager />, { wrapper })
     openCreateForm()
     fillCreateForm()
     fireEvent.click(screen.getByRole('button', { name: 'Tạo chuyến đi' }))

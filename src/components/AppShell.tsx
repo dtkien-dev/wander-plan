@@ -5,6 +5,7 @@ import { Brand } from './Brand'
 import { useAuth } from '../providers/AuthProvider'
 import { useWorkspaceContext } from '../providers/WorkspaceProvider'
 import { TripManager } from './TripManager'
+import { NotificationBell } from './NotificationBell'
 import { version } from '../../package.json'
 
 const navItems = [
@@ -41,6 +42,7 @@ export function AppShell() {
         <div className="user-area">
           <span className="version-badge" aria-label="Phiên bản website">v{version}</span>
           {isDemo && <span className="mode-badge mode-badge--demo" title="Dữ liệu chỉ được lưu trên trình duyệt này, không chia sẻ với người khác.">Bản xem thử</span>}
+          <NotificationBell />
           {session && (
             <button className="icon-button" type="button" disabled={signingOut} onClick={() => void logout()} aria-label="Đăng xuất">
               <LogOut size={20} strokeWidth={1.8} />

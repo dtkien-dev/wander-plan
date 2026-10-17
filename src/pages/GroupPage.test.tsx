@@ -2,6 +2,10 @@ import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/re
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { GroupPage } from './GroupPage'
 import type { TripPerson, WorkspaceData } from '../types'
+import type { ReactNode } from 'react'
+import { NotificationProvider } from '../providers/NotificationProvider'
+
+const wrapper = ({ children }: { children: ReactNode }) => <NotificationProvider accountKey="test">{children}</NotificationProvider>
 
 const mocks = vi.hoisted(() => ({
   useWorkspace: vi.fn(),
@@ -58,7 +62,7 @@ describe('GroupPage invitations', () => {
     setup('owner')
     const update = mocks.useWorkspaceMutations().updateTrip.mutateAsync
     update.mockResolvedValue(undefined)
-    render(<GroupPage />)
+    render(<GroupPage />, { wrapper })
     expect(screen.queryByLabelText('Tên chuyến đi')).not.toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: 'Chỉnh sửa chuyến', exact: true }))
     fireEvent.change(screen.getByLabelText('Tên chuyến đi'), { target: { value: 'Bản nháp chưa lưu' } })
@@ -76,7 +80,7 @@ describe('GroupPage invitations', () => {
   it('retains an owner draft and actionable error when saving fails', async () => {
     setup('owner')
     mocks.useWorkspaceMutations().updateTrip.mutateAsync.mockRejectedValue(new Error('Chuyến đi đã thay đổi.'))
-    render(<GroupPage />)
+    render(<GroupPage />, { wrapper })
     fireEvent.click(screen.getByRole('button', { name: 'Chỉnh sửa chuyến', exact: true }))
     fireEvent.change(screen.getByLabelText('Điểm đến'), { target: { value: 'Huế và vùng lân cận' } })
     fireEvent.click(screen.getByRole('button', { name: 'Lưu thông tin' }))
@@ -87,7 +91,7 @@ describe('GroupPage invitations', () => {
 
   it('shows active and held-seat counts and disables another invite when all four seats are occupied', () => {
     setup('owner')
-    render(<GroupPage />)
+    render(<GroupPage />, { wrapper })
 
     expect(screen.getByText(/3\/4 người đã tham gia · 1 chỗ đang giữ cho lời mời/)).toBeInTheDocument()
     expect(screen.queryByRole('status')).not.toBeInTheDocument()
@@ -100,7 +104,7 @@ describe('GroupPage invitations', () => {
     setup('owner')
     const fullGroup = [...people.slice(0, 3), { ...people[1], userId: 'member-3', email: 'three@example.com' }]
     mocks.useTripPeople.mockReturnValue({ data: fullGroup, isLoading: false, isError: false })
-    render(<GroupPage />)
+    render(<GroupPage />, { wrapper })
 
     expect(screen.getByText('Nhóm đã đủ 4 thành viên.')).toBeInTheDocument()
     expect(screen.queryByText(/Huỷ lời mời hoặc/)).not.toBeInTheDocument()
@@ -116,7 +120,7 @@ describe('GroupPage invitations', () => {
     const fullGroup = Array.from({ length: 20 }, (_, index) => ({ ...people[1], userId: `member-${index}`, email: `member-${index}@example.com` }))
     mocks.useWorkspace.mockReturnValue({ data: { ...workspace('owner'), trip: { ...trip, maxMembers: 20 }, people: fullGroup, memberCount: 20 }, isLoading: false, isError: false })
     mocks.useTripPeople.mockReturnValue({ data: fullGroup, isLoading: false, isError: false })
-    render(<GroupPage />)
+    render(<GroupPage />, { wrapper })
 
     expect(screen.getByText('Nhóm đã đủ 20 thành viên.')).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Tăng số người tối đa' })).not.toBeInTheDocument()
@@ -126,7 +130,7 @@ describe('GroupPage invitations', () => {
   it('enables invitations and removes full-group guidance when a place is available', () => {
     setup('owner')
     mocks.useTripPeople.mockReturnValue({ data: people.slice(0, 3), isLoading: false, isError: false })
-    render(<GroupPage />)
+    render(<GroupPage />, { wrapper })
 
     expect(screen.getByRole('button', { name: 'Thêm', exact: true })).toBeEnabled()
     expect(screen.getByLabelText('Mời bằng email')).toBeEnabled()
@@ -139,7 +143,7 @@ describe('GroupPage invitations', () => {
       .mockRejectedValueOnce(new Error('Không thể kết nối.'))
       .mockResolvedValueOnce(undefined)
     setup('owner', revokeInvitation)
-    render(<GroupPage />)
+    render(<GroupPage />, { wrapper })
 
     fireEvent.click(screen.getByRole('button', { name: 'Huỷ lời mời invitee@example.com' }))
     expect(screen.getByRole('dialog')).toHaveTextContent('invitee@example.com')
@@ -158,7 +162,7 @@ describe('GroupPage invitations', () => {
 
   it('does not render invitation revoke controls for an editor', () => {
     setup('editor')
-    render(<GroupPage />)
+    render(<GroupPage />, { wrapper })
 
     expect(screen.queryByRole('button', { name: 'Chỉnh sửa chuyến', exact: true })).not.toBeInTheDocument()
     expect(screen.queryByLabelText('Tên chuyến đi')).not.toBeInTheDocument()

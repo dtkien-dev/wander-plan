@@ -10,6 +10,7 @@ import { TripChecklist } from '../components/TripChecklist'
 import { ArchiveTripControl } from '../components/ArchiveTripControl'
 import { useTripPeople, useWorkspace, useWorkspaceMutations } from '../hooks/useWorkspace'
 import { formatCurrency, formatDate } from '../lib/format'
+import { useNotify } from '../providers/NotificationProvider'
 import type { TripDraft } from '../types'
 import styles from './GroupPage.module.css'
 
@@ -30,7 +31,7 @@ export function GroupPage() {
   const workspace = useWorkspace()
   const people = useTripPeople(workspace.data?.trip.id)
   const mutations = useWorkspaceMutations()
-  const [notice, setNotice] = useState('')
+  const notify = useNotify()
   const [formError, setFormError] = useState('')
   const [revokingEmail, setRevokingEmail] = useState<string | null>(null)
   const [editingTrip, setEditingTrip] = useState<'general' | 'capacity' | null>(null)
@@ -51,12 +52,6 @@ export function GroupPage() {
   const inviteForm = useForm<InviteValues>({ resolver: zodResolver(inviteSchema), defaultValues: { email: '' } })
   const resetTripForm = tripForm.reset
   const capacityField = tripForm.register('maxMembers', { valueAsNumber: true })
-
-  useEffect(() => {
-    if (!notice) return
-    const timer = window.setTimeout(() => setNotice(''), 5000)
-    return () => window.clearTimeout(timer)
-  }, [notice])
 
   useEffect(() => {
     if (!trip) return
@@ -85,7 +80,7 @@ export function GroupPage() {
     try {
       await mutations.updateTrip.mutateAsync({ draft, existing: trip })
       setEditingTrip(null)
-      setNotice('Đã cập nhật thông tin chuyến đi.')
+      notify.success('Đã cập nhật thông tin chuyến đi.')
     } catch (error) {
       setFormError(error instanceof Error ? error.message : 'Không thể cập nhật chuyến đi.')
     }
@@ -95,7 +90,7 @@ export function GroupPage() {
     try {
       await mutations.inviteMember.mutateAsync({ tripId: trip.id, email })
       inviteForm.reset()
-      setNotice('Đã tạo lời mời và giữ một chỗ. Hãy chia sẻ đường dẫn trang web; người nhận đăng nhập đúng email để nhận lời mời. Hệ thống chưa gửi email mời tự động.')
+      notify.success('Đã tạo lời mời và giữ một chỗ. Hãy chia sẻ đường dẫn trang web; người nhận đăng nhập đúng email để nhận lời mời. Hệ thống chưa gửi email mời tự động.')
     } catch (error) {
       inviteForm.setError('email', { message: error instanceof Error ? error.message : 'Không thể gửi lời mời.' })
     }
@@ -105,9 +100,9 @@ export function GroupPage() {
     try {
       await mutations.revokeInvitation.mutateAsync({ tripId: trip.id, email })
       setRevokingEmail(null)
-      setNotice('Đã huỷ lời mời và giải phóng chỗ.')
+      notify.success('Đã huỷ lời mời và giải phóng chỗ.')
     } catch (error) {
-      setNotice(error instanceof Error ? error.message : 'Không thể huỷ lời mời.')
+      notify.error(error instanceof Error ? error.message : 'Không thể huỷ lời mời.')
     }
   }
 
@@ -115,9 +110,9 @@ export function GroupPage() {
     if (!window.confirm(`Loại ${displayName} khỏi nhóm? Người này sẽ mất quyền truy cập chuyến đi.`)) return
     try {
       await mutations.removeMember.mutateAsync({ tripId: trip.id, userId })
-      setNotice(`Đã loại ${displayName} khỏi nhóm.`)
+      notify.success(`Đã loại ${displayName} khỏi nhóm.`)
     } catch (error) {
-      setNotice(error instanceof Error ? error.message : 'Không thể loại thành viên khỏi nhóm.')
+      notify.error(error instanceof Error ? error.message : 'Không thể loại thành viên khỏi nhóm.')
     }
   }
 
@@ -126,7 +121,6 @@ export function GroupPage() {
       <header className="section-header section-header--page">
         <div><p className="eyebrow">Cùng nhau chuẩn bị</p><h1>Nhóm của bạn</h1><p>Thành viên, thông tin chuyến và những việc cần làm trước ngày đi.</p></div>
       </header>
-      {notice && <div className="feedback" role="status">{notice}<button type="button" onClick={() => setNotice('')}>Đóng</button></div>}
       <div className={styles.grid}>
         <section className={styles.settings} aria-labelledby="trip-settings-title">
           <header><div><span className={styles.sectionIcon}><CalendarRange size={24} /></span><p className="eyebrow">Thông tin chung</p><h2 id="trip-settings-title">{trip.name}</h2></div>{isOwner ? <button className="button button--soft" type="button" onClick={() => { resetTripForm(); setFormError(''); setEditingTrip('general') }}>Chỉnh sửa chuyến</button> : <span className={styles.readonly}>Chỉ chủ chuyến đi được sửa</span>}</header>

@@ -7,6 +7,7 @@ import { StateView } from '../components/StateView'
 import { actualOrEstimated, describeExpenseDates, formatCurrency, formatDate, safePercent, totalExpenses } from '../lib/format'
 import { calculateExpenseSettlement, involvesFormerMember, type SettlementTransfer } from '../lib/expenseSettlement'
 import { downloadTravelExcelReport } from '../lib/travelExcel'
+import { useNotify } from '../providers/NotificationProvider'
 import { useWorkspace, useWorkspaceMutations } from '../hooks/useWorkspace'
 import type { Expense, ExpenseCategory, ExpenseDraft, SettlementPayment, SplitMethod, TripImportDraft } from '../types'
 import styles from './ExpensesPage.module.css'
@@ -20,7 +21,7 @@ export function ExpensesPage() {
   const workspace = useWorkspace()
   const mutations = useWorkspaceMutations()
   const [editing, setEditing] = useState<Expense | null | undefined>()
-  const [feedback, setFeedback] = useState('')
+  const notify = useNotify()
   const [formError, setFormError] = useState('')
   const [importOpen, setImportOpen] = useState(false)
   const [exporting, setExporting] = useState(false)
@@ -62,7 +63,7 @@ export function ExpensesPage() {
       setFormError('')
       await mutations.expense.mutateAsync({ draft, tripId: trip.id, existing: editing ?? undefined })
       setEditing(undefined)
-      setFeedback('Đã lưu chi phí.')
+      notify.success('Đã lưu chi phí.')
     } catch (error) {
       setFormError(error instanceof Error ? error.message : 'Không thể lưu chi phí.')
     }
@@ -72,9 +73,9 @@ export function ExpensesPage() {
     if (!window.confirm(`Xóa “${expense.title}”?`)) return
     try {
       await mutations.deleteExpense.mutateAsync(expense)
-      setFeedback('Đã xóa khoản chi.')
+      notify.success('Đã xóa khoản chi.')
     } catch (error) {
-      setFeedback(error instanceof Error ? error.message : 'Không thể xóa khoản chi.')
+      notify.error(error instanceof Error ? error.message : 'Không thể xóa khoản chi.')
     }
   }
 
@@ -82,9 +83,9 @@ export function ExpensesPage() {
     if (!window.confirm(`Xác nhận bạn đã nhận ${formatCurrency(transfer.amountVnd)} từ ${personName(transfer.fromUserId)}?`)) return
     try {
       await mutations.recordPayment.mutateAsync({ tripId: trip.id, fromUserId: transfer.fromUserId, amountVnd: transfer.amountVnd, expectedCount: data.settlementPaymentCount ?? 0 })
-      setFeedback('Đã ghi nhận thanh toán.')
+      notify.success('Đã ghi nhận thanh toán.')
     } catch (error) {
-      setFeedback(error instanceof Error ? error.message : 'Không thể ghi nhận thanh toán.')
+      notify.error(error instanceof Error ? error.message : 'Không thể ghi nhận thanh toán.')
     }
   }
 
@@ -92,16 +93,16 @@ export function ExpensesPage() {
     if (!window.confirm(`Hủy xác nhận đã nhận ${formatCurrency(payment.amountVnd)} từ ${personName(payment.fromUserId)}?`)) return
     try {
       await mutations.undoPayment.mutateAsync(payment)
-      setFeedback('Đã hủy xác nhận thanh toán.')
+      notify.success('Đã hủy xác nhận thanh toán.')
     } catch (error) {
-      setFeedback(error instanceof Error ? error.message : 'Không thể hủy xác nhận thanh toán.')
+      notify.error(error instanceof Error ? error.message : 'Không thể hủy xác nhận thanh toán.')
     }
   }
 
   const importData = async (draft: TripImportDraft) => {
     const result = await mutations.importTripData.mutateAsync({ draft, tripId: trip.id })
     setImportOpen(false)
-    setFeedback(`Đã tạo mới ${result.createdCount} và cập nhật ${result.updatedCount} dòng.`)
+    notify.success(`Đã tạo mới ${result.createdCount} và cập nhật ${result.updatedCount} dòng.`)
   }
 
   const exportData = async () => {
@@ -110,9 +111,9 @@ export function ExpensesPage() {
     try {
       setExporting(true)
       await downloadTravelExcelReport(data)
-      setFeedback('Đã xuất báo cáo Excel của chuyến đi.')
+      notify.success('Đã xuất báo cáo Excel của chuyến đi.')
     } catch (error) {
-      setFeedback(error instanceof Error ? error.message : 'Không thể xuất báo cáo Excel.')
+      notify.error(error instanceof Error ? error.message : 'Không thể xuất báo cáo Excel.')
     } finally {
       exportPending.current = false
       setExporting(false)
@@ -122,7 +123,6 @@ export function ExpensesPage() {
   return (
     <div className={styles.page} data-ai-id="expenses-page">
       <header className="section-header section-header--page"><div><p className="eyebrow">Đi đúng ngân sách</p><h1>Chi phí chuyến đi</h1><p>Ước tính trước, cập nhật thực tế sau — không cần chia bảng tính.</p></div><div className="section-header__actions"><button className="button button--ghost" type="button" onClick={() => setImportOpen(true)}><FileUp size={19} /> Nhập Excel</button><button className="button button--soft" type="button" disabled={exporting} onClick={() => void exportData()}><Download size={19} /> {exporting ? 'Đang xuất…' : 'Xuất Excel'}</button><button className="button button--primary" type="button" onClick={() => { setFormError(''); setEditing(null) }}><Plus size={19} /> Thêm chi phí</button></div></header>
-      {feedback && <div className="feedback" role="status">{feedback}<button type="button" onClick={() => setFeedback('')}>Đóng</button></div>}
       <section className={styles.summary} data-ai-id="expense-summary">
         <article className={styles.total}><span><WalletCards size={28} /></span><p>Tổng đang tính</p><strong>{formatCurrency(total)}</strong><small>Còn {formatCurrency(Math.max(trip.budgetVnd - total, 0))} trong ngân sách</small></article>
         <div className={styles.categories}>{grouped.length ? grouped.map(([category, amount]) => <div key={category}><span>{labels[category]}</span><strong>{formatCurrency(amount)}</strong><div><i style={{ width: `${Math.max(safePercent(amount, total), amount > 0 ? 4 : 0)}%` }} /></div></div>) : <p>Chưa có phân bổ chi phí.</p>}</div>

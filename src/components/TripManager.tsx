@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { useWorkspaceContext } from '../providers/WorkspaceProvider'
 import { useWorkspaceMutations } from '../hooks/useWorkspace'
+import { useNotify } from '../providers/NotificationProvider'
 import { formatDate } from '../lib/format'
 import type { ArchivedTrip, TripDraft } from '../types'
 import { Modal } from './Modal'
@@ -47,17 +48,17 @@ export function TripManager() {
   const [creating, setCreating] = useState(false)
   const [showArchived, setShowArchived] = useState(false)
   const [archiveError, setArchiveError] = useState('')
-  const [notice, setNotice] = useState('')
+  const notify = useNotify()
   const respond = async (id: string, accept: boolean) => {
-    try { await respondInvitation.mutateAsync({ tripId: id, accept }); setNotice(accept ? 'Bạn đã tham gia chuyến đi.' : 'Đã từ chối lời mời.') }
-    catch (error) { setNotice(error instanceof Error ? error.message : 'Không thể xử lý lời mời. Hãy tải lại.') }
+    try { await respondInvitation.mutateAsync({ tripId: id, accept }); notify.success(accept ? 'Bạn đã tham gia chuyến đi.' : 'Đã từ chối lời mời.') }
+    catch (error) { notify.error(error instanceof Error ? error.message : 'Không thể xử lý lời mời. Hãy tải lại.') }
   }
   const restore = async (trip: ArchivedTrip) => {
     setArchiveError('')
     try {
       await archiveTrip.mutateAsync({ tripId: trip.id, archived: false, version: trip.version })
       setShowArchived(false)
-      setNotice('Đã khôi phục chuyến đi. Thành viên có thể xem và chỉnh sửa trở lại.')
+      notify.success('Đã khôi phục chuyến đi. Thành viên có thể xem và chỉnh sửa trở lại.')
     } catch (error) { setArchiveError(error instanceof Error ? error.message : 'Chưa thể khôi phục. Hãy thử lại.') }
   }
   return <section className={styles.manager} aria-label="Chọn chuyến đi và lời mời">
@@ -67,7 +68,6 @@ export function TripManager() {
         {(Boolean(archivedTrips.data?.length) || archivedTrips.isError) && <button type="button" className="button button--ghost" onClick={() => { setArchiveError(''); setShowArchived(true) }}>Đã lưu trữ{archivedTrips.data?.length ? ` (${archivedTrips.data.length})` : ''}</button>}
       </div>
     </div>
-    {notice && <div className="feedback" role="status">{notice}<button type="button" onClick={() => setNotice('')}>Đóng</button></div>}
     {invitations.isError && <p role="alert">Chưa thể tải lời mời. <button className="text-link" type="button" onClick={() => void invitations.refetch()}>Thử lại</button></p>}
     {Boolean(invitations.data?.length) && <div className={styles.invitations}><h2>Lời mời đang chờ</h2>{invitations.data!.map((invitation) => <article key={invitation.tripId}>
       <div><strong>{invitation.tripName}</strong><p>{invitation.destination} · {formatDate(invitation.startDate)} — {formatDate(invitation.endDate)}</p></div>
