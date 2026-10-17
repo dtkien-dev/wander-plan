@@ -62,3 +62,7 @@ E027 result: feature commit ab7a517 on feat/itinerary-overlap-warning. QA/UAT/IT
 ## A035 / E031 — Readable Excel export (0.11.1)
 18/10/2026. Customer asked to check the exported Excel file. Generated the real workbook from the export code and inspected its XML: text colours were dropped because write-excel-file 4.x expects `textColor` (headers black on dark green), "Đến ngày" was far from "Ngày", data sheets had no gridlines or wrap. Customer chose the full fix. Branch fix/excel-report-readability from origin/main 37002fe: 142 tests, lint, tsc, demo build, audit 0; regenerated workbook confirms colours, gridlines, frozen header, wrap and column order; existing round-trip test re-imports with no changes; UAT export PASS. Not checked in Excel itself (no spreadsheet application available). Not pushed.
 <!-- workflow-action:E031 status:completed -->
+
+## A036 / E032 — Go-live 0.11.1
+18/10/2026. Customer approved go-live. Branch pushed non-force; PR #8 verify passed; merged with a merge commit as 40ea587. main CI and Deploy GitHub Pages succeeded; production app-version 0.11.1 and the live Excel chunk uses textColor and wrap. No database change. Not checked in Excel itself.
+<!-- workflow-action:E032 status:completed -->

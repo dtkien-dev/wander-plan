@@ -1,4 +1,7 @@
 # Decisions
+## A036 — Go-live 0.11.1,18/10/2026
+Customer approved: push fix/excel-report-readability, PR to main, merge when CI passes and verify production. Scope limited to 0.11.1.
+
 ## A035 — Readable Excel export,18/10/2026
 Customer asked to check the exported Excel file and chose the full fix (0.11.1): apply text colours (`textColor`), place "Đến ngày" beside "Ngày" in exported and template sheets, gridlines on data sheets and wrapped address/notes. No database change. Local commits authorized; go-live needs separate approval.
 
