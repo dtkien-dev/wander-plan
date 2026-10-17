@@ -125,3 +125,6 @@ Khách hàng chốt A033. Bản 0.11.0 (nhánh `feat/multi-day-itinerary`): “�
 
 ## A035 — Excel dễ đọc (0.11.1), hoàn tất 18/10
 Kiểm tra file Excel xuất ra theo yêu cầu khách hàng: sửa lỗi màu chữ tiêu đề (đen trên nền xanh đậm), đưa “Đến ngày” cạnh “Ngày”, bật đường lưới và xuống dòng cho Địa chỉ/Ghi chú. Không đổi database. Go-live A036: PR #8 merge `40ea587`, CI/Pages đạt, production 0.11.1 xác nhận. [Release note 0.11.1](../docs/releases/2026-10-18-0.11.1.md).
+
+## P26 — Thông báo trôi + lịch sử trên thiết bị, Excel tự giãn (0.12.0), chờ duyệt go-live 18/10
+Khách hàng chốt A037: thông báo trôi tự tắt sau 3 giây (lỗi giữ đến khi đóng), lịch sử 50 thông báo của chính mình lưu trên trình duyệt theo tài khoản, xem/xoá qua chuông; Excel tự tính độ rộng cột và chiều cao dòng. Không đổi database. [Release note 0.12.0](../docs/releases/2026-10-18-0.12.0.md).

@@ -7,6 +7,7 @@ import { addDays, countNights, formatCurrency, formatDate } from '../lib/format'
 import { findOverlaps } from '../lib/itineraryOverlap'
 import { downloadTravelExcelReport } from '../lib/travelExcel'
 import { useWorkspace, useWorkspaceMutations } from '../hooks/useWorkspace'
+import { useNotify } from '../providers/NotificationProvider'
 import type { ItineraryDraft, ItineraryItem, TripImportDraft } from '../types'
 import styles from './ItineraryPage.module.css'
 
@@ -16,7 +17,7 @@ export function ItineraryPage() {
   const workspace = useWorkspace()
   const mutations = useWorkspaceMutations()
   const [editing, setEditing] = useState<ItineraryItem | null | undefined>()
-  const [feedback, setFeedback] = useState('')
+  const notify = useNotify()
   const [formError, setFormError] = useState('')
   const [importOpen, setImportOpen] = useState(false)
   const [exporting, setExporting] = useState(false)
@@ -43,7 +44,7 @@ export function ItineraryPage() {
       setFormError('')
       await mutations.itinerary.mutateAsync({ draft, tripId: trip.id, existing: editing ?? undefined })
       setEditing(undefined)
-      setFeedback('Đã lưu lịch trình.')
+      notify.success('Đã lưu lịch trình.')
     } catch (error) {
       setFormError(error instanceof Error ? error.message : 'Không thể lưu lịch trình.')
     }
@@ -53,16 +54,16 @@ export function ItineraryPage() {
     if (!window.confirm(`Xóa “${item.title}”?`)) return
     try {
       await mutations.deleteItinerary.mutateAsync(item)
-      setFeedback('Đã xóa địa điểm khỏi lịch trình.')
+      notify.success('Đã xóa địa điểm khỏi lịch trình.')
     } catch (error) {
-      setFeedback(error instanceof Error ? error.message : 'Không thể xóa địa điểm.')
+      notify.error(error instanceof Error ? error.message : 'Không thể xóa địa điểm.')
     }
   }
 
   const importData = async (draft: TripImportDraft) => {
     const result = await mutations.importTripData.mutateAsync({ draft, tripId: trip.id })
     setImportOpen(false)
-    setFeedback(`Đã tạo mới ${result.createdCount} và cập nhật ${result.updatedCount} dòng.`)
+    notify.success(`Đã tạo mới ${result.createdCount} và cập nhật ${result.updatedCount} dòng.`)
   }
 
   const exportData = async () => {
@@ -71,9 +72,9 @@ export function ItineraryPage() {
     try {
       setExporting(true)
       await downloadTravelExcelReport(data)
-      setFeedback('Đã xuất báo cáo Excel của chuyến đi.')
+      notify.success('Đã xuất báo cáo Excel của chuyến đi.')
     } catch (error) {
-      setFeedback(error instanceof Error ? error.message : 'Không thể xuất báo cáo Excel.')
+      notify.error(error instanceof Error ? error.message : 'Không thể xuất báo cáo Excel.')
     } finally {
       exportPending.current = false
       setExporting(false)
@@ -83,7 +84,6 @@ export function ItineraryPage() {
   return (
     <div className={styles.page} data-ai-id="itinerary-page">
       <header className="section-header section-header--page"><div><p className="eyebrow">Từng ngày một</p><h1>Lịch trình chuyến đi</h1><p>Sắp xếp theo giờ để cả nhóm không bỏ lỡ điều hay.</p></div><div className="section-header__actions"><button className="button button--ghost" type="button" onClick={() => setImportOpen(true)}><FileUp size={19} /> Nhập Excel</button><button className="button button--soft" type="button" disabled={exporting} onClick={() => void exportData()}><Download size={19} /> {exporting ? 'Đang xuất…' : 'Xuất Excel'}</button><button className="button button--primary" type="button" onClick={() => { setFormError(''); setEditing(null) }}><Plus size={19} /> Thêm địa điểm</button></div></header>
-      {feedback && <div className="feedback" role="status">{feedback}<button type="button" onClick={() => setFeedback('')}>Đóng</button></div>}
       {itinerary.length === 0 ? <StateView state="empty" actionLabel="Thêm địa điểm đầu tiên" onAction={() => { setFormError(''); setEditing(null) }} /> : (
         <div className={styles.days}>
           {groups.map(([date, items]) => (

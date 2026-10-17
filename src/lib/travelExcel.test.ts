@@ -114,7 +114,7 @@ describe('travel Excel import', () => {
 
     const sheet = buildTravelExcelReportSheets({ ...demoWorkspace, expenses: [saved] }).find((entry) => entry.sheet === 'ChiPhi')!
     const headerRow = sheet.data[0].map((cell: any) => cell.value)
-    const row = sheet.data[1] as unknown[]
+    const row = (sheet.data[1] as unknown[]).map((cell) => typeof cell === 'object' && cell !== null && 'value' in cell ? (cell as { value: unknown }).value : cell)
     expect(row[headerRow.indexOf('Cách chia')]).toBe('Theo phần')
     expect(row[headerRow.indexOf('Chi tiết chia')]).toBe('ban@example.com: 2; banthan@example.com: 1')
   })
@@ -128,7 +128,7 @@ describe('travel Excel import', () => {
     }
     const exported = buildTravelExcelReportSheets({ ...demoWorkspace, expenses: [saved] }).find((entry) => entry.sheet === 'ChiPhi')!
     const headerRow = exported.data[0].map((cell: any) => cell.value)
-    const row = exported.data[1] as any[]
+    const row = (exported.data[1] as any[]).map((cell) => cell?.value ?? cell)
     expect(row[headerRow.indexOf('Chi tiết chia')]).toBe('ban@example.com: 30000')
     const preview = buildTravelExcelPreview('trip.xlsx', [{ sheet: 'ChiPhi', data: [
       [...header, 'Cách chia', 'Chi tiết chia', 'ID', 'Version'],
@@ -270,6 +270,20 @@ describe('travel Excel import', () => {
       expect(sheet.columns).toHaveLength(headers.length)
       expect('showGridLines' in sheet).toBe(false)
     }
+  })
+
+  it('sizes columns to their content and gives long wrapped text taller rows', () => {
+    const long = 'Mang áo ấm, đèn pin, nước uống và đồ ăn nhẹ; hẹn nhau ở cổng lúc 19:30 để đi chung xe lên núi.'
+    const item = { ...demoWorkspace.itinerary[0], id: 'long', title: 'A'.repeat(80), notes: long }
+    const sheet = buildTravelExcelReportSheets({ ...demoWorkspace, itinerary: [item] }).find((entry) => entry.sheet === 'LichTrinh')!
+    const headers = sheet.data[0].map((cell: any) => cell.value)
+    const widths = sheet.columns!.map((column) => column.width!)
+    expect(widths[headers.indexOf('Tên địa điểm')]).toBe(50)
+    expect(widths[headers.indexOf('Ngày')]).toBeGreaterThanOrEqual(10)
+    expect(widths[headers.indexOf('Ghi chú')]).toBe(40)
+    const row = sheet.data[1] as any[]
+    expect(row[headers.indexOf('Ghi chú')]).toMatchObject({ value: long, wrap: true, alignVertical: 'top' })
+    expect(row[0].height).toBeGreaterThan(20)
   })
 
   it('serializes the report as a readable three-sheet xlsx workbook', async () => {

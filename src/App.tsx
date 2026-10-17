@@ -5,6 +5,7 @@ import { StateView } from './components/StateView'
 import { useAuth } from './providers/AuthProvider'
 import { LoginPage } from './pages/LoginPage'
 import { WorkspaceProvider } from './providers/WorkspaceProvider'
+import { NotificationProvider } from './providers/NotificationProvider'
 import { PageErrorBoundary } from './components/PageErrorBoundary'
 
 const DashboardPage = lazy(() => import('./pages/DashboardPage').then((module) => ({ default: module.DashboardPage })))
@@ -18,7 +19,7 @@ export function App() {
   if (configurationError) return <main className="boot-state"><StateView state="error" title="Thiếu cấu hình hệ thống" message={configurationError} /></main>
   if (!isDemo && !session) return <LoginPage />
   return (
-    <WorkspaceProvider key={session?.user.id ?? 'demo'}><PageErrorBoundary><Suspense fallback={<StateView state="loading" />}><Routes>
+    <WorkspaceProvider key={session?.user.id ?? 'demo'}><NotificationProvider accountKey={session?.user.id ?? 'demo'}><PageErrorBoundary><Suspense fallback={<StateView state="loading" />}><Routes>
       <Route element={<AppShell />}>
         <Route index element={<DashboardPage />} />
         <Route path="itinerary" element={<ItineraryPage />} />
@@ -26,6 +27,6 @@ export function App() {
         <Route path="group" element={<GroupPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
-    </Routes></Suspense></PageErrorBoundary></WorkspaceProvider>
+    </Routes></Suspense></PageErrorBoundary></NotificationProvider></WorkspaceProvider>
   )
 }
