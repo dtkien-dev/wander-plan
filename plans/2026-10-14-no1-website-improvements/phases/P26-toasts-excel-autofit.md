@@ -1,5 +1,5 @@
 # P26: Toasts with local history and Excel auto-fit
-Status: Awaiting go-live approval
+Status: Completed
 Depends on: P25 completed; production 0.11.1
 Wave: 27
 Owner: Claude Code
@@ -11,7 +11,7 @@ Produces: A037.
 - [x] Toast provider, bell history, replace inline feedback.
 - [x] QA: 147 tests, lint, tsc; UAT local incl. 320/375/768; four layout findings fixed.
 - [x] ITS: same-agent review, no finding.
-- [ ] Go-live approval, merge, verify live 0.12.0.
+- [x] Go-live A038: PR #10 merged as cb2d549; CI/Pages succeeded; live 0.12.0 verified.
 
 ## Recovery
 Frontend revert; no database change.

@@ -6,9 +6,9 @@
 - [Quyết định đã chốt](../../plans/2026-10-14-no1-website-improvements/decisions.md)
 - [Kế hoạch và phase](../../plans/2026-10-14-no1-website-improvements/plan.md)
 - [Bằng chứng](../../plans/2026-10-14-no1-website-improvements/evidence.md), [kiểm tra](../../plans/2026-10-14-no1-website-improvements/verification.md)
-- [Release notes](../releases/2026-10-18-0.11.1.md)
+- [Release notes](../releases/2026-10-18-0.12.0.md)
 
-Mốc production được xác minh ngày 18/10/2026 (Asia/Saigon): `main` tại `40ea587c90287137a9c31f6a16a7b33117682af3`, phiên bản 0.11.1. Đây là mốc lịch sử: fetch và kiểm tra CI/Pages/live lại trước mỗi đợt. Tên nhánh hoặc đường dẫn worktree ghi trong evidence có thể chỉ tồn tại trên máy thực hiện.
+Mốc production được xác minh ngày 18/10/2026 (Asia/Saigon): `main` tại `cb2d549768a91613c823340075eee610cbf2cf85`, phiên bản 0.12.0. Đây là mốc lịch sử: fetch và kiểm tra CI/Pages/live lại trước mỗi đợt. Tên nhánh hoặc đường dẫn worktree ghi trong evidence có thể chỉ tồn tại trên máy thực hiện.
 
 Đợt hiện tại P23: đồng bộ code, kiểm tra 0.9.3, sửa hồ sơ phát hành và đưa quy trình/kế hoạch vào Git để dùng nhiều máy. Trạng thái hoàn tất và commit bàn giao lấy ở index/Git log, không suy ra từ phiên bản app.
 
