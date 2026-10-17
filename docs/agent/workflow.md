@@ -36,3 +36,5 @@ Trước khi đổi máy, cập nhật index: trạng thái, phase/action/chủ 
 Giữ kế hoạch và hướng dẫn trong Git; giữ `.env*`, token, credentials, local database, node_modules và ảnh QA riêng ngoài Git. Không cần đồng bộ skill cache hoặc toàn bộ chat. Commit cuối không thể chứa chính SHA của nó; khi bàn giao dùng Git log để xác định commit mới nhất, ghi rõ nếu còn thay đổi hồ sơ chưa commit.
 
 Repository có thể công khai: chỉ ghi kết quả tổng hợp và dữ liệu kiểm thử giả trong hồ sơ dùng chung. Không đưa ID/số tiền khoản chi thật, số lượng tài khoản production, ID chat, đường dẫn máy hay credential vào kế hoạch/evidence. Giữ bản ghi vận hành chi tiết riêng ngoài Git; quét cả lịch sử commit sắp push, vì xóa nội dung ở commit sau không xóa bản trước.
+
+Quy ước nhánh do khách hàng chốt: tên theo mục đích `feat/<topic>`, `fix/<topic>`, `docs/<topic>` hoặc `chore/<topic>`, chữ thường và kebab-case; tuân theo convention riêng của repo nếu có. Không dùng prefix tên công cụ/model như `codex/`, `claude/`. Nhánh bàn giao hiện tại: `docs/portable-workflow`.

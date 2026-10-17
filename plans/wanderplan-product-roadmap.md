@@ -110,3 +110,5 @@ Production đã là 0.9.3 tại `6becd6f` (PR #1): sửa đọc tiền Excel, ph
 P23 theo yêu cầu khách hàng: đưa hồ sơ plans vào Git và thêm [docs/agent](../docs/agent/README.md), giữ cùng tracker và quy trình PO → BA → IT → UAT/QA → ITS → duyệt go-live → ITO → PO. Không chọn thêm feature chưa chốt. R07/R11/R15/R17/R18 vẫn là quyết định đợt sau; lịch cũ phía trên là lịch sử, không phải lệnh chạy. Bước tiếp theo: chia sẻ nhánh bàn giao sau khi được phép push; sau đó chốt môi trường/tài khoản cho R15.
 
 A029/E025: hồ sơ chia sẻ đã làm sạch và push nhánh `codex/portable-workflow-clean`; gói đầu `1f8c3df` đã xác nhận trên remote. Đọc checkpoint mới nhất sau fetch. Không merge main/deploy; giữ các quyết định nghiệp vụ còn mở.
+
+A030: nhánh bàn giao hiện tại là `docs/portable-workflow`. Mọi nhánh mới đặt theo mục đích Git, không dùng prefix tên agent/công cụ.
