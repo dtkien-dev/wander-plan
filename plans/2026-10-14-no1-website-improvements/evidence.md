@@ -58,3 +58,7 @@ E027 result: feature commit ab7a517 on feat/itinerary-overlap-warning. QA/UAT/IT
 ## A034 / E030 — Go-live 0.11.0
 18/10/2026. Customer approved go-live. Production migration history had all 21 prior versions; dry run listed only 20261018000000; applied with the Supabase CLI and read back (column, CHECK, grants; no multi-day rows yet). Branch pushed non-force; PR #6 verify passed; merged with a merge commit as b113a60. main CI and Deploy GitHub Pages succeeded; production app-version 0.11.0 and the new UI/Excel strings are in the live chunks; signed-out load has no console errors. Production data untouched apart from the additive column. Authenticated production smoke not run.
 <!-- workflow-action:E030 status:completed -->
+
+## A035 / E031 — Readable Excel export (0.11.1)
+18/10/2026. Customer asked to check the exported Excel file. Generated the real workbook from the export code and inspected its XML: text colours were dropped because write-excel-file 4.x expects `textColor` (headers black on dark green), "Đến ngày" was far from "Ngày", data sheets had no gridlines or wrap. Customer chose the full fix. Branch fix/excel-report-readability from origin/main 37002fe: 142 tests, lint, tsc, demo build, audit 0; regenerated workbook confirms colours, gridlines, frozen header, wrap and column order; existing round-trip test re-imports with no changes; UAT export PASS. Not checked in Excel itself (no spreadsheet application available). Not pushed.
+<!-- workflow-action:E031 status:completed -->
