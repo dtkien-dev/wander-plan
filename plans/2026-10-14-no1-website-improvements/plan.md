@@ -85,4 +85,4 @@ P09 depends onP08, wave9, coordinator only; [phase](phases/P09-migration-history
 [P23](phases/P23-portable-workflow.md), depends completed P22 and deployed 0.9.3, wave24. User asks to sync, check, continue workflow and add a shared folder for multiple devices. Local commits authorized; push/deploy approval remains a separate gate. Preserve the existing tracker, relative links and unresolved business decisions.
 
 ## A029 — Privacy-safe handoff publication
-User authorized sanitizing the shared records and pushing a fresh branch. E025 extends P23: preserve private history locally, publish only minimized docs on codex/portable-workflow-clean from current main; no original candidate ancestors, force push, main merge or deploy. Verify outgoing snapshots, relative links, secrets/privacy and remote exact SHA.
+User authorized sanitizing the shared records and pushing a fresh branch. E025 extends P23: preserve private history locally, publish only minimized docs on docs/portable-workflow from current main; no original candidate ancestors, force push, main merge or deploy. Verify outgoing snapshots, relative links, secrets/privacy and remote exact SHA.
