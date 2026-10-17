@@ -44,6 +44,7 @@ class DemoRepository implements TravelRepository {
       checklist: data.checklist ?? [],
       settlementPayments: data.settlementPayments ?? [],
       settlementPaymentCount: data.settlementPaymentCount ?? data.settlementPayments?.length ?? 0,
+      itinerary: data.itinerary.map((item) => ({ ...item, endDate: item.endDate ?? null })),
       expenses: data.expenses.map((expense) => ({ ...expense, endDate: expense.endDate ?? null })),
     }))
     const saved = localStorage.getItem(STORAGE_KEY)
@@ -55,6 +56,7 @@ class DemoRepository implements TravelRepository {
     data.settlementPayments ??= []
     data.settlementPaymentCount ??= 0
     data.currentUserId ??= 'demo-owner'
+    data.itinerary = data.itinerary.map((item) => ({ ...item, endDate: item.endDate ?? null }))
     data.expenses = data.expenses.map((expense) => ({
       ...expense,
       endDate: expense.endDate ?? null,
@@ -117,7 +119,7 @@ class DemoRepository implements TravelRepository {
   async updateTrip(draft: TripDraft, existing: Trip) {
     const data = this.read(existing.id)
     if (draft.maxMembers < data.people.length) throw new Error('Giới hạn không thể thấp hơn số thành viên và chỗ đang giữ.')
-    if (data.itinerary.some((item) => item.visitDate < draft.startDate || item.visitDate > draft.endDate) || data.expenses.some((item) => item.expenseDate < draft.startDate || (item.endDate ?? item.expenseDate) > draft.endDate)) throw new Error('Ngày chuyến đi phải bao gồm lịch trình và chi phí hiện có.')
+    if (data.itinerary.some((item) => item.visitDate < draft.startDate || (item.endDate ?? item.visitDate) > draft.endDate) || data.expenses.some((item) => item.expenseDate < draft.startDate || (item.endDate ?? item.expenseDate) > draft.endDate)) throw new Error('Ngày chuyến đi phải bao gồm lịch trình và chi phí hiện có.')
     if (data.trip.version !== existing.version) throw new Error('Thông tin chuyến đi đã thay đổi. Hãy tải lại.')
     data.trip = { ...data.trip, ...draft, version: data.trip.version + 1 }
     this.write(data)
@@ -330,6 +332,7 @@ const mapItinerary = (row: any): ItineraryItem => ({
   tripId: row.trip_id,
   title: row.title,
   visitDate: row.visit_date,
+  endDate: row.end_date ?? null,
   startTime: row.start_time.slice(0, 5),
   endTime: row.end_time.slice(0, 5),
   estimatedCostVnd: Number(row.estimated_cost_vnd),
@@ -461,7 +464,7 @@ class SupabaseRepository implements TravelRepository {
     if (!authData.session) throw new Error('Bạn cần đăng nhập.')
     const currentUserId = authData.session.user.id
     const [itineraryRows, expenseRows, members, checklistRows, paymentRows, formerRows, profile, people] = await Promise.all([
-      loadAllRows((from, to) => supabase!.from('itinerary_items').select('id,trip_id,title,visit_date,start_time,end_time,estimated_cost_vnd,address,maps_url,notes,version', { count: 'exact' }).eq('trip_id', trip.id).order('visit_date').order('start_time').order('id').range(from, to)),
+      loadAllRows((from, to) => supabase!.from('itinerary_items').select('id,trip_id,title,visit_date,end_date,start_time,end_time,estimated_cost_vnd,address,maps_url,notes,version', { count: 'exact' }).eq('trip_id', trip.id).order('visit_date').order('start_time').order('id').range(from, to)),
       loadAllRows((from, to) => supabase!.from('expenses').select('id,trip_id,title,category,expense_date,end_date,estimated_amount_vnd,actual_amount_vnd,paid_by,notes,version,split_method,expense_participants(user_id,share_units,share_amount_vnd)', { count: 'exact' }).eq('trip_id', trip.id).order('expense_date').order('id').range(from, to)),
       loadAllRows((from, to) => supabase!.from('trip_members').select('user_id,role', { count: 'exact' }).eq('trip_id', trip.id).order('user_id').range(from, to)),
       loadAllRows((from, to) => supabase!.from('checklist_items').select('id,trip_id,title,assigned_to,completed,version', { count: 'exact' }).eq('trip_id', trip.id).is('deleted_at', null).order('created_at').order('id').range(from, to)),
@@ -558,6 +561,7 @@ class SupabaseRepository implements TravelRepository {
     const payload = {
       title: draft.title,
       visit_date: draft.visitDate,
+      end_date: draft.endDate,
       start_time: draft.startTime,
       end_time: draft.endTime,
       estimated_cost_vnd: draft.estimatedCostVnd,
@@ -634,6 +638,7 @@ class SupabaseRepository implements TravelRepository {
         version: entry.version ?? null,
         title: entry.draft.title,
         visit_date: entry.draft.visitDate,
+        end_date: entry.draft.endDate,
         start_time: entry.draft.startTime,
         end_time: entry.draft.endTime,
         estimated_cost_vnd: entry.draft.estimatedCostVnd,

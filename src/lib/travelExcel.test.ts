@@ -51,6 +51,39 @@ describe('travel Excel import', () => {
     expect(legacyFile.expenses[0]).toMatchObject({ action: 'skip', data: { endDate: '2026-11-30' } })
   })
 
+  it('reads multi-day itinerary end dates and keeps saved ones when the column is absent', () => {
+    const header = ['Tên địa điểm', 'Ngày', 'Bắt đầu', 'Kết thúc', 'Chi phí dự kiến', 'Địa chỉ', 'Google Maps URL', 'Ghi chú']
+    const maps = 'https://maps.app.goo.gl/abc'
+    const ranged = buildTravelExcelPreview('trip.xlsx', [{ sheet: 'LichTrinh', data: [
+      [...header, 'Đến ngày'],
+      ['Trekking Langbiang', '2026-11-27', '20:00', '08:00', 0, 'Lạc Dương', maps, '', '2026-11-29'],
+      ['Cùng ngày', '2026-11-27', '09:00', '10:00', 0, 'Đà Lạt', maps, '', '2026-11-27'],
+      ['Quá chuyến', '2026-11-29', '09:00', '10:00', 0, 'Đà Lạt', maps, '', '2026-12-01'],
+      ['Ngược giờ', '2026-11-28', '10:00', '09:00', 0, 'Đà Lạt', maps, '', ''],
+    ] }], trip, [], [], demoWorkspace.people)
+    expect(ranged.itinerary[0]).toMatchObject({ errors: [], data: { endDate: '2026-11-29' } })
+    expect(ranged.itinerary[1].errors).toContain('Đến ngày phải sau Ngày')
+    expect(ranged.itinerary[2].errors).toContain('Đến ngày nằm ngoài chuyến đi')
+    expect(ranged.itinerary[3].errors).toContain('Giờ kết thúc phải sau giờ bắt đầu')
+
+    const existing = {
+      id: 'trek', tripId: trip.id, title: 'Trekking Langbiang', visitDate: '2026-11-27', endDate: '2026-11-29', startTime: '20:00', endTime: '08:00',
+      estimatedCostVnd: 0, address: 'Lạc Dương', mapsUrl: maps, notes: '', version: 3,
+    }
+    const legacyFile = buildTravelExcelPreview('trip.xlsx', [{ sheet: 'LichTrinh', data: [
+      [...header, 'ID', 'Version'],
+      ['Trekking Langbiang', '2026-11-27', '20:00', '08:00', 0, 'Lạc Dương', maps, '', 'trek', 3],
+    ] }], trip, [existing], [], demoWorkspace.people)
+    expect(legacyFile.itinerary[0]).toMatchObject({ errors: [], action: 'skip', data: { endDate: '2026-11-29' } })
+
+    const sheets = buildTravelExcelReportSheets({ ...demoWorkspace, itinerary: [existing] }, new Date(2026, 9, 13))
+    const sheet = sheets.find((entry) => entry.sheet === 'LichTrinh')!
+    const value = (cell: unknown) => typeof cell === 'object' && cell !== null && 'value' in cell ? (cell as { value: unknown }).value : cell
+    const column = sheet.data[0].map(value).indexOf('Đến ngày')
+    expect(column).toBeGreaterThan(-1)
+    expect(value(sheet.data[1][column])).toBeInstanceOf(Date)
+  })
+
   it('imports split columns, keeps saved splits for files without them and exports both columns', () => {
     const header = ['Khoản chi', 'Phân loại', 'Ngày', 'Dự kiến', 'Thực tế', 'Người thanh toán', 'Người tham gia', 'Ghi chú']
     const both = 'ban@example.com, banthan@example.com'

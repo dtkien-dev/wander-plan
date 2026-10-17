@@ -21,10 +21,12 @@ const dateParts = (value: string): [number, number, number] => {
 
 export const formatDate = (value: string) => dateFormatter.format(new Date(...dateParts(value)))
 
-const formatDayMonth = (value: string) => `${value.slice(8, 10)}/${value.slice(5, 7)}`
+export const formatDayMonth = (value: string) => `${value.slice(8, 10)}/${value.slice(5, 7)}`
 
 export const countNights = (checkIn: string, checkOut: string) =>
   Math.round((Date.UTC(...dateParts(checkOut)) - Date.UTC(...dateParts(checkIn))) / 86_400_000)
+
+export const addDays = (value: string, days: number) => new Date(Date.UTC(...dateParts(value)) + days * 86_400_000).toISOString().slice(0, 10)
 
 // Ranged expenses still count on their start date; the range is descriptive.
 export const describeExpenseDates = (expense: Pick<Expense, 'category' | 'expenseDate' | 'endDate'>) => {
