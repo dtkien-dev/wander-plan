@@ -212,6 +212,8 @@ class DemoRepository implements TravelRepository {
   async saveItinerary(draft: ItineraryDraft, tripId: string, existing?: ItineraryItem) {
     const data = this.read(tripId)
     if (existing) {
+      const current = data.itinerary.find((item) => item.id === existing.id)
+      if (!current || current.version !== existing.version) throw new Error('Lịch trình đã thay đổi. Hãy tải lại và thử lại.')
       data.itinerary = data.itinerary.map((item) =>
         item.id === existing.id ? { ...item, ...draft, version: item.version + 1 } : item,
       )
@@ -228,6 +230,8 @@ class DemoRepository implements TravelRepository {
 
   async deleteItinerary(item: ItineraryItem) {
     const data = this.read(item.tripId)
+    const current = data.itinerary.find((entry) => entry.id === item.id)
+    if (!current || current.version !== item.version) throw new Error('Lịch trình đã thay đổi. Hãy tải lại và thử lại.')
     data.itinerary = data.itinerary.filter((entry) => entry.id !== item.id)
     this.write(data)
   }
@@ -237,6 +241,7 @@ class DemoRepository implements TravelRepository {
     const splitError = validateSplit(draft)
     if (splitError) throw new Error(splitError)
     const saved = existing && data.expenses.find((expense) => expense.id === existing.id)
+    if (existing && (!saved || saved.version !== existing.version)) throw new Error('Chi phí đã thay đổi. Hãy tải lại và thử lại.')
     if (saved && involvesFormerMember(saved, activeIds(data)) && (draft.actualAmountVnd !== saved.actualAmountVnd || draft.estimatedAmountVnd !== saved.estimatedAmountVnd
       || draft.paidByUserId !== saved.paidByUserId || [...draft.participantUserIds].sort().join() !== [...saved.participantUserIds].sort().join()
       || (draft.splitMethod ?? 'equal') !== (saved.splitMethod ?? 'equal') || JSON.stringify(draft.splitValues ?? {}) !== JSON.stringify(saved.splitValues ?? {}))) {
@@ -259,7 +264,9 @@ class DemoRepository implements TravelRepository {
 
   async deleteExpense(expense: Expense) {
     const data = this.read(expense.tripId)
-    if (involvesFormerMember(expense, activeIds(data))) throw new Error('Khoản chi có người đã rời nhóm nên không thể xóa.')
+    const current = data.expenses.find((entry) => entry.id === expense.id)
+    if (!current || current.version !== expense.version) throw new Error('Chi phí đã thay đổi. Hãy tải lại và thử lại.')
+    if (involvesFormerMember(current, activeIds(data))) throw new Error('Khoản chi có người đã rời nhóm nên không thể xóa.')
     data.expenses = data.expenses.filter((entry) => entry.id !== expense.id)
     this.write(data)
   }
@@ -358,12 +365,27 @@ const throwIfError = (error: { message: string } | null) => {
   if (error) throw new Error(error.message)
 }
 
+async function loadAllRows<T>(page: (from: number, to: number) => PromiseLike<{ data: T[] | null; error: { message: string } | null; count: number | null }>): Promise<T[]> {
+  const rows: T[] = []
+  let total: number | undefined
+  do {
+    const { data, error, count } = await page(rows.length, rows.length + 999)
+    throwIfError(error)
+    // Count also handles API caps lower than the requested page size.
+    if (count === null || !Number.isSafeInteger(count) || count < 0 || (total !== undefined && count !== total) || (!data?.length && rows.length < count)) {
+      throw new Error('Dữ liệu đã thay đổi hoặc chưa tải đủ. Hãy tải lại và thử lại.')
+    }
+    total = count
+    rows.push(...(data ?? []))
+  } while (rows.length < total)
+  return rows
+}
+
 class SupabaseRepository implements TravelRepository {
   async listArchivedTrips(): Promise<ArchivedTrip[]> {
     if (!supabase) return []
-    const { data, error } = await supabase.rpc('get_my_archived_trips')
-    throwIfError(error)
-    return (data ?? []).map((row: any) => ({ id: row.id, name: row.name, archivedAt: row.archived_at, version: row.version }))
+    const data = await loadAllRows((from, to) => supabase!.rpc('get_my_archived_trips', {}, { count: 'exact' }).order('archived_at', { ascending: false }).order('id').range(from, to))
+    return data.map((row: any) => ({ id: row.id, name: row.name, archivedAt: row.archived_at, version: row.version }))
   }
 
   async setTripArchived(tripId: string, archived: boolean, version: number) {
@@ -406,16 +428,14 @@ class SupabaseRepository implements TravelRepository {
   }
   async listTrips() {
     if (!supabase) return []
-    const { data, error } = await supabase.from('trips').select('id,name,destination,start_date,end_date,timezone,budget_vnd,max_members,version').order('start_date')
-    throwIfError(error)
-    return (data ?? []).map(mapTrip)
+    const data = await loadAllRows((from, to) => supabase!.from('trips').select('id,name,destination,start_date,end_date,timezone,budget_vnd,max_members,version', { count: 'exact' }).order('start_date').order('id').range(from, to))
+    return data.map(mapTrip)
   }
 
   async loadInvitations() {
     if (!supabase) return []
-    const { data, error } = await supabase.rpc('get_my_trip_invitations')
-    throwIfError(error)
-    return (data ?? []).map((row: any): TripInvitation => ({ tripId: row.trip_id, tripName: row.trip_name, destination: row.destination, startDate: row.start_date, endDate: row.end_date }))
+    const data = await loadAllRows((from, to) => supabase!.rpc('get_my_trip_invitations', {}, { count: 'exact' }).order('start_date').order('trip_id').range(from, to))
+    return data.map((row: any): TripInvitation => ({ tripId: row.trip_id, tripName: row.trip_name, destination: row.destination, startDate: row.start_date, endDate: row.end_date }))
   }
 
   async respondInvitation(tripId: string, accept: boolean) {
@@ -436,40 +456,37 @@ class SupabaseRepository implements TravelRepository {
     throwIfError(error)
     if (!trips?.length) return null
     const trip = mapTrip(trips[0])
-    const [itineraryResult, expenseResult, memberResult, checklistResult, paymentResult, formerResult] = await Promise.all([
-      supabase.from('itinerary_items').select('id,trip_id,title,visit_date,start_time,end_time,estimated_cost_vnd,address,maps_url,notes,version').eq('trip_id', trip.id).order('visit_date').order('start_time'),
-      supabase.from('expenses').select('id,trip_id,title,category,expense_date,end_date,estimated_amount_vnd,actual_amount_vnd,paid_by,notes,version,split_method,expense_participants(user_id,share_units,share_amount_vnd)').eq('trip_id', trip.id).order('expense_date'),
-      supabase.from('trip_members').select('user_id,role').eq('trip_id', trip.id),
-      supabase.from('checklist_items').select('id,trip_id,title,assigned_to,completed,version').eq('trip_id', trip.id).is('deleted_at', null).order('created_at').order('id'),
+    const { data: authData, error: authError } = await supabase.auth.getSession()
+    throwIfError(authError)
+    if (!authData.session) throw new Error('Bạn cần đăng nhập.')
+    const currentUserId = authData.session.user.id
+    const [itineraryRows, expenseRows, members, checklistRows, paymentRows, formerRows, profile, people] = await Promise.all([
+      loadAllRows((from, to) => supabase!.from('itinerary_items').select('id,trip_id,title,visit_date,start_time,end_time,estimated_cost_vnd,address,maps_url,notes,version', { count: 'exact' }).eq('trip_id', trip.id).order('visit_date').order('start_time').order('id').range(from, to)),
+      loadAllRows((from, to) => supabase!.from('expenses').select('id,trip_id,title,category,expense_date,end_date,estimated_amount_vnd,actual_amount_vnd,paid_by,notes,version,split_method,expense_participants(user_id,share_units,share_amount_vnd)', { count: 'exact' }).eq('trip_id', trip.id).order('expense_date').order('id').range(from, to)),
+      loadAllRows((from, to) => supabase!.from('trip_members').select('user_id,role', { count: 'exact' }).eq('trip_id', trip.id).order('user_id').range(from, to)),
+      loadAllRows((from, to) => supabase!.from('checklist_items').select('id,trip_id,title,assigned_to,completed,version', { count: 'exact' }).eq('trip_id', trip.id).is('deleted_at', null).order('created_at').order('id').range(from, to)),
       // Undone rows are kept: their count is the duplicate-record guard.
-      supabase.from('settlement_payments').select('id,trip_id,from_user_id,to_user_id,amount_vnd,created_at,deleted_at').eq('trip_id', trip.id).order('created_at').order('id'),
-      supabase.rpc('get_trip_former_people', { target_trip_id: trip.id }),
+      loadAllRows((from, to) => supabase!.from('settlement_payments').select('id,trip_id,from_user_id,to_user_id,amount_vnd,created_at,deleted_at', { count: 'exact' }).eq('trip_id', trip.id).order('created_at').order('id').range(from, to)),
+      loadAllRows((from, to) => supabase!.rpc('get_trip_former_people', { target_trip_id: trip.id }, { count: 'exact' }).order('user_id').range(from, to)),
+      supabase.from('profiles').select('display_name').eq('id', currentUserId).single(),
+      this.loadTripPeople(trip.id),
     ])
-    throwIfError(itineraryResult.error)
-    throwIfError(expenseResult.error)
-    throwIfError(memberResult.error)
-    throwIfError(checklistResult.error)
-    throwIfError(paymentResult.error)
-    throwIfError(formerResult.error)
-    const paymentRows = paymentResult.data ?? []
-    const { data: authData } = await supabase.auth.getSession()
-    const currentMembership = memberResult.data?.find((member) => member.user_id === authData.session?.user.id)
+    const currentMembership = members.find((member) => member.user_id === currentUserId)
     if (!currentMembership) throw new Error('Tài khoản chưa thuộc chuyến đi này.')
-    const profile = await supabase.from('profiles').select('display_name').eq('id', authData.session!.user.id).single()
     throwIfError(profile.error)
     const rawName = profile.data?.display_name
     return {
-      ownDisplayName: rawName === authData.session!.user.email ? null : rawName,
-      checklist: (checklistResult.data ?? []).map((row): ChecklistItem => ({ id: row.id, tripId: row.trip_id, title: row.title, assignedTo: row.assigned_to, completed: row.completed, version: row.version })),
+      ownDisplayName: rawName === authData.session.user.email ? null : rawName,
+      checklist: checklistRows.map((row): ChecklistItem => ({ id: row.id, tripId: row.trip_id, title: row.title, assignedTo: row.assigned_to, completed: row.completed, version: row.version })),
       settlementPayments: paymentRows.filter((row) => !row.deleted_at).map((row): SettlementPayment => ({ id: row.id, tripId: row.trip_id, fromUserId: row.from_user_id, toUserId: row.to_user_id, amountVnd: Number(row.amount_vnd), createdAt: row.created_at })),
       settlementPaymentCount: paymentRows.length,
-      formerPeople: (formerResult.data ?? []).map((row: any): FormerPerson => ({ userId: row.user_id, displayName: row.display_name })),
+      formerPeople: formerRows.map((row: any): FormerPerson => ({ userId: row.user_id, displayName: row.display_name })),
       trip,
-      itinerary: (itineraryResult.data ?? []).map(mapItinerary),
-      expenses: (expenseResult.data ?? []).map(mapExpense),
-      people: await this.loadTripPeople(trip.id),
-      memberCount: memberResult.data?.length ?? 1,
-      currentUserId: authData.session!.user.id,
+      itinerary: itineraryRows.map(mapItinerary),
+      expenses: expenseRows.map(mapExpense),
+      people,
+      memberCount: members.length,
+      currentUserId,
       currentRole: currentMembership.role as WorkspaceData['currentRole'],
     }
   }
@@ -507,9 +524,8 @@ class SupabaseRepository implements TravelRepository {
 
   async loadTripPeople(tripId: string) {
     if (!supabase) return []
-    const { data, error } = await supabase.rpc('get_trip_people', { target_trip_id: tripId })
-    throwIfError(error)
-    return (data ?? []).map((person: any): TripPerson => ({
+    const data = await loadAllRows((from, to) => supabase!.rpc('get_trip_people', { target_trip_id: tripId }, { count: 'exact' }).order('role', { ascending: false }).order('status').order('display_name').order('email').range(from, to))
+    return data.map((person: any): TripPerson => ({
       userId: person.user_id,
       email: person.email,
       displayName: person.display_name || person.email.split('@')[0],

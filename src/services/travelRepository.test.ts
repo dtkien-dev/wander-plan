@@ -16,6 +16,27 @@ beforeEach(() => {
 })
 
 describe('demo travel repository', () => {
+  it('rejects stale expense and itinerary edits and deletes without losing newer data', async () => {
+    const before = (await travelRepository.loadWorkspace('demo-trip'))!
+    const expense = before.expenses[0]
+    const itinerary = before.itinerary[0]
+    await travelRepository.saveExpense({ ...expense, title: 'New expense title' }, before.trip.id, expense)
+    await travelRepository.saveItinerary({ ...itinerary, title: 'New itinerary title' }, before.trip.id, itinerary)
+    await expect(travelRepository.saveExpense({ ...expense, title: 'Stale expense' }, before.trip.id, expense)).rejects.toThrow('đã thay đổi')
+    await expect(travelRepository.deleteExpense(expense)).rejects.toThrow('đã thay đổi')
+    await expect(travelRepository.saveItinerary({ ...itinerary, title: 'Stale itinerary' }, before.trip.id, itinerary)).rejects.toThrow('đã thay đổi')
+    await expect(travelRepository.deleteItinerary(itinerary)).rejects.toThrow('đã thay đổi')
+    const after = (await travelRepository.loadWorkspace(before.trip.id))!
+    const savedExpense = after.expenses.find((item) => item.id === expense.id)!
+    const savedItinerary = after.itinerary.find((item) => item.id === itinerary.id)!
+    expect(savedExpense).toMatchObject({ title: 'New expense title', version: expense.version + 1 })
+    expect(savedItinerary).toMatchObject({ title: 'New itinerary title', version: itinerary.version + 1 })
+    await travelRepository.deleteExpense(savedExpense)
+    await travelRepository.deleteItinerary(savedItinerary)
+    await expect(travelRepository.saveExpense(expense, before.trip.id, savedExpense)).rejects.toThrow('đã thay đổi')
+    await expect(travelRepository.saveItinerary(itinerary, before.trip.id, savedItinerary)).rejects.toThrow('đã thay đổi')
+  })
+
   it('rejects exact-amount splits that do not match the expense', async () => {
     const draft = { title: 'Ăn tối', category: 'food' as const, expenseDate: '2026-11-27', endDate: null, estimatedAmountVnd: 0, actualAmountVnd: 150000,
       paidByUserId: 'demo-owner', participantUserIds: ['demo-owner', 'demo-editor'], splitMethod: 'amounts' as const,
