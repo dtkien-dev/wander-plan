@@ -46,6 +46,8 @@ export interface ItineraryItem {
   tripId: string
   title: string
   visitDate: string
+  /** Last day of a multi-day activity; null for a single-day activity. */
+  endDate: string | null
   startTime: string
   endTime: string
   estimatedCostVnd: number

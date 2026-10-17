@@ -33,7 +33,7 @@ const MAX_FILE_BYTES = 5 * 1024 * 1024
 const MAX_IMPORT_ROWS = 1000
 const itineraryHeaders = ['Tên địa điểm', 'Ngày', 'Bắt đầu', 'Kết thúc', 'Chi phí dự kiến', 'Địa chỉ', 'Google Maps URL', 'Ghi chú']
 const expenseHeaders = ['Khoản chi', 'Phân loại', 'Ngày', 'Dự kiến', 'Thực tế', 'Người thanh toán', 'Người tham gia', 'Ghi chú']
-const expenseEndDateHeader = 'Đến ngày'
+const endDateHeader = 'Đến ngày'
 const splitMethodHeader = 'Cách chia'
 const splitDetailHeader = 'Chi tiết chia'
 const splitMethodLabels: Record<SplitMethod, string> = { equal: 'Chia đều', shares: 'Theo phần', amounts: 'Theo số tiền' }
@@ -135,8 +135,8 @@ const itineraryKey = (item: Pick<ItineraryDraft, 'title' | 'visitDate' | 'startT
 const expenseKey = (expense: Pick<ExpenseDraft, 'title' | 'expenseDate' | 'estimatedAmountVnd' | 'actualAmountVnd'>) =>
   `${expense.expenseDate}|${normalize(expense.title)}|${expense.estimatedAmountVnd}|${expense.actualAmountVnd ?? ''}`
 const sameItinerary = (draft: ItineraryDraft, existing: ItineraryItem) =>
-  draft.title === existing.title && draft.visitDate === existing.visitDate && draft.startTime === existing.startTime &&
-  draft.endTime === existing.endTime && draft.estimatedCostVnd === existing.estimatedCostVnd &&
+  draft.title === existing.title && draft.visitDate === existing.visitDate && draft.endDate === existing.endDate &&
+  draft.startTime === existing.startTime && draft.endTime === existing.endTime && draft.estimatedCostVnd === existing.estimatedCostVnd &&
   draft.address === existing.address && draft.mapsUrl === existing.mapsUrl && draft.notes === existing.notes
 const sameMoney = (draft: ExpenseDraft, existing: Expense) =>
   draft.estimatedAmountVnd === existing.estimatedAmountVnd && draft.actualAmountVnd === existing.actualAmountVnd &&
@@ -154,6 +154,7 @@ const parseItinerarySheet = (data: SheetData, trip: Trip, existing: ItineraryIte
   if (missing.length) throw new Error(`Sheet LichTrinh thiếu cột: ${missing.join(', ')}.`)
   const idIndex = getOptionalHeaderIndex(data[0], idHeader)
   const versionIndex = getOptionalHeaderIndex(data[0], versionHeader)
+  const endDateIndex = getOptionalHeaderIndex(data[0], endDateHeader)
   const existingById = new Map(existing.map((item) => [item.id, item]))
   const existingKeyOwners = new Map(existing.map((item) => [itineraryKey(item), item.id]))
   const fileKeys = new Map<string, string>()
@@ -163,8 +164,11 @@ const parseItinerarySheet = (data: SheetData, trip: Trip, existing: ItineraryIte
     const id = idIndex === -1 ? '' : toText(row[idIndex])
     const rawVersion = versionIndex === -1 ? undefined : row[versionIndex]
     if ([...values, id, rawVersion].every((value) => value === null || value === undefined || toText(value) === '')) return []
+    // Files without the optional end-date column keep the saved end date of updated rows.
+    const rawEndDate = endDateIndex === -1 ? undefined : toText(row[endDateIndex])
+    const endDate = rawEndDate === undefined ? existingById.get(id)?.endDate ?? null : rawEndDate ? toDateValue(row[endDateIndex]) : null
     const draft: ItineraryDraft = {
-      title: toText(values[0]), visitDate: toDateValue(values[1]), startTime: toTimeValue(values[2]),
+      title: toText(values[0]), visitDate: toDateValue(values[1]), endDate, startTime: toTimeValue(values[2]),
       endTime: toTimeValue(values[3]), estimatedCostVnd: toMoney(values[4]) as number,
       address: toText(values[5]), mapsUrl: toText(values[6]), notes: toText(values[7]),
     }
@@ -174,7 +178,10 @@ const parseItinerarySheet = (data: SheetData, trip: Trip, existing: ItineraryIte
     else if (draft.visitDate < trip.startDate || draft.visitDate > trip.endDate) errors.push('Ngày nằm ngoài chuyến đi')
     if (!draft.startTime) errors.push('Giờ bắt đầu không hợp lệ')
     if (!draft.endTime) errors.push('Giờ kết thúc không hợp lệ')
-    if (draft.startTime && draft.endTime && draft.endTime <= draft.startTime) errors.push('Giờ kết thúc phải sau giờ bắt đầu')
+    if (rawEndDate && !endDate) errors.push('Đến ngày không hợp lệ')
+    else if (endDate && draft.visitDate && endDate <= draft.visitDate) errors.push('Đến ngày phải sau Ngày')
+    else if (endDate && endDate > trip.endDate) errors.push('Đến ngày nằm ngoài chuyến đi')
+    if (!endDate && draft.startTime && draft.endTime && draft.endTime <= draft.startTime) errors.push('Giờ kết thúc phải sau giờ bắt đầu')
     if (!Number.isInteger(draft.estimatedCostVnd) || draft.estimatedCostVnd < 0) errors.push('Chi phí dự kiến phải là số nguyên không âm')
     if (draft.address.length < 3) errors.push('Địa chỉ phải có ít nhất 3 ký tự')
     if (!isGoogleMapsUrl(draft.mapsUrl)) errors.push('Google Maps URL không hợp lệ')
@@ -218,7 +225,7 @@ const parseExpenseSheet = (data: SheetData, trip: Trip, existing: Expense[], peo
   if (missing.length) throw new Error(`Sheet ChiPhi thiếu cột: ${missing.join(', ')}.`)
   const idIndex = getOptionalHeaderIndex(data[0], idHeader)
   const versionIndex = getOptionalHeaderIndex(data[0], versionHeader)
-  const endDateIndex = getOptionalHeaderIndex(data[0], expenseEndDateHeader)
+  const endDateIndex = getOptionalHeaderIndex(data[0], endDateHeader)
   const splitMethodIndex = getOptionalHeaderIndex(data[0], splitMethodHeader)
   const splitDetailIndex = getOptionalHeaderIndex(data[0], splitDetailHeader)
   const existingById = new Map(existing.map((expense) => [expense.id, expense]))
@@ -349,8 +356,8 @@ export const downloadTravelExcelTemplate = async () => {
   const headerStyle = { backgroundColor: '#18392B', color: '#FFFDF7', fontWeight: 'bold' as const, align: 'center' as const, alignVertical: 'center' as const, height: 28 }
   const headerRow = (headers: string[]) => headers.map((value) => ({ value, ...headerStyle }))
   const workbook = writeXlsxFile([
-    { sheet: 'LichTrinh', data: [headerRow(itineraryHeaders)], stickyRowsCount: 1, showGridLines: false, columns: [{ width: 28 }, { width: 14 }, { width: 12 }, { width: 12 }, { width: 20 }, { width: 34 }, { width: 36 }, { width: 36 }] },
-    { sheet: 'ChiPhi', data: [headerRow([...expenseHeaders, expenseEndDateHeader, splitMethodHeader, splitDetailHeader])], stickyRowsCount: 1, showGridLines: false, columns: [{ width: 28 }, { width: 18 }, { width: 14 }, { width: 18 }, { width: 18 }, { width: 28 }, { width: 42 }, { width: 36 }, { width: 14 }, { width: 16 }, { width: 48 }] },
+    { sheet: 'LichTrinh', data: [headerRow([...itineraryHeaders, endDateHeader])], stickyRowsCount: 1, showGridLines: false, columns: [{ width: 28 }, { width: 14 }, { width: 12 }, { width: 12 }, { width: 20 }, { width: 34 }, { width: 36 }, { width: 36 }, { width: 14 }] },
+    { sheet: 'ChiPhi', data: [headerRow([...expenseHeaders, endDateHeader, splitMethodHeader, splitDetailHeader])], stickyRowsCount: 1, showGridLines: false, columns: [{ width: 28 }, { width: 18 }, { width: 14 }, { width: 18 }, { width: 18 }, { width: 28 }, { width: 42 }, { width: 36 }, { width: 14 }, { width: 16 }, { width: 48 }] },
   ], { fontFamily: 'Arial', fontSize: 10 })
   await workbook.toFile('wander-plan-mau-import.xlsx')
 }
@@ -410,16 +417,17 @@ export const buildTravelExcelReportSheets = (workspace: WorkspaceData, exportedA
   ]
 
   const itineraryData = [
-    reportHeaderRow([...itineraryHeaders, idHeader, versionHeader]),
+    reportHeaderRow([...itineraryHeaders, endDateHeader, idHeader, versionHeader]),
     ...[...workspace.itinerary]
       .sort((a, b) => `${a.visitDate}|${a.startTime}`.localeCompare(`${b.visitDate}|${b.startTime}`))
       .map((item) => [
         item.title, reportDateCell(item.visitDate), item.startTime, item.endTime,
-        reportMoneyCell(item.estimatedCostVnd), item.address, item.mapsUrl, item.notes, item.id, item.version,
+        reportMoneyCell(item.estimatedCostVnd), item.address, item.mapsUrl, item.notes,
+        item.endDate ? reportDateCell(item.endDate) : null, item.id, item.version,
       ]),
   ]
   const expenseData = [
-    reportHeaderRow([...expenseHeaders, expenseEndDateHeader, splitMethodHeader, splitDetailHeader, 'Đang tính', 'Trạng thái', idHeader, versionHeader]),
+    reportHeaderRow([...expenseHeaders, endDateHeader, splitMethodHeader, splitDetailHeader, 'Đang tính', 'Trạng thái', idHeader, versionHeader]),
     ...[...workspace.expenses]
       .sort((a, b) => a.expenseDate.localeCompare(b.expenseDate))
       .map((expense) => [
@@ -434,7 +442,7 @@ export const buildTravelExcelReportSheets = (workspace: WorkspaceData, exportedA
 
   return [
     { sheet: 'TongQuan', data: summaryData, showGridLines: false, columns: [{ width: 30 }, { width: 24 }, { width: 3 }, { width: 22 }, { width: 20 }] },
-    { sheet: 'LichTrinh', data: itineraryData, stickyRowsCount: 1, showGridLines: false, columns: [{ width: 28 }, { width: 14 }, { width: 12 }, { width: 12 }, { width: 20 }, { width: 34 }, { width: 36 }, { width: 36 }, { width: 38 }, { width: 12 }] },
+    { sheet: 'LichTrinh', data: itineraryData, stickyRowsCount: 1, showGridLines: false, columns: [{ width: 28 }, { width: 14 }, { width: 12 }, { width: 12 }, { width: 20 }, { width: 34 }, { width: 36 }, { width: 36 }, { width: 14 }, { width: 38 }, { width: 12 }] },
     { sheet: 'ChiPhi', data: expenseData, stickyRowsCount: 1, showGridLines: false, columns: [{ width: 28 }, { width: 18 }, { width: 14 }, { width: 18 }, { width: 18 }, { width: 28 }, { width: 42 }, { width: 36 }, { width: 14 }, { width: 16 }, { width: 48 }, { width: 18 }, { width: 14 }, { width: 38 }, { width: 12 }] },
   ]
 }
