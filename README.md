@@ -1,20 +1,140 @@
 # WanderPlan
 
-Collaborative travel planning: create and select trips, build itineraries, manage shared expenses, and invite your group.
+WanderPlan is a collaborative travel-planning web application for trips, itineraries, members, shared checklists and expenses. Members collaborate through Supabase; demo mode stores data privately in the browser.
+
+## Business capabilities
+
+| Role | Capabilities |
+| --- | --- |
+| Signed-out user | Sign in with an email link or Google when enabled; account creation follows the access policy |
+| Signed-in user | Create trips and accept or decline invitations addressed to their email |
+| Trip member | View and edit itineraries, expenses and checklists; review balances and manage their own display name |
+| Trip owner | All member capabilities, plus trip settings, invitations, eligible member removal, archiving and restoration |
+| Payment recipient | Record or undo receipt of a payment, subject to membership and payment-history rules |
+
+Signing in does not accept invitations. Pending invitations reserve capacity. A member can be removed only after settling their balance and resolving any estimate-only expenses involving them. Once a member leaves, the financial fields of related expenses are frozen to preserve history.
+
+Expenses support equal splits, shares and exact amounts. Balances account for expenses and recorded payments. WanderPlan records payments; it does not transfer money. Archiving hides trip contents while retaining data for owner restoration.
+
+### BPMN: member invitation and acceptance
+
+![BPMN member invitation and acceptance](docs/diagrams/membership-process.svg)
+
+This BPMN diagram uses one process pool with three responsibility lanes: trip owner, system and invitee. Solid arrows are sequence flows, circles are events, rounded rectangles are tasks, and diamonds marked X are exclusive gateways. Technical error paths are omitted to focus on the business process.
+
+The owner creates a trip and invites an email address. The system checks authorization and capacity before saving an invitation that reserves a seat. The owner manually shares the website link; WanderPlan does not send invitation emails. The invitee signs in with the matching email and explicitly accepts or declines. Declining or owner revocation releases the reserved seat; signing in alone does not create membership.
+
+ICS export creates a calendar event; it does not provide background notifications or reminder emails.
+
+## Architecture and technology stack
+
+The frontend is a React/TypeScript SPA built by Vite and served as static assets on GitHub Pages. This repository has no separate application server. The browser calls Supabase Auth, Data API/RPC and Realtime; PostgreSQL enforces RLS, function permissions, triggers and business rules.
+
+### Services and message flow
+
+![WanderPlan architecture with technology logos](docs/diagrams/system-architecture.svg)
+
+The diagram uses service blocks and message flows similar to a message-driven architecture. The implemented model is **SPA + Supabase Backend-as-a-Service**, backed by shared PostgreSQL. Business modules represent tables and functions/RPCs within that database, rather than independently deployed microservices. Supabase Realtime delivers database-change notifications to browsers rather than coordinating business commands between services.
+
+**Solid arrows:** asset delivery, calls or data access. **Dashed arrows:** asynchronous change notifications. Following a successful write, the initiating browser invalidates its cache; other connected sessions receive notifications and reload authorized data. The system does not implement a command queue, event sourcing or a separate database per service.
+
+Technology logos are embedded in the SVG so the diagram works without external image requests. Logo sources and attribution are listed in [the diagram assets documentation](docs/diagrams/README.md).
+
+| Component | Source / responsibility |
+| --- | --- |
+| Bootstrap and routing | `src/main.tsx`, `src/App.tsx`, `src/components/AppShell.tsx`; dashboard, itinerary, expenses and group routes |
+| Authentication | `src/providers/AuthProvider.tsx`, `src/pages/LoginPage.tsx`; sessions, sign-in/sign-out and callback errors |
+| Workspace and cache | `src/providers/WorkspaceProvider.tsx`, `src/hooks/useWorkspace.ts`; trip selection, queries/mutations and one Realtime channel at a time |
+| Data access | `src/services/travelRepository.ts`; shared interface for SupabaseRepository and DemoRepository |
+| Types and calculations | `src/types.ts`, `src/lib/expenseSettlement.ts`; application data, expense splits and settlement |
+| Import/export | `src/lib/travelExcel.ts`, `src/lib/xlsxGuard.ts`, `src/lib/tripReminder.ts`; Excel and ICS calendar files |
+| Database | `supabase/migrations/`; schema, RLS, RPCs, locking and integrity checks |
+| Testing | Vitest + Testing Library; pgTAP on embedded PostgreSQL or full Supabase |
+| Build and hosting | `.github/workflows/ci.yml`, `.github/workflows/deploy-pages.yml`; verification before Pages deployment |
+
+Core tables include `profiles`, `trips`, `trip_members`, `trip_invitations`, `itinerary_items`, `expenses`, `expense_participants`, `checklist_items` and `settlement_payments`. The `private` schema holds internal helpers and settings. The current schema is the result of the migration chain, rather than just the initial migration.
+
+Caches are scoped to account and trip. Account changes reset the workspace; trip changes reset page forms. Late mutation results refresh the originating trip cache. Realtime prompts data reloads and does not replace database authorization. Demo data does not automatically synchronize across browsers or devices.
+
+### Sequence: sign-in and invitation acceptance
+
+This sequence shows successful email sign-in. Google OAuth is an alternative when configured. Supabase Auth sends login emails; creating a WanderPlan invitation does not send an invitation email.
+
+```mermaid
+sequenceDiagram
+    actor User as Invitee
+    participant UI as WanderPlan
+    participant Auth as Supabase Auth
+    participant DB as Data API / PostgreSQL
+    User->>UI: Enter email and request sign-in
+    UI->>Auth: signInWithOtp(email, redirect URL)
+    Auth-->>User: Send login link by email
+    User->>UI: Open login link
+    UI->>Auth: Initialize / restore session
+    Auth-->>UI: User session
+    UI->>DB: get_my_trip_invitations()
+    DB-->>UI: Authorized invitations
+    UI-->>User: Display invitations without accepting them
+    User->>UI: Accept invitation
+    UI->>DB: respond_trip_invitation(trip, true)
+    Note over DB: Check authorization, email and invitation state; lock trip
+    DB-->>UI: Acceptance result
+    UI->>DB: Reload trips and workspace
+    DB-->>UI: Data authorized by membership / RLS
+    UI-->>User: Display joined trip
+```
+
+### Sequence: saving an expense and notifying collaborators
+
+Expense writes illustrate RPC usage; some other operations use the Data API directly under RLS/triggers. UI validation supports data entry; the database decides whether a write is valid.
+
+```mermaid
+sequenceDiagram
+    actor User as Member
+    participant Form as ExpenseForm
+    participant Hook as useWorkspaceMutations
+    participant Repo as SupabaseRepository
+    participant DB as PostgreSQL RPC / triggers
+    participant Peer as Other subscribed WorkspaceProviders
+    User->>Form: Enter or edit expense
+    Form->>Form: Validate input and split
+    Form->>Hook: Save draft, tripId and existing record
+    Hook->>Repo: saveExpense(draft, tripId, existing)
+    Repo->>DB: save_expense_with_participants(...)
+    Note over DB: Check authorization, version, participants and frozen money
+    alt Valid write
+        DB-->>Repo: Success
+        Repo-->>Hook: Complete
+        Hook->>Hook: Invalidate originating trip cache
+        DB-->>Peer: Postgres Changes through Supabase Realtime
+        Peer->>Repo: Reload authorized data
+    else Invalid write or stale data
+        DB-->>Repo: Error
+        Repo-->>Hook: Propagate error
+        Hook-->>Form: Display error
+    end
+```
 
 ## Development
 
-React/TypeScript/Vite, TanStack Query, Supabase Auth/PostgreSQL/RLS; hosted frontend on GitHub Pages.
+Use Node 20.19+ or a supported newer LTS. Install dependencies from the lockfile and start the Vite development server:
 
 ```sh
 npm ci
 npm run dev
+```
+
+Open `http://localhost:5173/wander-plan/`, or use the port printed by Vite if 5173 is occupied. Stop the server with `Ctrl+C`. Run verification commands separately:
+
+```sh
 npm test
 npm run lint
 npm run build
 ```
 
-Use Node 20.19+ or a supported newer LTS for all development tools. Without Supabase configuration, development uses browser-local demo data. `VITE_DEMO_MODE=true` explicitly selects demo even when Supabase variables exist. Demo data is private to that browser; no emails or collaboration. Existing demo data is preserved when first writing the multi-trip storage format.
+To connect Supabase, copy `.env.example` to `.env.local`, set `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY`, and keep `VITE_DEMO_MODE=false`. Keep `.env.local` and secret/service-role keys out of Git. Configure the database and Auth as described below.
+
+Without Supabase configuration, development uses browser-local demo data. `VITE_DEMO_MODE=true` explicitly selects demo even when Supabase variables exist. Demo data is private to that browser; no emails or collaboration. Existing demo data is preserved when first writing the multi-trip storage format.
 
 ## Database setup and upgrades
 
@@ -71,7 +191,7 @@ The `202610160004` migration accepts only https Google Maps links in itinerary i
 `config/access.json` holds two switches:
 
 - `allowNewAccounts`: `false` lets only existing accounts and emails with a pending invitation create an account; `true` lets anyone sign up. Supabase enforces it through the `before-user-created` hook (`public.hook_before_user_created`, migration `202610160003`) for both email links and Google. Existing accounts are never blocked.
-- `googleSignIn`: shows the "Đăng nhập với Google" button. It does not enable the provider; turn it on only after Google is configured in Supabase.
+- `googleSignIn`: shows the "Sign in with Google" (translated UI label) button. It does not enable the provider; turn it on only after Google is configured in Supabase.
 
 Changing `allowNewAccounts`: edit the file, commit and push, then apply it to the database (the CLI must be logged in to the project):
 
@@ -92,21 +212,21 @@ Pending invitations reserve places: 3 active members plus 1 pending invitation f
 
 ## Trips and reminders
 
-The Group page shows a compact trip summary above members and the shared checklist. Owners open **Chỉnh sửa chuyến** to edit settings; **Tăng số người tối đa** opens the same editor with capacity focused. Cancelling discards the draft when reopened. Expand **Tên hiển thị của bạn** for your profile, or **Quản lý lưu trữ chuyến** for owner archive controls. Tablet/mobile layouts use a single content column and bottom navigation.
+The Group page shows a compact trip summary above members and the shared checklist. Owners open **Edit trip** to edit settings; **Increase member limit** opens the same editor with capacity focused. Cancelling discards the draft when reopened. Expand **Your display name** for your profile, or **Manage archived trips** for owner archive controls. Tablet/mobile layouts use a single content column and bottom navigation.
 
-Owners can archive the current trip from **Nhóm → Lưu trữ chuyến này** after confirmation. Archived itinerary, expenses, checklist and invitations are hidden at the API boundary for every member until an owner restores the trip from **Đã lưu trữ** beside the trip selector. Restoration works even when all trips are archived. Only the owner's minimal archived-trip list exposes the title and restoration metadata; members cannot restore. Existing data, memberships and pending invitations are retained.
+Owners can archive the current trip from **Group → Archive this trip** after confirmation. Archived itinerary, expenses, checklist and invitations are hidden at the API boundary for every member until an owner restores the trip from **Archived** beside the trip selector. Restoration works even when all trips are archived. Only the owner's minimal archived-trip list exposes the title and restoration metadata; members cannot restore. Existing data, memberships and pending invitations are retained.
 
-The owner can remove a member only after that member is settled: no debt, nothing owed to them, and no expense without an actual amount involving them. Old expenses keep removed members as "(đã rời nhóm)"; their money (amounts, split, payer, participants) is frozen and they cannot be deleted, while title, category, dates and notes stay editable. Apply `20261016240000_lock_former_member_money.sql` before deploying frontend 0.9.2. Apply `20261016230000_settled_member_removal.sql` before deploying frontend 0.9.1.
+The owner can remove a member only after that member is settled: no debt, nothing owed to them, and no expense without an actual amount involving them. Old expenses keep removed members as "(former member)"; their money (amounts, split, payer, participants) is frozen and they cannot be deleted, while title, category, dates and notes stay editable. Apply `20261016240000_lock_former_member_money.sql` before deploying frontend 0.9.2. Apply `20261016230000_settled_member_removal.sql` before deploying frontend 0.9.1.
 
-Each expense has **Cách chia**: equal (default), by shares or by exact amounts. Exact amounts must total the actual amount (or the estimate while no actual exists); saving is blocked with the difference shown until they match. With shares, leftover đồng go to the payer when they participate. Excel uses the optional **Cách chia** and **Chi tiết chia** columns (`email: 2; email: 1`). Apply `20261016220000_unequal_expense_splits.sql` before deploying frontend 0.9.0.
+Each expense has **Split method**: equal (default), by shares or by exact amounts. Exact amounts must total the actual amount (or the estimate while no actual exists); saving is blocked with the difference shown until they match. With shares, remaining VND go to the payer when they participate. Excel uses the optional **Split method** and **Split details** columns (`email: 2; email: 1`). Apply `20261016220000_unequal_expense_splits.sql` before deploying frontend 0.9.0.
 
-In **Chi phí → Ai cần trả cho ai?**, the person receiving money taps **Đã nhận tiền** after being paid; only that recipient can undo it from **Đã thanh toán**. A confirmation is stored as a payment ("A đã trả B X đồng") rather than a flag, so balances are recalculated and any later expense change shows the remaining difference. WanderPlan does not process payments, partial amounts or Excel export of payments. Apply `20261016210500_settlement_payments.sql` before deploying frontend 0.8.0.
+In **Expenses → Who owes whom?**, the person receiving money taps **Received payment** after being paid; only that recipient can undo it from **Recorded payments**. A confirmation is stored as a payment ("A paid B X VND") rather than a flag, so balances are recalculated and any later expense change shows the remaining difference. WanderPlan does not process payments, partial amounts or Excel export of payments. Apply `20261016210500_settlement_payments.sql` before deploying frontend 0.8.0.
 
-Apply `20261016131452_trip_archive.sql` before deploying frontend0.6.0: the frontend calls the new archive-list RPC on startup. This additive migration archives no existing trips. Archive/restore requires the current trip version and cannot be bypassed with a direct `archived_at` update. Self-membership updates notify connected members without changing membership values; pending recipients' invitation lists refresh every15 seconds while the page is active because hidden rows cannot deliver their archive event. Offline/disconnected pages can retain previously loaded data; archiving cannot erase prior downloads. For rollback, prefer a forward fix: an older frontend still hides archived trips through RLS but has no restore UI. Do not replay historical migrations or delete archived records.
+Apply `20261016131452_trip_archive.sql` before deploying frontend 0.6.0: the frontend calls the new archive-list RPC on startup. This additive migration archives no existing trips. Archive/restore requires the current trip version and cannot be bypassed with a direct `archived_at` update. Self-membership updates notify connected members without changing membership values; pending recipients' invitation lists refresh every 15 seconds while the page is active because hidden rows cannot deliver their archive event. Offline/disconnected pages can retain previously loaded data; archiving cannot erase prior downloads. For rollback, prefer a forward fix: an older frontend still hides archived trips through RLS but has no restore UI. Do not replay historical migrations or delete archived records.
 
-In **Nhóm**, each member can set their own optional display name (up to 80 characters), shared across all trips. Clearing it shows the email local part. Existing names are retained; a legacy email-as-name is displayed using its local part. Owners cannot change another person's name. Email addresses remain visible only within shared trips through the existing membership checks.
+In **Group**, each member can set their own optional display name (up to 80 characters), shared across all trips. Clearing it shows the email local part. Existing names are retained; a legacy email-as-name is displayed using its local part. Owners cannot change another person's name. Email addresses remain visible only within shared trips through the existing membership checks.
 
-The shared trip checklist is also in **Nhóm**. Every current member can add, edit, check and remove preparation items, with an optional current-member assignee. Removing a member clears their assignments and retains the items. Stale edits/deletions are rejected; reopen the item after refreshing to use its latest version. Checklist data is separate from the itinerary/expense Excel format.
+The shared trip checklist is also in **Group**. Every current member can add, edit, check and remove preparation items, with an optional current-member assignee. Removing a member clears their assignments and retains the items. Stale edits/deletions are rejected; reopen the item after refreshing to use its latest version. Checklist data is separate from the itinerary/expense Excel format.
 
 For rollout, apply forward migrations `20261016123926_names_and_checklist.sql`, `20261016124932_authorize_checklist_validation.sql` and `20261016125337_serialize_checklist_writes.sql` before the matching frontend. These add the checklist table/RLS, profile-name RPC and Realtime publication, prevent cross-trip membership probing, and route checklist writes through authorized RPCs with trip-before-item locking (matching member removal). Direct API checklist writes are revoked. Checklist removal uses `deleted_at` updates so trip-filtered Realtime subscribers receive removals while RLS remains enforced. Old demo storage gains an empty checklist on read. A frontend rollback retains the new data; database recovery uses forward migrations.
 

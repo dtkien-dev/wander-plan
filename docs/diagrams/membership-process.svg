@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1660" height="860" viewBox="0 0 1660 860" role="img" aria-labelledby="title desc">
+<title id="title">BPMN · Member invitation and acceptance</title>
+<desc id="desc">The owner creates a trip and invitation. The system checks access and capacity. The invitee signs in and accepts or declines.</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10Z" fill="#334155"/></marker></defs>
+<style>text{font-family:Arial,sans-serif;fill:#172b4d;font-size:17px}.title{font-size:26px;font-weight:700}.lane{font-weight:700}.task{fill:white;stroke:#285b79;stroke-width:2}.flow{fill:none;stroke:#334155;stroke-width:2;marker-end:url(#arrow)}.event{fill:white;stroke:#285b79;stroke-width:2}.end{fill:white;stroke:#285b79;stroke-width:5}.label{font-size:15px;paint-order:stroke;stroke:white;stroke-width:6px;stroke-linejoin:round}</style>
+<rect width="1660" height="860" fill="#fff"/>
+<text x="40" y="44" class="title">BPMN · Member invitation and acceptance</text>
+<text x="40" y="76">WanderPlan · current business process · technical error paths omitted</text>
+<rect x="30" y="105" width="1600" height="660" fill="#fff" stroke="#64748b" stroke-width="2"/>
+<rect x="30" y="105" width="1600" height="205" fill="#f0f7fb" stroke="#94a3b8"/>
+<rect x="30" y="310" width="1600" height="245" fill="#f6f8fb" stroke="#94a3b8"/>
+<rect x="30" y="555" width="1600" height="210" fill="#f0f7fb" stroke="#94a3b8"/>
+<path d="M170 105V765" stroke="#94a3b8" fill="none"/>
+<text x="48" y="205" class="lane">Trip owner</text>
+<text x="48" y="430" class="lane">System</text>
+<text x="48" y="650" class="lane">Invited</text><text x="48" y="676" class="lane">user</text>
+<circle cx="210" cy="205" r="18" class="event"/>
+<rect x="260" y="171" width="145" height="68" rx="12" class="task"/>
+<text x="332.5" y="199" text-anchor="middle" class=""><tspan x="332.5" dy="0">Create trip</tspan></text>
+<rect x="455" y="171" width="160" height="68" rx="12" class="task"/>
+<text x="535.0" y="199" text-anchor="middle" class=""><tspan x="535.0" dy="0">Invite by email</tspan></text>
+<rect x="455" y="382" width="160" height="68" rx="12" class="task"/>
+<text x="535.0" y="410" text-anchor="middle" class=""><tspan x="535.0" dy="0">Check access</tspan><tspan x="535.0" dy="23">and capacity</tspan></text>
+<path d="M690 388L718 416L690 444L662 416Z" fill="white" stroke="#285b79" stroke-width="2"/>
+<text x="690" y="422" text-anchor="middle" class=""><tspan x="690" dy="0">×</tspan></text>
+<rect x="770" y="382" width="170" height="68" rx="12" class="task"/>
+<text x="855.0" y="410" text-anchor="middle" class=""><tspan x="855.0" dy="0">Save invitation</tspan><tspan x="855.0" dy="23">and reserve seat</tspan></text>
+<rect x="770" y="171" width="170" height="68" rx="12" class="task"/>
+<text x="855.0" y="199" text-anchor="middle" class=""><tspan x="855.0" dy="0">Share website</tspan><tspan x="855.0" dy="23">link manually</tspan></text>
+<rect x="770" y="620" width="170" height="68" rx="12" class="task"/>
+<text x="855.0" y="648" text-anchor="middle" class=""><tspan x="855.0" dy="0">Sign in with</tspan><tspan x="855.0" dy="23">invited email</tspan></text>
+<rect x="1000" y="620" width="160" height="68" rx="12" class="task"/>
+<text x="1080.0" y="648" text-anchor="middle" class=""><tspan x="1080.0" dy="0">Review and</tspan><tspan x="1080.0" dy="23">respond</tspan></text>
+<path d="M1230 626L1258 654L1230 682L1202 654Z" fill="white" stroke="#285b79" stroke-width="2"/>
+<text x="1230" y="660" text-anchor="middle" class=""><tspan x="1230" dy="0">×</tspan></text>
+<rect x="1290" y="382" width="180" height="68" rx="12" class="task"/>
+<text x="1380.0" y="410" text-anchor="middle" class=""><tspan x="1380.0" dy="0">Accept: create</tspan><tspan x="1380.0" dy="23">membership</tspan></text>
+<rect x="1290" y="480" width="180" height="68" rx="12" class="task"/>
+<text x="1380.0" y="508" text-anchor="middle" class=""><tspan x="1380.0" dy="0">Decline: release</tspan><tspan x="1380.0" dy="23">reserved seat</tspan></text>
+<circle cx="1540" cy="416" r="18" class="end"/>
+<circle cx="1540" cy="514" r="18" class="end"/>
+<circle cx="690" cy="510" r="18" class="end"/>
+<path d="M228 205H260" class="flow"/>
+<path d="M405 205H455" class="flow"/>
+<path d="M535 239V382" class="flow"/>
+<path d="M615 416H662" class="flow"/>
+<path d="M718 416H770" class="flow"/>
+<text x="745" y="395" text-anchor="middle" class="label"><tspan x="745" dy="0">Valid</tspan></text>
+<path d="M690 444V492" class="flow"/>
+<text x="680" y="475" text-anchor="middle" class="label"><tspan x="680" dy="0">Invalid</tspan></text>
+<path d="M855 382V239" class="flow"/>
+<path d="M940 205H970V580H855V620" class="flow"/>
+<path d="M940 654H1000" class="flow"/>
+<path d="M1160 654H1202" class="flow"/>
+<path d="M1230 626V416H1290" class="flow"/>
+<text x="1220" y="575" text-anchor="middle" class="label"><tspan x="1220" dy="0">Accept</tspan></text>
+<path d="M1258 654H1270V514H1290" class="flow"/>
+<text x="1340" y="640" text-anchor="middle" class="label"><tspan x="1340" dy="0">Decline</tspan></text>
+<path d="M1470 416H1522" class="flow"/>
+<path d="M1470 514H1522" class="flow"/>
+<text x="1540" y="458" text-anchor="middle" class=""><tspan x="1540" dy="0">Joined</tspan></text>
+<text x="1540" y="549" text-anchor="middle" class=""><tspan x="1540" dy="0">Declined</tspan></text>
+<text x="40" y="804">Legend: circle = start / end event; rounded rectangle = task; diamond with X = exclusive gateway; solid arrow = sequence flow.</text>
+<text x="40" y="835">Signing in does not accept invitations. Owner revocation is described in the README.</text></svg>
