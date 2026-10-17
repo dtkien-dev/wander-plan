@@ -1,5 +1,5 @@
 # P25: R11 multi-day itinerary activities
-Status: Completed
+Status: In progress (A035 follow-up awaiting go-live)
 Depends on: P24 completed; production 0.10.0
 Wave: 26
 Owner: Claude Code
@@ -19,3 +19,7 @@ A033 holds in UI, DB and Excel; single-day items, old Excel files and the 0.10.0
 ## Recovery
 Frontend revert is safe: the nullable column is ignored by 0.10.0 and the import RPC keeps stored end dates for clients that omit it. Forward fix for the migration; no destructive rollback.
 Released 18/10 under A034: migration 20261018000000 applied to production first and verified; PR #6 merged as b113a60; CI/Pages succeeded; live app-version 0.11.0. Authenticated production smoke not run.
+
+## A035 follow-up — readable Excel export (0.11.1)
+- [x] Fix text colours, column placement, gridlines and wrap; 142 tests; real workbook inspected; UAT export PASS.
+- [ ] Go-live approval, merge, verify live 0.11.1.

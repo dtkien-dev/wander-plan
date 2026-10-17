@@ -34,6 +34,11 @@ const MAX_IMPORT_ROWS = 1000
 const itineraryHeaders = ['Tên địa điểm', 'Ngày', 'Bắt đầu', 'Kết thúc', 'Chi phí dự kiến', 'Địa chỉ', 'Google Maps URL', 'Ghi chú']
 const expenseHeaders = ['Khoản chi', 'Phân loại', 'Ngày', 'Dự kiến', 'Thực tế', 'Người thanh toán', 'Người tham gia', 'Ghi chú']
 const endDateHeader = 'Đến ngày'
+// Exported sheets keep "Đến ngày" beside "Ngày"; import still matches columns by header name.
+const itinerarySheetHeaders = [...itineraryHeaders.slice(0, 2), endDateHeader, ...itineraryHeaders.slice(2)]
+const expenseSheetHeaders = [...expenseHeaders.slice(0, 3), endDateHeader, ...expenseHeaders.slice(3)]
+const itineraryWidths = [28, 14, 14, 12, 12, 20, 34, 36, 36].map((width) => ({ width }))
+const expenseWidths = [28, 18, 14, 14, 18, 18, 28, 42, 36, 16, 48].map((width) => ({ width }))
 const splitMethodHeader = 'Cách chia'
 const splitDetailHeader = 'Chi tiết chia'
 const splitMethodLabels: Record<SplitMethod, string> = { equal: 'Chia đều', shares: 'Theo phần', amounts: 'Theo số tiền' }
@@ -353,11 +358,11 @@ export const getImportDraft = (preview: TravelExcelPreview): TripImportDraft => 
 
 export const downloadTravelExcelTemplate = async () => {
   const { default: writeXlsxFile } = await import('write-excel-file/browser')
-  const headerStyle = { backgroundColor: '#18392B', color: '#FFFDF7', fontWeight: 'bold' as const, align: 'center' as const, alignVertical: 'center' as const, height: 28 }
+  const headerStyle = { backgroundColor: '#18392B', textColor: '#FFFDF7', fontWeight: 'bold' as const, align: 'center' as const, alignVertical: 'center' as const, height: 28 }
   const headerRow = (headers: string[]) => headers.map((value) => ({ value, ...headerStyle }))
   const workbook = writeXlsxFile([
-    { sheet: 'LichTrinh', data: [headerRow([...itineraryHeaders, endDateHeader])], stickyRowsCount: 1, showGridLines: false, columns: [{ width: 28 }, { width: 14 }, { width: 12 }, { width: 12 }, { width: 20 }, { width: 34 }, { width: 36 }, { width: 36 }, { width: 14 }] },
-    { sheet: 'ChiPhi', data: [headerRow([...expenseHeaders, endDateHeader, splitMethodHeader, splitDetailHeader])], stickyRowsCount: 1, showGridLines: false, columns: [{ width: 28 }, { width: 18 }, { width: 14 }, { width: 18 }, { width: 18 }, { width: 28 }, { width: 42 }, { width: 36 }, { width: 14 }, { width: 16 }, { width: 48 }] },
+    { sheet: 'LichTrinh', data: [headerRow(itinerarySheetHeaders)], stickyRowsCount: 1, columns: itineraryWidths },
+    { sheet: 'ChiPhi', data: [headerRow([...expenseSheetHeaders, splitMethodHeader, splitDetailHeader])], stickyRowsCount: 1, columns: expenseWidths },
   ], { fontFamily: 'Arial', fontSize: 10 })
   await workbook.toFile('wander-plan-mau-import.xlsx')
 }
@@ -368,18 +373,19 @@ const excelDate = (value: string) => {
 }
 
 const reportHeaderStyle = {
-  backgroundColor: '#18392B', color: '#FFFDF7', fontWeight: 'bold' as const,
+  backgroundColor: '#18392B', textColor: '#FFFDF7', fontWeight: 'bold' as const,
   align: 'center' as const, alignVertical: 'center' as const, height: 28,
 }
 const reportSectionStyle = {
-  backgroundColor: '#DDECE2', color: '#18392B', fontWeight: 'bold' as const,
+  backgroundColor: '#DDECE2', textColor: '#18392B', fontWeight: 'bold' as const,
 }
-const reportLabelStyle = { color: '#18392B', fontWeight: 'bold' as const }
+const reportLabelStyle = { textColor: '#18392B', fontWeight: 'bold' as const }
 const reportMoneyCell = (value: number | null) => value === null
   ? null
   : { value, type: Number, format: '#,##0', align: 'right' as const }
 const reportDateCell = (value: string) => ({ value: excelDate(value), type: Date, format: 'dd/mm/yyyy', align: 'center' as const })
 const reportHeaderRow = (headers: string[]) => headers.map((value) => ({ value, ...reportHeaderStyle }))
+const wrapCell = (value: string) => ({ value, wrap: true })
 
 export const buildTravelExcelReportSheets = (workspace: WorkspaceData, exportedAt = new Date()) => {
   const total = totalExpenses(workspace.expenses)
@@ -391,7 +397,7 @@ export const buildTravelExcelReportSheets = (workspace: WorkspaceData, exportedA
   const memberEmail = (userId: string) => peopleById.get(userId)?.email ?? ''
   const summaryData = [
     [],
-    [{ value: `${workspace.trip.name} — Báo cáo chuyến đi`, fontSize: 14, fontWeight: 'bold' as const, color: '#18392B' }],
+    [{ value: `${workspace.trip.name} — Báo cáo chuyến đi`, fontSize: 14, fontWeight: 'bold' as const, textColor: '#18392B' }],
     [{ value: 'Thông tin chuyến đi', ...reportSectionStyle }],
     [{ value: 'Điểm đến', ...reportLabelStyle }, workspace.trip.destination],
     [{ value: 'Ngày bắt đầu', ...reportLabelStyle }, reportDateCell(workspace.trip.startDate)],
@@ -411,30 +417,29 @@ export const buildTravelExcelReportSheets = (workspace: WorkspaceData, exportedA
       .sort((a, b) => b[1] - a[1])
       .map(([category, amount]) => [categoryLabels[category], reportMoneyCell(amount)])),
     [],
-    [{ value: 'Chi phí đang tính sử dụng số thực tế nếu đã có, nếu chưa sẽ dùng số dự kiến.', color: '#68756E', fontStyle: 'italic' as const }],
-    [{ value: 'Có thể sửa dữ liệu ở LichTrinh/ChiPhi rồi nhập lại. Không sửa cột ID hoặc Version; để trống hai cột này khi thêm dòng mới.', color: '#68756E', fontStyle: 'italic' as const }],
-    [{ value: 'Xóa dòng trong Excel không xóa dữ liệu trên ứng dụng.', color: '#68756E', fontStyle: 'italic' as const }],
+    [{ value: 'Chi phí đang tính sử dụng số thực tế nếu đã có, nếu chưa sẽ dùng số dự kiến.', textColor: '#68756E', fontStyle: 'italic' as const }],
+    [{ value: 'Có thể sửa dữ liệu ở LichTrinh/ChiPhi rồi nhập lại. Không sửa cột ID hoặc Version; để trống hai cột này khi thêm dòng mới.', textColor: '#68756E', fontStyle: 'italic' as const }],
+    [{ value: 'Xóa dòng trong Excel không xóa dữ liệu trên ứng dụng.', textColor: '#68756E', fontStyle: 'italic' as const }],
   ]
 
   const itineraryData = [
-    reportHeaderRow([...itineraryHeaders, endDateHeader, idHeader, versionHeader]),
+    reportHeaderRow([...itinerarySheetHeaders, idHeader, versionHeader]),
     ...[...workspace.itinerary]
       .sort((a, b) => `${a.visitDate}|${a.startTime}`.localeCompare(`${b.visitDate}|${b.startTime}`))
       .map((item) => [
-        item.title, reportDateCell(item.visitDate), item.startTime, item.endTime,
-        reportMoneyCell(item.estimatedCostVnd), item.address, item.mapsUrl, item.notes,
-        item.endDate ? reportDateCell(item.endDate) : null, item.id, item.version,
+        item.title, reportDateCell(item.visitDate), item.endDate ? reportDateCell(item.endDate) : null, item.startTime, item.endTime,
+        reportMoneyCell(item.estimatedCostVnd), wrapCell(item.address), item.mapsUrl, wrapCell(item.notes), item.id, item.version,
       ]),
   ]
   const expenseData = [
-    reportHeaderRow([...expenseHeaders, endDateHeader, splitMethodHeader, splitDetailHeader, 'Đang tính', 'Trạng thái', idHeader, versionHeader]),
+    reportHeaderRow([...expenseSheetHeaders, splitMethodHeader, splitDetailHeader, 'Đang tính', 'Trạng thái', idHeader, versionHeader]),
     ...[...workspace.expenses]
       .sort((a, b) => a.expenseDate.localeCompare(b.expenseDate))
       .map((expense) => [
         expense.title, categoryLabels[expense.category], reportDateCell(expense.expenseDate),
-        reportMoneyCell(expense.estimatedAmountVnd), reportMoneyCell(expense.actualAmountVnd), memberEmail(expense.paidByUserId),
-        expense.participantUserIds.map(memberEmail).filter(Boolean).join(', '), expense.notes,
         expense.endDate ? reportDateCell(expense.endDate) : null,
+        reportMoneyCell(expense.estimatedAmountVnd), reportMoneyCell(expense.actualAmountVnd), memberEmail(expense.paidByUserId),
+        expense.participantUserIds.map(memberEmail).filter(Boolean).join(', '), wrapCell(expense.notes),
         splitMethodLabels[expense.splitMethod ?? 'equal'], formatSplitDetail(expense, memberEmail),
         reportMoneyCell(actualOrEstimated(expense)), expense.actualAmountVnd === null ? 'Dự kiến' : 'Thực tế', expense.id, expense.version,
       ]),
@@ -442,8 +447,8 @@ export const buildTravelExcelReportSheets = (workspace: WorkspaceData, exportedA
 
   return [
     { sheet: 'TongQuan', data: summaryData, showGridLines: false, columns: [{ width: 30 }, { width: 24 }, { width: 3 }, { width: 22 }, { width: 20 }] },
-    { sheet: 'LichTrinh', data: itineraryData, stickyRowsCount: 1, showGridLines: false, columns: [{ width: 28 }, { width: 14 }, { width: 12 }, { width: 12 }, { width: 20 }, { width: 34 }, { width: 36 }, { width: 36 }, { width: 14 }, { width: 38 }, { width: 12 }] },
-    { sheet: 'ChiPhi', data: expenseData, stickyRowsCount: 1, showGridLines: false, columns: [{ width: 28 }, { width: 18 }, { width: 14 }, { width: 18 }, { width: 18 }, { width: 28 }, { width: 42 }, { width: 36 }, { width: 14 }, { width: 16 }, { width: 48 }, { width: 18 }, { width: 14 }, { width: 38 }, { width: 12 }] },
+    { sheet: 'LichTrinh', data: itineraryData, stickyRowsCount: 1, columns: [...itineraryWidths, { width: 38 }, { width: 12 }] },
+    { sheet: 'ChiPhi', data: expenseData, stickyRowsCount: 1, columns: [...expenseWidths, { width: 18 }, { width: 14 }, { width: 38 }, { width: 12 }] },
   ]
 }
 

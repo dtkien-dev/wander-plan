@@ -255,6 +255,23 @@ describe('travel Excel import', () => {
     expect(cellValue(homestay[endDateColumn])).toBeInstanceOf(Date)
   })
 
+  it('keeps the report readable: coloured header text, end date beside the date and gridlines on data sheets', () => {
+    const sheets = buildTravelExcelReportSheets(demoWorkspace, new Date(2026, 9, 13))
+    const value = (cell: unknown) => typeof cell === 'object' && cell !== null && 'value' in cell ? (cell as { value: unknown }).value : cell
+    for (const sheet of sheets) {
+      // write-excel-file 4.x reads textColor; a `color` key is silently ignored.
+      expect(sheet.data.flat().some((cell) => typeof cell === 'object' && cell !== null && 'color' in cell)).toBe(false)
+    }
+    for (const name of ['LichTrinh', 'ChiPhi']) {
+      const sheet = sheets.find((entry) => entry.sheet === name)!
+      const headers = sheet.data[0].map(value)
+      expect(sheet.data[0][0]).toMatchObject({ textColor: '#FFFDF7', backgroundColor: '#18392B' })
+      expect(headers.indexOf('Đến ngày')).toBe(headers.indexOf('Ngày') + 1)
+      expect(sheet.columns).toHaveLength(headers.length)
+      expect('showGridLines' in sheet).toBe(false)
+    }
+  })
+
   it('serializes the report as a readable three-sheet xlsx workbook', async () => {
     const originalTimezone = process.env.TZ
     process.env.TZ = 'America/Los_Angeles'

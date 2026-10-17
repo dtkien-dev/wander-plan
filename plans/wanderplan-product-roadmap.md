@@ -121,3 +121,6 @@ Khách hàng chốt A031. Bản 0.10.0 (`ab7a517`, nhánh `feat/itinerary-overla
 
 ## P25 — R11 hoạt động nhiều ngày, hoàn tất 18/10
 Khách hàng chốt A033. Bản 0.11.0 (nhánh `feat/multi-day-itinerary`): “Đến ngày” tùy chọn, giờ bắt đầu ở ngày đầu và giờ kết thúc ở ngày cuối, hiện ở mọi ngày (“Ngày k/n”), cảnh báo trùng giờ liên tục qua ngày, Excel cột Đến ngày. Có migration `20261018000000` (áp trước frontend). 141 test, 281 SQL, UAT local đạt. Go-live A034: migration áp production trước, PR #6 merge `b113a60`, CI/Pages đạt, production 0.11.0 xác nhận; chưa smoke có đăng nhập trên production. [Release note 0.11.0](../docs/releases/2026-10-18-0.11.0.md).
+
+## A035 — Excel dễ đọc (0.11.1), chờ duyệt go-live 18/10
+Kiểm tra file Excel xuất ra theo yêu cầu khách hàng: sửa lỗi màu chữ tiêu đề (đen trên nền xanh đậm), đưa “Đến ngày” cạnh “Ngày”, bật đường lưới và xuống dòng cho Địa chỉ/Ghi chú. Không đổi database. [Release note 0.11.1](../docs/releases/2026-10-18-0.11.1.md).
