@@ -77,7 +77,7 @@ sequenceDiagram
     UI-->>User: Display invitations without accepting them
     User->>UI: Accept invitation
     UI->>DB: respond_trip_invitation(trip, true)
-    Note over DB: Check authorization, email and invitation state; lock trip
+    Note over DB: Check authorization, email and invitation state, then lock trip
     DB-->>UI: Acceptance result
     UI->>DB: Reload trips and workspace
     DB-->>UI: Data authorized by membership / RLS
