@@ -10,16 +10,16 @@ Execute mode: Active
 Resume instruction: Resolve plans/2026-10-14-no1-website-improvements from the current clone root (tracker wp-20261014-01). Read docs/agent/README.md and workflow.md, then this index and every manifest file. Keep this exact repository-relative bundle as the execution source of truth; update it until explicit exit. If the execute skill is installed, it may be used with this resolved path.
 Workspace: Current clone root; never reuse another device's absolute path.
 Repository: origin/main d36d741 (app 0.10.0). Fetch before resume.
-Active action: None — E028 0.10.0 released.
+Active action: None — E029 P25 complete locally; awaiting go-live approval.
 
 <!-- workflow-active-snapshot:start version:2 -->
 ## Active Snapshot
 Profile: Durable
 Required references: references/intake.md, references/implementation.md, references/parallel-execution.md, references/completion.md
 Goal: Deliver verified daily improvements through plan, code, QA, security, go-live and next-day notes.
-Current state: Production 0.10.0 at d36d741 (P24 R11 overlap warning). Release records on docs/release-0.10.0.
-Accepted decisions: D01–D06, A010, A019, A020, A023, A024, A026 and A029, A031, A032. Customer explicitly approved sanitized branch push; main merge/deployment is not in scope.
-Open items: R11 multi-day activities deferred; R07/R15/R17/R18 need customer decisions; hosted email/Realtime/real Google QA remain.
+Current state: Production 0.10.0 at d36d741. P25 (R11 multi-day, 0.11.0) implemented on feat/multi-day-itinerary, awaiting go-live approval (migration before frontend).
+Accepted decisions: D01–D06, A010, A019, A020, A023, A024, A026 and A029, A031, A032, A033. Customer explicitly approved sanitized branch push; main merge/deployment is not in scope.
+Open items: P25 go-live; R07/R15/R17/R18 need customer decisions; hosted email/Realtime/real Google QA remain.
 Next safe action: Select the next batch with the customer. Next-day check: production itinerary warning with a real trip; inspect import/workspace errors.
 <!-- workflow-active-snapshot:end -->
 
@@ -62,4 +62,5 @@ phases/P21-integrated-qa.md
 phases/P22-former-money-lock-mock-uat.md
 phases/P23-portable-workflow.md
 phases/P24-itinerary-overlap-warning.md
+phases/P25-multi-day-itinerary.md
 <!-- workflow-manifest:end -->

@@ -1,4 +1,7 @@
 # Decisions
+## A033 — R11 multi-day itinerary activities,18/10/2026
+Customer chose (AskUserQuestion, recorded in a local discussion record): next batch R11 part 2. An activity may have an optional "Đến ngày": start time on the first day, end time on the last day, middle days full days. It is listed under every day of its range ("Ngày k/n"). Overlap warnings compare continuous [start, end) intervals across days; touching does not warn; still never blocks saving. Excel LichTrinh gains a "Đến ngày" column; files without it still import and keep a saved end date. Estimated cost stays one amount per activity. Local commits authorized; go-live needs separate approval.
+
 ## A032 — Go-live 0.10.0,18/10/2026
 Customer approved: push feat/itinerary-overlap-warning, open PR, merge main after CI passes and verify production. Scope limited to 0.10.0 (R11).
 
