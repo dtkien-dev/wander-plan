@@ -1,6 +1,6 @@
 # WanderPlan — bảng kế hoạch sản phẩm tổng hợp
 
-Chủ sở hữu: PO. Cập nhật: 18/10/2026 sau phát hành 0.11.0 (Asia/Saigon). Tracker thực thi: `wp-20261014-01` (bundle `2026-10-14-no1-website-improvements`).
+Chủ sở hữu: PO. Cập nhật: 18/10/2026 sau phát hành 0.11.1 (Asia/Saigon). Tracker thực thi: `wp-20261014-01` (bundle `2026-10-14-no1-website-improvements`).
 File này là bảng kế hoạch chung cho IT, QA, ITS, BA, ITO. Lịch theo ngày chi tiết: [daily-schedule-2026-10-15.md](daily-schedule-2026-10-15.md).
 
 ## Quy trình mỗi đợt
@@ -40,6 +40,7 @@ UAT hiện tại: Supabase stack đầy đủ chạy local (Auth, Realtime, Post
 | 0.9.3 | 17/10 | Sửa đọc tiền Excel, phân trang đầy đủ, chống ghi demo cũ, tải workspace song song. |
 | 0.10.0 | 18/10 | R11: cảnh báo trùng giờ trong lịch trình (không chặn lưu), đánh dấu “Trùng giờ” trong danh sách. |
 | 0.11.0 | 18/10 | R11: hoạt động nhiều ngày (“Đến ngày”), hiện ở mọi ngày, cảnh báo trùng giờ qua nhiều ngày, Excel cột Đến ngày; migration `20261018000000`. |
+| 0.11.1 | 18/10 | Excel dễ đọc: chữ tiêu đề trắng (sửa lỗi màu), “Đến ngày” cạnh “Ngày”, đường lưới, xuống dòng Địa chỉ/Ghi chú. |
 
 
 ## Bảng kế hoạch
@@ -122,5 +123,5 @@ Khách hàng chốt A031. Bản 0.10.0 (`ab7a517`, nhánh `feat/itinerary-overla
 ## P25 — R11 hoạt động nhiều ngày, hoàn tất 18/10
 Khách hàng chốt A033. Bản 0.11.0 (nhánh `feat/multi-day-itinerary`): “Đến ngày” tùy chọn, giờ bắt đầu ở ngày đầu và giờ kết thúc ở ngày cuối, hiện ở mọi ngày (“Ngày k/n”), cảnh báo trùng giờ liên tục qua ngày, Excel cột Đến ngày. Có migration `20261018000000` (áp trước frontend). 141 test, 281 SQL, UAT local đạt. Go-live A034: migration áp production trước, PR #6 merge `b113a60`, CI/Pages đạt, production 0.11.0 xác nhận; chưa smoke có đăng nhập trên production. [Release note 0.11.0](../docs/releases/2026-10-18-0.11.0.md).
 
-## A035 — Excel dễ đọc (0.11.1), chờ duyệt go-live 18/10
-Kiểm tra file Excel xuất ra theo yêu cầu khách hàng: sửa lỗi màu chữ tiêu đề (đen trên nền xanh đậm), đưa “Đến ngày” cạnh “Ngày”, bật đường lưới và xuống dòng cho Địa chỉ/Ghi chú. Không đổi database. [Release note 0.11.1](../docs/releases/2026-10-18-0.11.1.md).
+## A035 — Excel dễ đọc (0.11.1), hoàn tất 18/10
+Kiểm tra file Excel xuất ra theo yêu cầu khách hàng: sửa lỗi màu chữ tiêu đề (đen trên nền xanh đậm), đưa “Đến ngày” cạnh “Ngày”, bật đường lưới và xuống dòng cho Địa chỉ/Ghi chú. Không đổi database. Go-live A036: PR #8 merge `40ea587`, CI/Pages đạt, production 0.11.1 xác nhận. [Release note 0.11.1](../docs/releases/2026-10-18-0.11.1.md).

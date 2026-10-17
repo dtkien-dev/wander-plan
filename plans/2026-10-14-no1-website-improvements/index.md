@@ -9,17 +9,17 @@ Execution readiness: Ready
 Execute mode: Active
 Resume instruction: Resolve plans/2026-10-14-no1-website-improvements from the current clone root (tracker wp-20261014-01). Read docs/agent/README.md and workflow.md, then this index and every manifest file. Keep this exact repository-relative bundle as the execution source of truth; update it until explicit exit. If the execute skill is installed, it may be used with this resolved path.
 Workspace: Current clone root; never reuse another device's absolute path.
-Repository: origin/main b113a60 (app 0.11.0). Fetch before resume.
-Active action: None — E031 0.11.1 Excel readability complete locally; awaiting go-live approval.
+Repository: origin/main 40ea587 (app 0.11.1). Fetch before resume.
+Active action: None — E032 0.11.1 released.
 
 <!-- workflow-active-snapshot:start version:2 -->
 ## Active Snapshot
 Profile: Durable
 Required references: references/intake.md, references/implementation.md, references/parallel-execution.md, references/completion.md
 Goal: Deliver verified daily improvements through plan, code, QA, security, go-live and next-day notes.
-Current state: Production 0.11.0 at b113a60 (P25 R11 multi-day itinerary; migration 20261018000000 applied). Release records on docs/release-0.11.0.
-Accepted decisions: D01–D06, A010, A019, A020, A023, A024, A026 and A029, A031, A032, A033, A034, A035. Customer explicitly approved sanitized branch push; main merge/deployment is not in scope.
-Open items: 0.11.1 go-live (Excel readability); R07/R15/R17/R18 need customer decisions; hosted email/Realtime/real Google QA remain.
+Current state: Production 0.11.1 at 40ea587 (readable Excel export on top of 0.11.0 multi-day itinerary). Release records on docs/release-0.11.1.
+Accepted decisions: D01–D06, A010, A019, A020, A023, A024, A026 and A029, A031, A032, A033, A034, A035, A036. Customer explicitly approved sanitized branch push; main merge/deployment is not in scope.
+Open items: R07/R15/R17/R18 need customer decisions; hosted email/Realtime/real Google QA remain.
 Next safe action: Select the next batch with the customer. Next-day check: create a multi-day activity on a real trip; inspect import/workspace errors.
 <!-- workflow-active-snapshot:end -->
 

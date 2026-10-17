@@ -1,5 +1,5 @@
 # P25: R11 multi-day itinerary activities
-Status: In progress (A035 follow-up awaiting go-live)
+Status: Completed
 Depends on: P24 completed; production 0.10.0
 Wave: 26
 Owner: Claude Code
@@ -22,4 +22,4 @@ Released 18/10 under A034: migration 20261018000000 applied to production first 
 
 ## A035 follow-up — readable Excel export (0.11.1)
 - [x] Fix text colours, column placement, gridlines and wrap; 142 tests; real workbook inspected; UAT export PASS.
-- [ ] Go-live approval, merge, verify live 0.11.1.
+- [x] Go-live A036: PR #8 merged as 40ea587; CI/Pages succeeded; live 0.11.1 verified.
