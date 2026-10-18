@@ -9,23 +9,24 @@ Execution readiness: Ready
 Execute mode: Active
 Resume instruction: Resolve plans/2026-10-14-no1-website-improvements from the current clone root (tracker wp-20261014-01). Read docs/agent/README.md and workflow.md, then this index and every manifest file. Keep this exact repository-relative bundle as the execution source of truth; update it until explicit exit. If the execute skill is installed, it may be used with this resolved path.
 Workspace: Current clone root; never reuse another device's absolute path.
-Repository: origin/main 6d019e9 (app 0.12.0). Fetch before resume; final receipt on docs/post-release-uat.
-Active action: E043 / P27 — A047 approves 0.12.1 push, PR, merge after CI and Pages verification.
+Repository: origin/main 5ebbe82 (app 0.12.1). Fetch before resume; release records follow up on docs/release-0.12.1.
+Active action: None — E043 / P27 released 0.12.1; CI/Pages/public/authenticated read-only smoke passed.
 
 <!-- workflow-active-snapshot:start version:2 -->
 ## Active Snapshot
 Profile: Durable
 Required references: references/intake.md, references/implementation.md, references/parallel-execution.md, references/completion.md, references/post-merge-cleanup.md
 Goal: Deliver verified daily improvements through plan, code, QA, security, go-live and next-day notes.
-Current state: Production app 0.12.0; main 6d019e9. P27 candidate 0.12.1 on fix/forms-and-local-checks passed full-local browser QA and independent ITS; local commits only, go-live unapproved.
-Accepted decisions: D01–D06, A010, A019, A020, A023, A024, A026, A029 and A031–A042. A042 explicitly authorizes this documentation batch's push, PR/merge after CI and Pages redeployment. No production data writes.
+Current state: Production 0.12.1 released via PR #13 at 5ebbe82; PR/main CI and Pages succeeded. Full-local QA/independent ITS and post-deploy authenticated read-only smoke passed. Final records follow up on docs/release-0.12.1.
+Accepted decisions: D01–D06, A010, A019, A020, A023, A024, A026, A029 and A031–A047. A047 explicitly authorizes P27 0.12.1 push, PR, merge after CI and Pages verification; completed under E043. No production data writes.
 Open items: R07/R17/R18 deferred by customer (A043/A044). E040 items 1–3 fixed under A045/P27; workspace refresh optimization remains deferred. Customer reports successful sign-in and requests no further R15 proposals; hosted email/Realtime remain unverified.
-Next safe action: Execute approved A047/E043 publication and ITO checklist; require CI on exact PR head before merge, then verify Pages/public 0.12.1. No production schema/data change.
+Next safe action: Select a new batch with the customer if needed; R07/R17/R18 remain deferred and no new feature is approved. Fetch latest main/record checkpoint before edits.
 <!-- workflow-active-snapshot:end -->
 
 Shared workflow: [portable workflow](../../docs/agent/workflow.md). The references/*.md above belong to the optional installed execute skill; they are not missing repository files and are not required on a new device. Shared workflow contains the portable execution and evidence rules.
 
 ## Resume Checkpoint
+- E043/A047/P27 (18/10): released 0.12.1. PR #13 reviewed head 40f316a merged at 5ebbe82; PR CI 39126404155, main CI 39126491308 and Pages 39126491352 PASS. Public HTTP 200/meta version and authenticated browser badge 0.12.1 confirmed; affected dialogs open, step=1, canceled without saving; console errors zero. No production schema/data writes. Final docs-only release records follow up on docs/release-0.12.1 (resolve latest SHA from Git log); primary user changes preserved. Deferred features unchanged.
 - E042/A046/P27 (18/10): candidate 0.12.1, actual-browser full-local UAT PASS (all-former metadata, frozen-money readback, whole-dong/exact-split/itinerary reload, negative/fractional/no-participant guards, 320/375px, zero console errors); 149 app tests/lint/build and full-local 281 SQL PASS. Two independent ITS lenses signed off after QA. Local app/tab stopped, synthetic sessions revoked, credential fixtures removed; existing local stack/data retained. Release note/ITO checklist prepared. All commits local on fix/forms-and-local-checks; resolve latest SHA from branch log. Await current-batch go-live approval; no push/deploy.
 - E041/A045/P27 (18/10): audit items 1–3 fixed on fix/forms-and-local-checks from origin/main 6d019e9 in isolated worktree. Three intended pre-fix regression failures; 17 focused and 149 total app tests, lint, demo build, 281 SQL and audit PASS. No migration/dependency/cache changes; same-agent QA/security review. Implementation and record commits local only (resolve latest SHA from branch log); primary checkout source/user changes preserved. Actual-browser UAT and hosted checks not rerun; go-live not approved.
 - E040/A044 (18/10): R17/R18 deferred. Reviewed current application, persistence, auth, money, Excel, Realtime and CI paths for small collaborative groups (up to 20 members). 147 app tests passed with worktrees excluded; scoped lint, TypeScript, demo build and dependency audit passed. Embedded SQL blocked by missing local pglite package. Four findings in evidence; no source fixes, commit, push or deployment.

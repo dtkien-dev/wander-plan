@@ -1,6 +1,6 @@
 # WanderPlan — bảng kế hoạch sản phẩm tổng hợp
 
-Chủ sở hữu: PO. Cập nhật: 18/10/2026 sau phát hành 0.12.0 (Asia/Saigon). Tracker thực thi: `wp-20261014-01` (bundle `2026-10-14-no1-website-improvements`).
+Chủ sở hữu: PO. Cập nhật: 18/10/2026 sau phát hành 0.12.1 (Asia/Saigon). Tracker thực thi: `wp-20261014-01` (bundle `2026-10-14-no1-website-improvements`).
 File này là bảng kế hoạch chung cho IT, QA, ITS, BA, ITO. Lịch theo ngày chi tiết: [daily-schedule-2026-10-15.md](daily-schedule-2026-10-15.md).
 
 ## Quy trình mỗi đợt
@@ -42,11 +42,12 @@ UAT hiện tại: Supabase stack đầy đủ chạy local (Auth, Realtime, Post
 | 0.11.0 | 18/10 | R11: hoạt động nhiều ngày (“Đến ngày”), hiện ở mọi ngày, cảnh báo trùng giờ qua nhiều ngày, Excel cột Đến ngày; migration `20261018000000`. |
 | 0.11.1 | 18/10 | Excel dễ đọc: chữ tiêu đề trắng (sửa lỗi màu), “Đến ngày” cạnh “Ngày”, đường lưới, xuống dòng Địa chỉ/Ghi chú. |
 | 0.12.0 | 18/10 | Thông báo trôi tự tắt 3 giây (lỗi giữ đến khi đóng), lịch sử 50 thông báo trên thiết bị theo tài khoản qua chuông; Excel tự giãn cột/dòng. |
+| 0.12.1 | 18/10 | Sửa metadata khoản chi chỉ còn người tham gia đã rời, nhập tiền nguyên đồng; test/lint loại worktree và artifact. |
 
 
 ## Bảng kế hoạch
 
-18/10 — P27 (A045/E041, A046/E042), ứng viên 0.12.1: sửa metadata khoản chi chỉ còn người tham gia đã rời nhóm, nhập tiền nguyên đồng và loại worktree/artifact khỏi test/lint. QA/UAT trình duyệt trên Supabase local đầy đủ, ITS hai lượt độc lập, 149 app tests, 281 SQL local/embedded, lint/build/audit đạt. Nhánh fix/forms-and-local-checks, chờ duyệt go-live; chưa push/phát hành. R07/R17/R18 tiếp tục hoãn.
+18/10 — P27 (A045–A047/E041–E043), đã phát hành 0.12.1: sửa metadata khoản chi chỉ còn người tham gia đã rời nhóm, nhập tiền nguyên đồng và loại worktree/artifact khỏi test/lint. QA/UAT Supabase local, ITS hai lượt độc lập, 149 app tests, 281 SQL local/embedded, lint/build/audit đạt. PR #13 merge 5ebbe82, CI/Pages/public 0.12.1 và smoke form có đăng nhập (không lưu dữ liệu production) đạt. R07/R17/R18 tiếp tục hoãn.
 
 Trạng thái: Đang làm / Đã phát hành / Sẵn sàng (đủ quy tắc) / Cần chốt (khách hàng/BA phải quyết trước khi code) / Hoãn.
 Thứ tự theo chỉ đạo khách hàng 15/10: các đợt tính năng/sửa lỗi trước, monitoring và Việt–Anh đi sau cùng.

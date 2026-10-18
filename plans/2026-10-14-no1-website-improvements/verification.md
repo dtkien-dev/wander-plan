@@ -1,5 +1,12 @@
 # Verification
 
+## E043 / P27 — Release 0.12.1, 18/10/2026
+- PASS: published exact PR #13 head 40f316a; shared PR CI 39126404155, merge with matching-head guard at 5ebbe82.
+- PASS: main CI 39126491308; Pages 39126491352 verify/build/deploy all succeeded.
+- PASS: public HTTP 200 and app-version metadata 0.12.1; existing authenticated session reload shows v0.12.1.
+- PASS: authenticated production read-only smoke — Expense and Itinerary create dialogs load with step=1, canceled without saving; dashboard restored, console errors zero.
+- No migration, access apply or production data write. Hosted write/tampering/email/Google/Realtime tests NOT RUN; local write evidence remains E042.
+
 ## E042 / P27 — Delivery gates, candidate 0.12.1, 18/10/2026
 - PASS: actual-browser UAT on full local Supabase — all-former metadata save/reload with unchanged financial fields; whole-dong expense/exact splits and itinerary save/reload; negative/fractional native validation; no-participant creation blocked.
 - PASS: direct API readback assertions and rejection of frozen-money tampering on synthetic local fixture.

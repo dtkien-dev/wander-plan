@@ -6,12 +6,12 @@
 - [Quyết định đã chốt](../../plans/2026-10-14-no1-website-improvements/decisions.md)
 - [Kế hoạch và phase](../../plans/2026-10-14-no1-website-improvements/plan.md)
 - [Bằng chứng](../../plans/2026-10-14-no1-website-improvements/evidence.md), [kiểm tra](../../plans/2026-10-14-no1-website-improvements/verification.md)
-- [Release notes](../releases/2026-10-18-0.12.0.md)
+- [Release notes](../releases/2026-10-18-0.12.1.md)
 
-Mốc production được xác minh ngày 18/10/2026 (Asia/Saigon): `main` tại `cb2d549768a91613c823340075eee610cbf2cf85`, phiên bản 0.12.0. Đây là mốc lịch sử: fetch và kiểm tra CI/Pages/live lại trước mỗi đợt. Tên nhánh hoặc đường dẫn worktree ghi trong evidence có thể chỉ tồn tại trên máy thực hiện.
+Mốc production được xác minh ngày 18/10/2026 (Asia/Saigon): `main` tại `5ebbe82ee77ecf2a77bf564ab35364e2eda6fc31`, phiên bản 0.12.1. PR #13/main CI/Pages đạt; metadata và giao diện có đăng nhập xác nhận phiên bản, form Chi phí/Lịch trình mở đúng (hủy, không lưu dữ liệu production). Đây là mốc lịch sử: fetch và kiểm tra CI/Pages/live lại trước mỗi đợt.
 
-Đợt hiện tại P23: đồng bộ code, kiểm tra 0.9.3, sửa hồ sơ phát hành và đưa quy trình/kế hoạch vào Git để dùng nhiều máy. Trạng thái hoàn tất và commit bàn giao lấy ở index/Git log, không suy ra từ phiên bản app.
+Đợt gần nhất P27 đã phát hành 0.12.1 (A047/E043); kết quả và giới hạn nằm ở index/verification. R07/R17/R18 đang hoãn theo khách hàng; chưa chọn đợt mới. Hồ sơ cuối được chia sẻ qua nhánh docs/release-0.12.1; fetch và xem Git log để lấy checkpoint mới nhất.
 
-Chưa được coi là đạt: Google consent/gộp tài khoản thật, email/Realtime hosted và smoke có đăng nhập sau 0.9.3. R15 cần tài khoản/phiên thử của chủ dự án hoặc quyết định môi trường riêng; không tự mua branch, gửi email hoặc thử trên dữ liệu thật. R07/R11 cần quy tắc nghiệp vụ; R17 cần dịch vụ/kênh nhận/quyền/lọc dữ liệu; R18 hiện theo sau R17. R19 đang hoãn. Không có tính năng backlog nào được tự động duyệt chỉ vì hoàn tất P23.
+Khách hàng xác nhận đã đăng nhập được và không yêu cầu đề xuất tiếp R15; gộp tài khoản thật/email/Realtime hosted chưa được xác minh đầy đủ. Smoke có đăng nhập 0.12.1 đã đạt ở mức chỉ đọc, không lưu dữ liệu production. R07/R17/R18 và R19 đang hoãn; R11 đã phát hành. Không tự mua branch, gửi email hoặc thử ghi trên dữ liệu thật. Không có tính năng backlog nào được tự động duyệt khi hoàn tất P27.
 
-Nhánh chia sẻ hiện tại: `docs/portable-workflow`. Trên clone mới chạy `git fetch origin`, rồi `git switch --track origin/docs/portable-workflow` nếu chưa có nhánh local; nhánh đã tồn tại thì switch và cập nhật fast-forward sau khi kiểm tra trạng thái.
+Nhánh chia sẻ hồ sơ phát hành: `docs/release-0.12.1`. Trên clone mới chạy `git fetch origin`, đọc main mới nhất và nhánh này (nếu còn hồ sơ chưa merge); chỉ switch/cập nhật fast-forward sau khi kiểm tra trạng thái.
