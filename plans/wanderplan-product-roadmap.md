@@ -46,6 +46,8 @@ UAT hiện tại: Supabase stack đầy đủ chạy local (Auth, Realtime, Post
 
 ## Bảng kế hoạch
 
+18/10 — P27 (A045/E041): sửa ba phát hiện kiểm tra hệ thống — sửa metadata khoản chi chỉ còn người tham gia đã rời nhóm, nhập tiền nguyên đồng và loại worktree/artifact khỏi test/lint. Đã kiểm tra local: 149 app tests, 281 SQL, lint/build/audit đạt; nhánh fix/forms-and-local-checks, chưa push/phát hành. R07/R17/R18 tiếp tục hoãn.
+
 Trạng thái: Đang làm / Đã phát hành / Sẵn sàng (đủ quy tắc) / Cần chốt (khách hàng/BA phải quyết trước khi code) / Hoãn.
 Thứ tự theo chỉ đạo khách hàng 15/10: các đợt tính năng/sửa lỗi trước, monitoring và Việt–Anh đi sau cùng.
 
@@ -57,7 +59,7 @@ Thứ tự theo chỉ đạo khách hàng 15/10: các đợt tính năng/sửa l
 | R04 | P14 | Feature | Checklist chuẩn bị chung theo chuyến | Trung bình | Đã phát hành 0.5.0 | P13 | Mọi thành viên thêm/sửa/xóa/đánh dấu; gán người phụ trách tùy chọn; Realtime, tải lại giữ dữ liệu, tách chuyến và từ chối bản cũ. Loại thành viên bỏ phân công. |
 | R05 | R05 | Feature | Lưu trữ và khôi phục chuyến | Trung bình | Đã phát hành 0.6.0 | P14 | Đã chốt16/10: chỉ chủ nhóm lưu trữ/khôi phục; ẩn nội dung đến khi khôi phục. Giữ nguyên lịch trình/chi phí/người trả/thành viên. |
 | R06 | P16 | Feature | Đánh dấu khoản chia tiền đã thanh toán | Trung bình | Đã phát hành 0.8.0 | P13 | Không sai số dư/không tính hai lần, không tích hợp thanh toán. Đã chốt 16/10: chỉ người nhận tiền đánh dấu/hủy; lưu thành khoản “A đã trả B X đồng”, số dư tự tính lại khi chi thay đổi. |
-| R07 | P17 | Feature | Lịch sử hoạt động theo chuyến (phạm vi nhỏ) | Thấp | Cần chốt | P14–P16 | Đúng người/sự kiện; chỉ thành viên xem. Cần chốt: loại sự kiện và thời gian lưu. |
+| R07 | P17 | Feature | Lịch sử hoạt động theo chuyến (phạm vi nhỏ) | Thấp | Hoãn theo khách hàng 18/10 (A043) | P14–P16 | Mở lại khi có nhu cầu truy lại người thay đổi dữ liệu; khi đó chốt loại sự kiện và thời gian lưu. |
 | R08 | P18 | QA | QA tổng hợp, security, chuẩn bị bản phát hành | Cao | Hoàn tất 0.9.1 | P14–P17 | Kết quả và giới hạn rõ cho từng tính năng. |
 | R09 | P14 | UX/Feature | **Tên hiển thị thành viên** | Cao | Đã phát hành 0.5.0 | — | Mỗi người tự đặt, tùy chọn, dùng chung mọi chuyến; chưa đặt thì hiện phần trước @; chủ nhóm không sửa tên người khác. Email chỉ hiện cho người cùng chuyến, tên dài không tràn. |
 | R10 | P20 | Feature | Chia tiền **không đều** (theo phần hoặc số tiền) | Trung bình | Đã phát hành 0.9.0 | R06 | Mỗi khoản chọn chia đều/theo phần/theo số tiền. Số tiền phải khớp Thực tế (chưa có thì Dự kiến); lệch thì chặn lưu và báo chênh lệch. Phần lẻ khi chia theo phần: người trả chịu nếu có tham gia, không thì rải theo thứ tự cố định. Excel thêm cột Cách chia/Chi tiết chia; file cũ = chia đều. |
@@ -67,8 +69,8 @@ Thứ tự theo chỉ đạo khách hàng 15/10: các đợt tính năng/sửa l
 | R14 | R14 | Security | Ghim GitHub Actions theo commit SHA | Thấp | Hoàn tất16/10 | — |7 tham chiếu/5 action chính thức ghim SHA; CI/Pages đạt; README có hướng dẫn cập nhật. App giữ0.5.0. |
 | R15 | QA còn mở | QA | Kiểm tra gửi email và Realtime trên Supabase **hosted** | Cao | Cần chốt | — | Bằng chứng thực tế. Cần chốt: tài khoản thử của chủ dự án hoặc tạo Supabase branch (có phí). |
 | R16 | QA còn mở | QA | QA mobile trong UAT (320/375px) cho các màn chính — Chi phí và dropdown đã kiểm 320px trong P13 | Trung bình | Hoàn tất 0.9.1 | P13 | Không tràn, thao tác chạm được. |
-| R17 | Sau R08 | Ops | Monitoring lỗi runtime + cảnh báo bot IT (MVP) | Trung bình | Cần chốt | R08 | Chốt dịch vụ, kênh nhận, quyền, lọc dữ liệu trước; lỗi thử đến đúng nơi, không có token/email/nội dung chuyến. |
-| R18 | Sau R17 | Feature | Chuyển ngữ Việt–Anh | Trung bình | Cần chốt | R17 | Đổi ngôn ngữ nhất quán, giữ lựa chọn, không dịch dữ liệu người dùng, giữ VND. |
+| R17 | Sau R08 | Ops | Monitoring lỗi runtime + cảnh báo bot IT (MVP) | Trung bình | Hoãn theo khách hàng 18/10 (A044) | R08 | Khi mở lại: chốt dịch vụ, kênh nhận, quyền, lọc dữ liệu; lỗi thử đến đúng nơi, không có token/email/nội dung chuyến. |
+| R18 | Sau R17 | Feature | Chuyển ngữ Việt–Anh | Trung bình | Hoãn theo khách hàng 18/10 (A044) | R17 | Khi mở lại: đổi ngôn ngữ nhất quán, giữ lựa chọn, không dịch dữ liệu người dùng, giữ VND. |
 | R20 | P14a | Feature | **Đăng nhập với Google** (giữ magic link dự phòng) | Cao | Đã phát hành 0.4.1 (chờ chủ dự án thử đăng nhập Google thật một lần) | Chủ dự án tạo Google OAuth client và bật provider trong Supabase | Một chạm đăng nhập; tài khoản cùng email đã xác thực được gộp; lỗi hiển thị rõ; nút chỉ hiện khi bật cờ googleSignIn. |
 | R21 | P14a | Security/Ops | **Công tắc tài khoản mới** qua file `config/access.json` (allowNewAccounts) | Cao | Đã phát hành 0.4.0, hook xác minh trên production | Chủ dự án bật Before User Created hook trong Supabase | false: chỉ tài khoản đã có và email có lời mời chờ mới tạo được; true: mở; chặn ở server cho cả email và Google; ITO áp bằng `npm run access:apply`. |
 | R22 | P19 | UX | Tối ưu giao diện toàn website, ưu tiên tab Nhóm | Cao | Đã phát hành 0.7.0 | R05 | Nhóm rõ thứ bậc, form thu gọn, đồng bộ Tổng quan/Lịch trình/Chi phí/Đăng nhập; mobile/tablet không tràn, phát hành chung. |

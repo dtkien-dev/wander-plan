@@ -9,23 +9,27 @@ Execution readiness: Ready
 Execute mode: Active
 Resume instruction: Resolve plans/2026-10-14-no1-website-improvements from the current clone root (tracker wp-20261014-01). Read docs/agent/README.md and workflow.md, then this index and every manifest file. Keep this exact repository-relative bundle as the execution source of truth; update it until explicit exit. If the execute skill is installed, it may be used with this resolved path.
 Workspace: Current clone root; never reuse another device's absolute path.
-Repository: origin/main d877371 (app 0.12.0). Fetch before resume.
-Active action: E038 — customer-approved publication of UAT records and Pages redeployment, app remains 0.12.0.
+Repository: origin/main 6d019e9 (app 0.12.0). Fetch before resume; final receipt on docs/post-release-uat.
+Active action: None — E041 / P27 implemented and locally verified on fix/forms-and-local-checks; go-live unapproved.
 
 <!-- workflow-active-snapshot:start version:2 -->
 ## Active Snapshot
 Profile: Durable
 Required references: references/intake.md, references/implementation.md, references/parallel-execution.md, references/completion.md, references/post-merge-cleanup.md
 Goal: Deliver verified daily improvements through plan, code, QA, security, go-live and next-day notes.
-Current state: Production app 0.12.0; main d877371. Synthetic UAT and browser Excel roundtrip completed; E038 publishes records and redeploys unchanged app.
+Current state: Production app 0.12.0; main 6d019e9. PR #12 merged and CI/Pages succeeded; synthetic UAT/browser Excel results published. Final deployment receipt is on docs/post-release-uat.
 Accepted decisions: D01–D06, A010, A019, A020, A023, A024, A026, A029 and A031–A042. A042 explicitly authorizes this documentation batch's push, PR/merge after CI and Pages redeployment. No production data writes.
-Open items: R07/R15/R17/R18 need customer decisions; hosted email/Realtime/real Google QA remain.
-Next safe action: Complete E038 publication and verify Pages. Hosted Google/email/Realtime remain unverified; no new feature or production data mutation authorized.
+Open items: R07/R17/R18 deferred by customer (A043/A044). E040 items 1–3 fixed under A045/P27; workspace refresh optimization remains deferred. Customer reports successful sign-in and requests no further R15 proposals; hosted email/Realtime remain unverified.
+Next safe action: Review verified P27 on fix/forms-and-local-checks; browser UAT/hosted not rerun. Push/merge/deploy require current-batch go-live approval.
 <!-- workflow-active-snapshot:end -->
 
 Shared workflow: [portable workflow](../../docs/agent/workflow.md). The references/*.md above belong to the optional installed execute skill; they are not missing repository files and are not required on a new device. Shared workflow contains the portable execution and evidence rules.
 
 ## Resume Checkpoint
+- E041/A045/P27 (18/10): audit items 1–3 fixed on fix/forms-and-local-checks from origin/main 6d019e9 in isolated worktree. Three intended pre-fix regression failures; 17 focused and 149 total app tests, lint, demo build, 281 SQL and audit PASS. No migration/dependency/cache changes; same-agent QA/security review. Implementation and record commits local only (resolve latest SHA from branch log); primary checkout source/user changes preserved. Actual-browser UAT and hosted checks not rerun; go-live not approved.
+- E040/A044 (18/10): R17/R18 deferred. Reviewed current application, persistence, auth, money, Excel, Realtime and CI paths for small collaborative groups (up to 20 members). 147 app tests passed with worktrees excluded; scoped lint, TypeScript, demo build and dependency audit passed. Embedded SQL blocked by missing local pglite package. Four findings in evidence; no source fixes, commit, push or deployment.
+- E039/A043 (18/10): customer deferred R07; roadmap and records updated locally. R17/R18 comparison requested, implementation undecided. No commit, push or deployment; pre-existing changes preserved.
+- E038/A042 (18/10): docs commit 66463a1 pushed and PR #12 merged at 6d019e9. PR CI 39110831509, main CI 39110885640 and Pages 39110885665 succeeded; Pages verify/build/deploy all PASS. Public HTTP 200/app-version 0.12.0 after deployment. No app/schema/config/dependency change or production data write. Final receipt is a docs-only follow-up on docs/post-release-uat (resolve SHA from Git log), separate from deployed main. Dedicated QA worktree retained for ignored reproducibility artifacts; primary user changes preserved. Execute remains Active.
 - E037/A041 (18/10): in-app browser downloaded the real report and uploaded it successfully without changing extension permissions. Unchanged file: 0 create/0 update/2 skip/0 errors; edited downloaded workbook: 0 create/1 update/1 skip/0 errors, applied through UI. Reload retained three-day rendering and 27/11 20:00 to 29/11 08:00. Old version re-upload showed one conflict and disabled import. No console errors, source changes, production access, commit/push/deploy. Owned tab/server closed; sessions revoked, credential fixtures removed. Local workbook/screenshot receipts retained in ignored QA artifacts. Canonical tracker edits remain uncommitted; execute Active.
 - E036/A040 (18/10): synthetic local UAT completed on d877371 in .worktrees/post-release-qa. Multi-day browser save/reload/list/warning and two-account Realtime passed; app-code Excel report/readback/edited and legacy import passed; notification provider browser mock passed; local Mailpit email and full local SQL 281/281 passed. Browser file upload blocked by extension permission, download capture timed out: these browser file-transfer checks are not claimed PASS. No production access during A040, source/schema/dependency edits, commit, push or deploy. Owned tabs/server stopped, local synthetic data/ignored harness retained, synthetic sessions revoked and credential fixture files removed. Canonical record-only changes remain uncommitted; execute Active.
 - E035 (18/10): 147 app tests, 281 embedded SQL assertions, lint/demo build/audit passed at d877371. Authenticated production routes and Excel export/toast/history checked. Customer selected a separate test trip but has not supplied its name; hosted write tests, real Google/email and two-session Realtime remain unverified. Verification worktree .worktrees/post-release-qa retained; no source edits, commits, push or deployment. Evidence-only record changes remain uncommitted in this canonical bundle.
@@ -67,4 +71,5 @@ phases/P23-portable-workflow.md
 phases/P24-itinerary-overlap-warning.md
 phases/P25-multi-day-itinerary.md
 phases/P26-toasts-excel-autofit.md
+phases/P27-form-validation-local-checks.md
 <!-- workflow-manifest:end -->
