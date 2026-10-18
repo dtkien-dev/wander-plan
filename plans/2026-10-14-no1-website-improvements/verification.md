@@ -1,6 +1,7 @@
 # Verification
 
 ## E043 / P27 — Release 0.12.1, 18/10/2026
+- PASS final closeout: docs PR #14 CI 39126830402, merge 727e0fb, main CI 39126922208 and Pages 39126922198 all succeeded; public HTTP 200/version 0.12.1 rechecked. Runtime/schema/config/dependency diff from 5ebbe82 empty.
 - PASS: published exact PR #13 head 40f316a; shared PR CI 39126404155, merge with matching-head guard at 5ebbe82.
 - PASS: main CI 39126491308; Pages 39126491352 verify/build/deploy all succeeded.
 - PASS: public HTTP 200 and app-version metadata 0.12.1; existing authenticated session reload shows v0.12.1.
