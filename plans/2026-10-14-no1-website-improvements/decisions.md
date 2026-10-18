@@ -1,4 +1,7 @@
 # Decisions
+## A046 — Follow delivery workflow before publishing, 18/10/2026
+Customer requests completing the shared delivery workflow before push/deploy. E042 completes synthetic full-local browser QA, independent ITS, version 0.12.1/release-candidate records and local commits. Current-batch go-live approval remains a separate gate under docs/agent/workflow.md; earlier batch approvals do not apply.
+
 ## A045 — Implement focused audit fixes, 18/10/2026
 Customer authorizes E040 items 1–3: metadata edits for all-former expense participants, whole-dong monetary inputs and excluding nested worktrees from local test/lint discovery. Preserve financial locks and validation. R07/R17/R18 remain deferred; workspace refresh optimization excluded. Implementation/local verification and repository-workflow local commits only; production go-live requires separate approval.
 

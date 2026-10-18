@@ -1,5 +1,15 @@
 # Verification
 
+## E042 / P27 — Delivery gates, candidate 0.12.1, 18/10/2026
+- PASS: actual-browser UAT on full local Supabase — all-former metadata save/reload with unchanged financial fields; whole-dong expense/exact splits and itinerary save/reload; negative/fractional native validation; no-participant creation blocked.
+- PASS: direct API readback assertions and rejection of frozen-money tampering on synthetic local fixture.
+- PASS: affected dialogs at 320/375px, no horizontal document overflow; console errors zero. Screenshots retained locally under ignored P27 artifacts.
+- PASS: final candidate npm test 149/149 (26 files); npm run lint; npm run build with demo mode and temporary output (includes tsc).
+- PASS: full local Supabase test db, 281 assertions across 16 suites. E041 embedded 281 assertions and dependency audit remain applicable; dependencies unchanged.
+- PASS: two independent ITS reviewer lenses after QA — access/financial invariants and unsafe-input/platform/supply-chain, no actionable findings; coordinator synthesis PASS.
+- PASS: app/tab cleanup, viewport reset, synthetic session revocation and credential fixture removal. Existing stack/data retained.
+- NOT RUN: hosted/production UAT, CI/Pages for candidate (not pushed), deployment smoke. No schema/migration change.
+
 ## E041 / P27 — Form fixes and local discovery, 18/10/2026
 - Regression control PASS: three intended failures on pre-fix forms; 17/17 focused tests PASS after fixes.
 - PASS: default npm test — 26 files/149 tests, no worktree exclusion flags.

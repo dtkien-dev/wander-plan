@@ -46,7 +46,7 @@ UAT hiện tại: Supabase stack đầy đủ chạy local (Auth, Realtime, Post
 
 ## Bảng kế hoạch
 
-18/10 — P27 (A045/E041): sửa ba phát hiện kiểm tra hệ thống — sửa metadata khoản chi chỉ còn người tham gia đã rời nhóm, nhập tiền nguyên đồng và loại worktree/artifact khỏi test/lint. Đã kiểm tra local: 149 app tests, 281 SQL, lint/build/audit đạt; nhánh fix/forms-and-local-checks, chưa push/phát hành. R07/R17/R18 tiếp tục hoãn.
+18/10 — P27 (A045/E041, A046/E042), ứng viên 0.12.1: sửa metadata khoản chi chỉ còn người tham gia đã rời nhóm, nhập tiền nguyên đồng và loại worktree/artifact khỏi test/lint. QA/UAT trình duyệt trên Supabase local đầy đủ, ITS hai lượt độc lập, 149 app tests, 281 SQL local/embedded, lint/build/audit đạt. Nhánh fix/forms-and-local-checks, chờ duyệt go-live; chưa push/phát hành. R07/R17/R18 tiếp tục hoãn.
 
 Trạng thái: Đang làm / Đã phát hành / Sẵn sàng (đủ quy tắc) / Cần chốt (khách hàng/BA phải quyết trước khi code) / Hoãn.
 Thứ tự theo chỉ đạo khách hàng 15/10: các đợt tính năng/sửa lỗi trước, monitoring và Việt–Anh đi sau cùng.
