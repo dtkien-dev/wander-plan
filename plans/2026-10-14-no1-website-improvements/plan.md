@@ -1,6 +1,15 @@
 # Proposed roadmap
-Current status: Implemented — P23 privacy cleanup and A029 sanitized branch publication completed. Historical notes below describe their original batch only.
-Current executable batch: None — clean handoff published; future undecided features remain backlog.
+Current status: Implemented — A040/A041 synthetic local and browser UAT completed. Released baseline remains complete.
+Current executable batch: A042/E038 — approved UAT documentation publication and unchanged-app Pages redeployment.
+
+## A041 — Browser Excel verification
+P26 follow-up after E036. Coordinator only; ignored local fixtures/browser plus canonical evidence. Acceptance: browser export captured, unchanged import preview skips, edited workbook applied once and multi-day fields retained after reload. No production access or permission expansion. Recovery: stop owned UAT process and revoke synthetic sessions, retain non-secret local evidence.
+
+## A040 — Synthetic local UAT, 18/10/2026
+Customer requests mock UAT and prohibits touching production. P26 follow-up, depends on completed E035 automated gates; coordinator only. Owned scope: canonical tracker; ignored local harness/fixtures/env and runtime in .worktrees/post-release-qa; localhost Supabase synthetic accounts/trip and browser sessions. Verify multi-day save/reload, overlap warning, Excel import/export, toasts/history and Realtime with two synthetic members. No app source, dependency, schema, production or Git publication changes. Recovery: retain clearly named local synthetic fixtures for reproducibility; stop only the app process started for this action, preserve existing stack.
+
+## A039 — Post-release verification, 18/10/2026
+P26 follow-up, depends on released P26; coordinator only, sequential. Output: current automated and public live verification plus explicit hosted-session limitations. Owned scope: execution records and isolated local QA runtime; no production data changes or deployment. Recovery: stop local QA processes; preserve existing user changes.
 Serial priority order; waves are dependencies, not five-hour promises.
 
 | ID | Phase | Depends on | Wave | Model/effort | Ownership |

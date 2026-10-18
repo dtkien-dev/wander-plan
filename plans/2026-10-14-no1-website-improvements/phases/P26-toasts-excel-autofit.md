@@ -15,3 +15,18 @@ Produces: A037.
 
 ## Recovery
 Frontend revert; no database change.
+
+## A041 / E037 — Browser Excel roundtrip
+- [x] In-app browser export/download and actual upload passed; unchanged re-import skipped both rows; edited file applied one update and retained three-day activity/dates/times after reload. Old version blocked with one conflict; console errors 0. No extension permission changes or production access. Evidence E037.
+
+## A039 / E035 — Post-release verification, 18/10/2026
+- [x] Automated regression: 147 app tests/26 suites, 281 SQL assertions/16 suites/22 unchanged migrations, lint, demo build and dependency audit (0 vulnerabilities).
+- [x] Live 0.12.0; authenticated four-route loading, Excel export success toast and bell entry, later toast disappearance; no captured console errors. Draft multi-day form inspected and cancelled, no save.
+- [x] Hosted test-trip request superseded by A040: customer prohibits production access and requests synthetic local UAT. Hosted service behavior remains unverified.
+
+## A040 / E036 — Synthetic local UAT
+- [x] Create isolated local accounts/trip and loopback-only UAT app configuration; no production env/session/data copied.
+- [x] Browser: multi-day create/reload/list and edit warning passed. Excel export action succeeds; app-code workbook roundtrip and edited/legacy import passed. Browser download event capture timed out and file chooser upload is blocked by extension permission; do not claim browser file roundtrip PASS.
+- [x] Two-member Realtime create and import updates without reload; real notification provider with mock success/error triggers, auto-hide/persistence/account isolation passed.
+- [x] Local email captured by Mailpit; full local Supabase SQL 281 assertions passed; 11 focused UI/provider tests passed.
+- [x] Record results and hosted limits; retain local synthetic data/harness, revoke synthetic sessions, remove credential fixtures, close owned browser tabs and stop owned app server. Existing local stack preserved.
