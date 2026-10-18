@@ -40,8 +40,15 @@ describe('ItineraryForm overlap warning', () => {
     fireEvent.change(screen.getByLabelText('Tên địa điểm'), { target: { value: 'Ăn sáng' } })
     fireEvent.change(screen.getByLabelText('Địa chỉ'), { target: { value: 'Chợ Bến Thành' } })
     fireEvent.change(screen.getByLabelText('Google Maps URL'), { target: { value: 'https://maps.app.goo.gl/xyz' } })
+    const cost = screen.getByLabelText('Chi phí dự kiến') as HTMLInputElement
+    for (const value of ['-1', '1.5']) {
+      fireEvent.change(cost, { target: { value } })
+      expect(cost.checkValidity()).toBe(false)
+    }
+    fireEvent.change(cost, { target: { value: '12503' } })
+    expect(cost.checkValidity()).toBe(true)
     fireEvent.click(screen.getByRole('button', { name: 'Thêm địa điểm' }))
-    await waitFor(() => expect(onSubmit).toHaveBeenCalledWith(expect.objectContaining({ title: 'Ăn sáng', startTime: '08:00' }), expect.anything()))
+    await waitFor(() => expect(onSubmit).toHaveBeenCalledWith(expect.objectContaining({ title: 'Ăn sáng', startTime: '08:00', estimatedCostVnd: 12503 }), expect.anything()))
   })
 
   it('saves a multi-day activity that ends earlier in the day than it starts', async () => {

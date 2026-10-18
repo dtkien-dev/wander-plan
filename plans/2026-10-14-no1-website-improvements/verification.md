@@ -1,4 +1,44 @@
 # Verification
+
+## E042 / P27 — Delivery gates, candidate 0.12.1, 18/10/2026
+- PASS: actual-browser UAT on full local Supabase — all-former metadata save/reload with unchanged financial fields; whole-dong expense/exact splits and itinerary save/reload; negative/fractional native validation; no-participant creation blocked.
+- PASS: direct API readback assertions and rejection of frozen-money tampering on synthetic local fixture.
+- PASS: affected dialogs at 320/375px, no horizontal document overflow; console errors zero. Screenshots retained locally under ignored P27 artifacts.
+- PASS: final candidate npm test 149/149 (26 files); npm run lint; npm run build with demo mode and temporary output (includes tsc).
+- PASS: full local Supabase test db, 281 assertions across 16 suites. E041 embedded 281 assertions and dependency audit remain applicable; dependencies unchanged.
+- PASS: two independent ITS reviewer lenses after QA — access/financial invariants and unsafe-input/platform/supply-chain, no actionable findings; coordinator synthesis PASS.
+- PASS: app/tab cleanup, viewport reset, synthetic session revocation and credential fixture removal. Existing stack/data retained.
+- NOT RUN: hosted/production UAT, CI/Pages for candidate (not pushed), deployment smoke. No schema/migration change.
+
+## E041 / P27 — Form fixes and local discovery, 18/10/2026
+- Regression control PASS: three intended failures on pre-fix forms; 17/17 focused tests PASS after fixes.
+- PASS: default npm test — 26 files/149 tests, no worktree exclusion flags.
+- PASS: default npm run lint. Both test/lint ran with invalid TypeScript sentinel files under nested .worktrees and .artifacts; ignored correctly, removed afterward.
+- PASS: npm run build with VITE_DEMO_MODE=true and temporary outDir — TypeScript and Vite; generated dist unchanged. Existing dependency annotation/empty demo Supabase chunk warnings only.
+- PASS: npm run test:db:embedded — 22 unchanged migrations, 281 SQL assertions/16 suites.
+- PASS: npm audit --audit-level=high — zero vulnerabilities; git diff --check.
+- PASS: same-coordinator QA/security and test-value review; no independent reviewer claimed, database and lockfile unchanged.
+- NOT RUN: actual-browser UAT, hosted/full Supabase integration and deployment. No schema change; no production data writes.
+
+## E040 — Repository audit, 18/10/2026
+- PASS: npx vitest run --exclude '**/.worktrees/**' — 26 files, 147 tests.
+- PASS: npx eslint src vite.config.ts; npx eslint . with worktree/artifact ignore patterns; npx tsc -b.
+- PASS: VITE_DEMO_MODE=true Vite build to OS temporary output; generated dist not changed.
+- PASS: npm audit --audit-level=high — zero vulnerabilities.
+- PASS: native DOM validity self-check, min=0/step=1000/value=12500 gives stepMismatch=true, confirming rejected whole-dong input.
+- NOT PASS: unfiltered npm test includes historical nested worktrees and emits invalid-hook-call failures; stopped owned runs and used filtered current-source suite.
+- BLOCKED: npm run test:db:embedded — missing @electric-sql/pglite in local dependencies. Full Supabase/hosted tests and performance profiling NOT RUN.
+- Findings 1/4 are source-traced scenarios; no new component regression or performance benchmark added in this report-only audit.
+
+## E039 — R07 deferral, 18/10/2026
+Documentation only: roadmap row, A043 decision and current index/evidence checkpoint agree that R07 is deferred and R17/R18 are undecided. No application/database tests run; no runtime change. Whitespace validation: git diff --check on the five touched Markdown files.
+## A042 / E038 — Publication and Pages, 18/10/2026
+- [x] Six Markdown files only; privacy/scope/relative-link/whitespace review passed. Local artifacts/credentials and unrelated changes excluded.
+- [x] 66463a1 pushed and exact remote SHA verified; PR #12 merged as 6d019e9 after successful verify (39110831509).
+- [x] Main CI 39110885640 and Pages 39110885665 succeeded; verify/build/deploy all PASS.
+- [x] Public HTTP 200 and app-version 0.12.0 verified after deployment. No runtime/schema/config/dependency/workflow change or production data writes.
+- [x] Final docs-only receipt on docs/post-release-uat; QA worktree retained for ignored test evidence. Hosted/native Excel limits unchanged.
+
 ## A041 / E037 — Browser Excel completed, 18/10/2026
 - [x] Real browser export downloaded; exact file re-uploaded via UI: 2 unchanged rows skipped, 0 errors, no write enabled.
 - [x] Edited downloaded workbook uploaded via UI: 1 update/1 skip/0 errors; applied once.

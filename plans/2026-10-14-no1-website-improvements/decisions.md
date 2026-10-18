@@ -1,4 +1,19 @@
 # Decisions
+## A047 — Go-live 0.12.1, 18/10/2026
+Customer explicitly approves pushing fix/forms-and-local-checks, creating a PR to main, merging after CI passes and verifying Pages for candidate 0.12.1. Scope: reviewed P27 runtime/config/test/version changes and sanitized delivery records. No database migration or production test-data writes.
+
+## A046 — Follow delivery workflow before publishing, 18/10/2026
+Customer requests completing the shared delivery workflow before push/deploy. E042 completes synthetic full-local browser QA, independent ITS, version 0.12.1/release-candidate records and local commits. Current-batch go-live approval remains a separate gate under docs/agent/workflow.md; earlier batch approvals do not apply.
+
+## A045 — Implement focused audit fixes, 18/10/2026
+Customer authorizes E040 items 1–3: metadata edits for all-former expense participants, whole-dong monetary inputs and excluding nested worktrees from local test/lint discovery. Preserve financial locks and validation. R07/R17/R18 remain deferred; workspace refresh optimization excluded. Implementation/local verification and repository-workflow local commits only; production go-live requires separate approval.
+
+## A044 — Defer R17/R18 and review current system, 18/10/2026
+Customer defers R17 and R18 as well as the already deferred R07, and requests a whole-repository review for useful optimization. Review and local verification are authorized; findings do not authorize source fixes or production deployment. No further R15 proposal requested.
+
+## A043 — Defer R07, 18/10/2026
+Customer explicitly defers trip activity history R07. Reopen only on renewed customer need; event scope and retention remain undecided. R17/R18 are being assessed, not approved for implementation. Customer reports successful sign-in and requests no further R15 proposals; hosted email/Realtime are not thereby verified.
+
 ## A038 — Go-live 0.12.0,18/10/2026
 Customer approved: push feat/toasts-excel-autofit, PR to main, merge when CI passes and verify production. Scope limited to 0.12.0.
 

@@ -1,6 +1,6 @@
 # Proposed roadmap
 Current status: Implemented — A040/A041 synthetic local and browser UAT completed. Released baseline remains complete.
-Current executable batch: A042/E038 — approved UAT documentation publication and unchanged-app Pages redeployment.
+Current executable batch: None — P27 / A046 / E042 candidate 0.12.1 passed QA/UAT and independent ITS on fix/forms-and-local-checks; awaiting go-live approval.
 
 ## A041 — Browser Excel verification
 P26 follow-up after E036. Coordinator only; ignored local fixtures/browser plus canonical evidence. Acceptance: browser export captured, unchanged import preview skips, edited workbook applied once and multi-day fields retained after reload. No production access or permission expansion. Recovery: stop owned UAT process and revoke synthetic sessions, retain non-secret local evidence.
