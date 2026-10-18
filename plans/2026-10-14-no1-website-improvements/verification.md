@@ -1,4 +1,29 @@
 # Verification
+## A041 / E037 — Browser Excel completed, 18/10/2026
+- [x] Real browser export downloaded; exact file re-uploaded via UI: 2 unchanged rows skipped, 0 errors, no write enabled.
+- [x] Edited downloaded workbook uploaded via UI: 1 update/1 skip/0 errors; applied once.
+- [x] Reload: title under three days; form preserves 27/11 20:00 to 29/11 08:00 and notes.
+- [x] Stale original file: 1 Version conflict, import disabled; 0 captured console errors.
+- [x] In-app browser required no extension permission change; no production access. Owned tab/server closed, local sessions revoked and credential fixtures removed. Application source unchanged; previous automated gates retained.
+Remaining limits: native Excel appearance, real Google and hosted email/Realtime. E036 browser file upload/download limitation resolved for this path.
+
+## A040 / E036 — Synthetic local UAT, 18/10/2026
+- [x] Two synthetic local accounts, owner trip creation/member invitation acceptance; explicit localhost configuration.
+- [x] Browser multi-day save/reload/three-day rendering and overlap marker/edit warning.
+- [x] Two-account Realtime create and Excel import updates without reload.
+- [x] Real app report builder/workbook readback, unchanged skip, edited import (one update), legacy end-date preservation through local repository/RPC.
+- [x] Browser real notification provider + mock triggers: success hides, error stays until closed, account-isolated history persists after reload; 11 focused tests pass.
+- [x] Full local Supabase SQL: 281 assertions/16 suites; synthetic login email captured in Mailpit.
+- [x] Owned tabs/server stopped; synthetic sessions revoked, credential fixture files removed; pre-existing stack preserved. No production access in this action, source/schema/dependency change or deployment.
+Limits: browser download capture timed out; upload blocked by extension file-URL permission (unchanged). Browser Excel roundtrip, native Excel appearance and hosted Google/email/Realtime not claimed. Prior E035 inconclusive overlap observation resolved only on local UAT.
+
+## A039 / E035 — 18/10/2026 post-release check
+- [x] d877371: npm ci; 147 app tests, lint/demo build; 281 embedded SQL assertions/22 unchanged migrations; audit 0.
+- [x] Authenticated live 0.12.0: all four routes load, Excel export success, toast/history entry; no captured console errors.
+- [x] Draft form opened and cancelled without saving. Multi-day field present; overlap warning after automated date/time fill INCONCLUSIVE (requires reliable reproduction).
+- [x] Hosted test-trip request superseded by A040 local-only UAT; Google/email/Realtime hosted remain unverified and outside this batch.
+Limits: Node 20.17 engine warning; build warnings nonblocking. No fresh full Supabase stack test or Excel application inspection. No app/schema change, push or deploy.
+
 ## P22 / E023 — Former-member money lock + mock UAT, 17/10/2026
 - [x] 107 app tests, lint, build; 270 SQL/15 suites embedded + full stack.
 - [x] Mock UAT: .ics, Excel export/re-import/edited workbook, Google request/hook/simulated callback/error, email via Mailpit, Realtime.
