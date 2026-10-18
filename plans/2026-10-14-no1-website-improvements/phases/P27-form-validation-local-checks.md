@@ -1,6 +1,6 @@
 # P27 — Form validation and local verification
 
-Status: Candidate 0.12.1 — QA/UAT and independent ITS passed; awaiting go-live approval. Authorization: A045/E041 and A046/E042, 18/10/2026. Owner: current coordinator.
+Status: Released 0.12.1 — QA/UAT, independent ITS, go-live A047 and CI/Pages verified, 18/10/2026. Owner: current coordinator.
 Depends on: E040 audit, production baseline origin/main 6d019e9 (0.12.0).
 Branch: fix/forms-and-local-checks. Resolve .worktrees/forms-and-local-checks from the current clone.
 
@@ -16,4 +16,4 @@ Branch: fix/forms-and-local-checks. Resolve .worktrees/forms-and-local-checks fr
 - [x] E042 full-local browser UAT and two independent ITS reviewer lenses passed; hosted not rerun.
 - [x] Local implementation committed on purpose branch; resolve latest commit from Git log. Go-live requires current-batch approval.
 - [x] Candidate 0.12.1 release note and ITO checklist prepared; local credential fixtures removed and sessions revoked.
-- [ ] Customer go-live approval, remote CI/Pages, deployment and production smoke.
+- [x] Customer go-live A047, PR #13/main CI and Pages PASS; production 0.12.1 and authenticated read-only form smoke verified under E043. Production write testing not performed.
