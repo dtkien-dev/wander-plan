@@ -1,4 +1,7 @@
 # Decisions
+## A047 — Go-live 0.12.1, 18/10/2026
+Customer explicitly approves pushing fix/forms-and-local-checks, creating a PR to main, merging after CI passes and verifying Pages for candidate 0.12.1. Scope: reviewed P27 runtime/config/test/version changes and sanitized delivery records. No database migration or production test-data writes.
+
 ## A046 — Follow delivery workflow before publishing, 18/10/2026
 Customer requests completing the shared delivery workflow before push/deploy. E042 completes synthetic full-local browser QA, independent ITS, version 0.12.1/release-candidate records and local commits. Current-batch go-live approval remains a separate gate under docs/agent/workflow.md; earlier batch approvals do not apply.
 

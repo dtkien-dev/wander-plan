@@ -10,7 +10,7 @@ Execute mode: Active
 Resume instruction: Resolve plans/2026-10-14-no1-website-improvements from the current clone root (tracker wp-20261014-01). Read docs/agent/README.md and workflow.md, then this index and every manifest file. Keep this exact repository-relative bundle as the execution source of truth; update it until explicit exit. If the execute skill is installed, it may be used with this resolved path.
 Workspace: Current clone root; never reuse another device's absolute path.
 Repository: origin/main 6d019e9 (app 0.12.0). Fetch before resume; final receipt on docs/post-release-uat.
-Active action: None — E042 / P27 candidate 0.12.1 passed QA/UAT and independent ITS; awaiting go-live approval.
+Active action: E043 / P27 — A047 approves 0.12.1 push, PR, merge after CI and Pages verification.
 
 <!-- workflow-active-snapshot:start version:2 -->
 ## Active Snapshot
@@ -20,7 +20,7 @@ Goal: Deliver verified daily improvements through plan, code, QA, security, go-l
 Current state: Production app 0.12.0; main 6d019e9. P27 candidate 0.12.1 on fix/forms-and-local-checks passed full-local browser QA and independent ITS; local commits only, go-live unapproved.
 Accepted decisions: D01–D06, A010, A019, A020, A023, A024, A026, A029 and A031–A042. A042 explicitly authorizes this documentation batch's push, PR/merge after CI and Pages redeployment. No production data writes.
 Open items: R07/R17/R18 deferred by customer (A043/A044). E040 items 1–3 fixed under A045/P27; workspace refresh optimization remains deferred. Customer reports successful sign-in and requests no further R15 proposals; hosted email/Realtime remain unverified.
-Next safe action: Obtain current-batch go-live approval for candidate 0.12.1; then follow the candidate release note's ITO checklist. No production schema change. Hosted checks remain outside local UAT evidence.
+Next safe action: Execute approved A047/E043 publication and ITO checklist; require CI on exact PR head before merge, then verify Pages/public 0.12.1. No production schema/data change.
 <!-- workflow-active-snapshot:end -->
 
 Shared workflow: [portable workflow](../../docs/agent/workflow.md). The references/*.md above belong to the optional installed execute skill; they are not missing repository files and are not required on a new device. Shared workflow contains the portable execution and evidence rules.

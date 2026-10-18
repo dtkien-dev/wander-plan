@@ -1,5 +1,9 @@
 # Evidence
 
+## A047 / E043 — Go-live 0.12.1, 18/10/2026
+Customer explicitly approves push, PR, merge when CI passes and Pages verification. Owner: coordinator/ITO, P27; verified candidate 541cf73 on fix/forms-and-local-checks, base origin/main 6d019e9. Target github.com/dtkien-dev/wander-plan, base main; GitHub CLI identity and remote verified. Scope: publish reviewed candidate plus approval/release records, create PR, require shared CI PASS, merge only matched head, verify main CI/Pages and public version. No migration/access-config apply needed; no production data writes, secret/fixture publication or branch deletion. Recovery follows release note; preserve primary checkout and other worktrees.
+<!-- workflow-action:E043 status:open -->
+
 ## A046 / E042 — Complete P27 delivery gates before go-live, 18/10/2026
 Customer requests following the shared delivery workflow before push/deployment. Owner: coordinator, P27; branch fix/forms-and-local-checks at 248241b, code cf2b58c, fetched origin/main 6d019e9. Scope: synthetic browser UAT on full existing local Supabase, independent read-only security review, version/release-candidate preparation, local checks/commits and portable records. Local fixture creation/mutations are test-only; existing stack and unrelated data preserved. No production writes, email sending, push/merge or deployment; approval follows concrete QA/ITS results per docs/agent/workflow.md. Reviewers read only; coordinator owns records. Clean up owned app/tab and revoke/remove temporary synthetic credential fixtures; retain synthetic data/receipts for reproducibility. Local artifact paths stay ignored.
 <!-- workflow-action:E042 status:completed -->
