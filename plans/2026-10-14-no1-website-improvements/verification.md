@@ -1,4 +1,11 @@
 # Verification
+## A042 / E038 — Publication and Pages, 18/10/2026
+- [x] Six Markdown files only; privacy/scope/relative-link/whitespace review passed. Local artifacts/credentials and unrelated changes excluded.
+- [x] 66463a1 pushed and exact remote SHA verified; PR #12 merged as 6d019e9 after successful verify (39110831509).
+- [x] Main CI 39110885640 and Pages 39110885665 succeeded; verify/build/deploy all PASS.
+- [x] Public HTTP 200 and app-version 0.12.0 verified after deployment. No runtime/schema/config/dependency/workflow change or production data writes.
+- [x] Final docs-only receipt on docs/post-release-uat; QA worktree retained for ignored test evidence. Hosted/native Excel limits unchanged.
+
 ## A041 / E037 — Browser Excel completed, 18/10/2026
 - [x] Real browser export downloaded; exact file re-uploaded via UI: 2 unchanged rows skipped, 0 errors, no write enabled.
 - [x] Edited downloaded workbook uploaded via UI: 1 update/1 skip/0 errors; applied once.
