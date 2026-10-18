@@ -159,20 +159,40 @@ describe('ExpenseForm', () => {
     expect(onSubmit).not.toHaveBeenCalled()
   })
 
-  it('locks the money of an expense with a former member while title and notes stay editable', async () => {
+  it.each([{ participantUserIds: ['owner', 'gone'] }, { participantUserIds: ['gone'] }])('keeps frozen money while editing metadata with participants $participantUserIds', async ({ participantUserIds }) => {
     const onSubmit = vi.fn().mockResolvedValue(undefined)
     const saved = { id: 'e', tripId: 't', title: 'Ăn tối', category: 'food' as const, expenseDate: '2026-11-27', endDate: null, estimatedAmountVnd: 0,
-      actualAmountVnd: 90000, paidByUserId: 'gone', participantUserIds: ['owner', 'gone'], splitMethod: 'shares' as const,
-      splitValues: { owner: 1, gone: 2 }, notes: '', version: 1 }
+      actualAmountVnd: 90000, paidByUserId: 'gone', participantUserIds, splitMethod: 'shares' as const,
+      splitValues: Object.fromEntries(participantUserIds.map((id) => [id, id === 'gone' ? 2 : 1])), notes: '', version: 1 }
     render(<ExpenseForm expense={saved} tripStart="2026-11-27" tripEnd="2026-11-30" pending={false} people={people} currentUserId="owner"
       formerPeople={[{ userId: 'gone', displayName: 'Chi' }]} onSubmit={onSubmit} onCancel={vi.fn()} />)
     expect(screen.getByRole('note')).toHaveTextContent('Phần tiền đã khóa vì có người đã rời nhóm')
-    expect(screen.getByRole('note')).toHaveTextContent('Trả bởi Chi (đã rời nhóm) · Theo phần: Bạn, Chi (đã rời nhóm)')
+    expect(screen.getByRole('note')).toHaveTextContent('Trả bởi Chi (đã rời nhóm) · Theo phần:')
     for (const label of ['Người thanh toán', 'Dự kiến', 'Thực tế']) expect(screen.queryByLabelText(label)).not.toBeInTheDocument()
     expect(screen.queryByRole('radio')).not.toBeInTheDocument()
     fireEvent.change(screen.getByLabelText('Khoản chi'), { target: { value: 'Ăn tối cả nhóm' } })
+    fireEvent.change(screen.getByLabelText('Ghi chú'), { target: { value: 'Đã đối chiếu hóa đơn' } })
     fireEvent.click(screen.getByRole('button', { name: 'Lưu thay đổi' }))
     await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1))
-    expect(onSubmit.mock.calls[0][0]).toMatchObject({ title: 'Ăn tối cả nhóm', actualAmountVnd: 90000, paidByUserId: 'gone', participantUserIds: ['owner', 'gone'], splitMethod: 'shares', splitValues: { owner: 1, gone: 2 } })
+    expect(onSubmit.mock.calls[0][0]).toMatchObject({ title: 'Ăn tối cả nhóm', notes: 'Đã đối chiếu hóa đơn', estimatedAmountVnd: 0, actualAmountVnd: 90000, paidByUserId: 'gone', participantUserIds, splitMethod: 'shares', splitValues: saved.splitValues })
+  })
+
+  it('accepts whole-dong costs and exact splits while rejecting negative and fractional amounts', async () => {
+    const onSubmit = vi.fn().mockResolvedValue(undefined)
+    render(<ExpenseForm tripStart="2026-11-27" tripEnd="2026-11-30" pending={false} people={people} currentUserId="owner" onSubmit={onSubmit} onCancel={vi.fn()} />)
+    fireEvent.change(screen.getByLabelText('Khoản chi'), { target: { value: 'Vé xe buýt' } })
+    fireEvent.click(screen.getByRole('radio', { name: 'Theo số tiền' }))
+    for (const [label, value] of [['Dự kiến', '12503'], ['Thực tế', '15003'], ['Số tiền của Bạn', '5001'], ['Số tiền của Người bạn đồng hành', '10002']]) {
+      const input = screen.getByLabelText(label) as HTMLInputElement
+      for (const invalid of ['-1', '1.5']) {
+        fireEvent.change(input, { target: { value: invalid } })
+        expect(input.checkValidity()).toBe(false)
+      }
+      fireEvent.change(input, { target: { value } })
+      expect(input.checkValidity()).toBe(true)
+    }
+    fireEvent.click(screen.getByRole('button', { name: 'Thêm chi phí' }))
+    await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1))
+    expect(onSubmit.mock.calls[0][0]).toMatchObject({ estimatedAmountVnd: 12503, actualAmountVnd: 15003, splitMethod: 'amounts', splitValues: { owner: 5001, friend: 10002 } })
   })
 })
