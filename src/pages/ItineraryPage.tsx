@@ -18,6 +18,9 @@ export function ItineraryPage() {
   const mutations = useWorkspaceMutations()
   const [editing, setEditing] = useState<ItineraryItem | null | undefined>()
   const notify = useNotify()
+  const [selected, setSelected] = useState<ItineraryItem[]>([])
+  const [confirming, setConfirming] = useState<ItineraryItem[] | null>(null)
+  const [deleteError, setDeleteError] = useState('')
   const [formError, setFormError] = useState('')
   const [importOpen, setImportOpen] = useState(false)
   const [exporting, setExporting] = useState(false)
@@ -27,6 +30,23 @@ export function ItineraryPage() {
   if (!workspace.data) return <StateView state="empty" title="Chưa có chuyến đang hoạt động" />
   const data = workspace.data
   const { trip, itinerary } = data
+  const isOwner = data.currentRole === 'owner'
+  const selectedItems = selected.filter((item) => item.tripId === trip.id && itinerary.some((current) => current.id === item.id))
+  const bulkPending = mutations.deleteItineraries.isPending
+  const toggleItem = (item: ItineraryItem) => setSelected((current) => current.some((entry) => entry.id === item.id)
+    ? current.filter((entry) => entry.id !== item.id) : [...current, item])
+  const removeSelected = async () => {
+    if (!confirming || !isOwner) return
+    setDeleteError('')
+    try {
+      await mutations.deleteItineraries.mutateAsync({ tripId: trip.id, items: confirming })
+      setSelected([])
+      setConfirming(null)
+      notify.success(`Đã xóa ${confirming.length} mục lịch trình.`)
+    } catch (error) {
+      setDeleteError(error instanceof Error ? error.message : 'Không thể xóa các mục lịch trình.')
+    }
+  }
   // A multi-day activity appears under every day of its range; days continuing an earlier start sort first.
   const groups = [...itinerary.reduce((result, item) => {
     const days = item.endDate ? countNights(item.visitDate, item.endDate) + 1 : 1
@@ -84,6 +104,10 @@ export function ItineraryPage() {
   return (
     <div className={styles.page} data-ai-id="itinerary-page">
       <header className="section-header section-header--page"><div><p className="eyebrow">Từng ngày một</p><h1>Lịch trình chuyến đi</h1><p>Sắp xếp theo giờ để cả nhóm không bỏ lỡ điều hay.</p></div><div className="section-header__actions"><button className="button button--ghost" type="button" onClick={() => setImportOpen(true)}><FileUp size={19} /> Nhập Excel</button><button className="button button--soft" type="button" disabled={exporting} onClick={() => void exportData()}><Download size={19} /> {exporting ? 'Đang xuất…' : 'Xuất Excel'}</button><button className="button button--primary" type="button" onClick={() => { setFormError(''); setEditing(null) }}><Plus size={19} /> Thêm địa điểm</button></div></header>
+      {isOwner && itinerary.length > 0 && <div className={styles.selection}>
+        <label><input type="checkbox" checked={selectedItems.length === itinerary.length} disabled={bulkPending} onChange={(event) => setSelected(event.target.checked ? [...itinerary] : [])} /> Chọn tất cả ({itinerary.length})</label>
+        <button className="button button--soft" type="button" disabled={!selectedItems.length || bulkPending || mutations.deleteItinerary.isPending} onClick={() => { setDeleteError(''); setConfirming([...selectedItems]) }}><Trash2 size={18} /> Xóa mục đã chọn ({selectedItems.length})</button>
+      </div>}
       {itinerary.length === 0 ? <StateView state="empty" actionLabel="Thêm địa điểm đầu tiên" onAction={() => { setFormError(''); setEditing(null) }} /> : (
         <div className={styles.days}>
           {groups.map(([date, items]) => (
@@ -93,7 +117,7 @@ export function ItineraryPage() {
                 {items.map(({ item, day, days }) => (
                   <li className={styles.item} key={`${item.id}-${day}`}>
                     <div className={styles.time}><Clock3 size={18} /><strong>{days === 1 || day === 0 ? item.startTime : day === days - 1 ? `Đến ${item.endTime}` : 'Cả ngày'}</strong><span>{days === 1 ? item.endTime : `Ngày ${day + 1}/${days}`}</span></div>
-                    <article><div className={styles.itemTitle}><h2>{item.title}</h2><strong>{formatCurrency(item.estimatedCostVnd)}</strong></div>{findOverlaps(item, itinerary).length > 0 && <span className={styles.clash}>Trùng giờ</span>}<p><MapPin size={17} /> {item.address}</p>{item.notes && <p className={styles.note}>{item.notes}</p>}<div className={styles.actions}>{item.mapsUrl && <a className="button button--soft" href={item.mapsUrl} target="_blank" rel="noreferrer"><ExternalLink size={17} /> Chỉ đường</a>}<button className="icon-button" type="button" onClick={() => { setFormError(''); setEditing(item) }} aria-label={`Sửa ${item.title}`}><Pencil size={18} /></button><button className="icon-button icon-button--danger" type="button" disabled={mutations.deleteItinerary.isPending} onClick={() => void remove(item)} aria-label={`Xóa ${item.title}`}><Trash2 size={18} /></button></div></article>
+                    <article>{isOwner && <label className={styles.selectItem}><input type="checkbox" checked={selectedItems.some((entry) => entry.id === item.id)} disabled={bulkPending} onChange={() => toggleItem(item)} aria-label={`Chọn ${item.title} ngày ${formatDate(date)}`} /> Chọn mục</label>}<div className={styles.itemTitle}><h2>{item.title}</h2><strong>{formatCurrency(item.estimatedCostVnd)}</strong></div>{findOverlaps(item, itinerary).length > 0 && <span className={styles.clash}>Trùng giờ</span>}<p><MapPin size={17} /> {item.address}</p>{item.notes && <p className={styles.note}>{item.notes}</p>}<div className={styles.actions}>{item.mapsUrl && <a className="button button--soft" href={item.mapsUrl} target="_blank" rel="noreferrer"><ExternalLink size={17} /> Chỉ đường</a>}<button className="icon-button" type="button" onClick={() => { setFormError(''); setEditing(item) }} aria-label={`Sửa ${item.title}`}><Pencil size={18} /></button><button className="icon-button icon-button--danger" type="button" disabled={mutations.deleteItinerary.isPending || bulkPending} onClick={() => void remove(item)} aria-label={`Xóa ${item.title}`}><Trash2 size={18} /></button></div></article>
                   </li>
                 ))}
               </ol>
@@ -104,6 +128,12 @@ export function ItineraryPage() {
       <Modal open={editing !== undefined} title={editing ? 'Chỉnh sửa địa điểm' : 'Thêm địa điểm'} onClose={() => setEditing(undefined)}>
         {formError && <div className="form-error-banner" role="alert">{formError}</div>}
         <ItineraryForm item={editing ?? undefined} tripStart={trip.startDate} tripEnd={trip.endDate} itinerary={itinerary} pending={mutations.itinerary.isPending} onSubmit={save} onCancel={() => setEditing(undefined)} />
+      </Modal>
+      <Modal open={confirming !== null} title="Xóa lịch trình đã chọn?" onClose={() => { if (!bulkPending) setConfirming(null) }}>
+        <p>Bạn sắp xóa {confirming?.length ?? 0} mục lịch trình. Không thể hoàn tác. Chi phí và thành viên được giữ nguyên.</p>
+        <p>Nếu chi phí vẫn nằm ngoài khoảng ngày mới, bạn vẫn chưa thể đổi ngày chuyến đi.</p>
+        {deleteError && <p className="form-error-banner" role="alert">{deleteError}</p>}
+        <div className="form__actions"><button className="button button--ghost" type="button" disabled={bulkPending} onClick={() => setConfirming(null)}>Hủy</button><button className="button button--primary" type="button" disabled={bulkPending} onClick={() => void removeSelected()}>{bulkPending ? 'Đang xóa…' : `Xác nhận xóa ${confirming?.length ?? 0} mục`}</button></div>
       </Modal>
       {importOpen && <Suspense fallback={<StateView state="loading" />}><ExcelImportModal open={importOpen} trip={trip} itinerary={itinerary} expenses={data.expenses} people={data.people} pending={mutations.importTripData.isPending} onClose={() => setImportOpen(false)} onSubmit={importData} /></Suspense>}
     </div>

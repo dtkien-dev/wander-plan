@@ -27,6 +27,7 @@ export interface TravelRepository {
   removeMember(tripId: string, userId: string): Promise<void>
   saveItinerary(draft: ItineraryDraft, tripId: string, existing?: ItineraryItem): Promise<void>
   deleteItinerary(item: ItineraryItem): Promise<void>
+  deleteItineraries(tripId: string, items: ItineraryItem[]): Promise<void>
   saveExpense(draft: ExpenseDraft, tripId: string, existing?: Expense): Promise<void>
   deleteExpense(expense: Expense): Promise<void>
   importTripData(draft: TripImportDraft, tripId: string): Promise<TripImportResult>
@@ -227,6 +228,19 @@ class DemoRepository implements TravelRepository {
         version: 1,
       })
     }
+    this.write(data)
+  }
+
+  async deleteItineraries(tripId: string, items: ItineraryItem[]) {
+    const data = this.read(tripId)
+    if (data.currentRole !== 'owner') throw new Error('Chỉ chủ nhóm được xóa nhiều mục lịch trình.')
+    if (!items.length || new Set(items.map((item) => item.id)).size !== items.length) throw new Error('Chọn các mục lịch trình khác nhau để xóa.')
+    if (items.some((item) => item.tripId !== tripId || !data.itinerary.some((current) => current.id === item.id && current.version === item.version))) {
+      throw new Error('Lịch trình đã thay đổi. Hãy tải lại và chọn lại các mục cần xóa.')
+    }
+    const ids = new Set(items.map((item) => item.id))
+    data.itinerary = data.itinerary.filter((item) => !ids.has(item.id))
+    data.trip.version += 1
     this.write(data)
   }
 
@@ -582,6 +596,15 @@ class SupabaseRepository implements TravelRepository {
       const { error } = await supabase.from('itinerary_items').insert({ ...payload, trip_id: tripId })
       throwIfError(error)
     }
+  }
+
+  async deleteItineraries(tripId: string, items: ItineraryItem[]) {
+    if (!supabase) return
+    const { error } = await supabase.rpc('delete_trip_itinerary_items', {
+      target_trip_id: tripId,
+      selected_items: items.map((item) => ({ id: item.id, version: item.version })),
+    })
+    throwIfError(error)
   }
 
   async deleteItinerary(item: ItineraryItem) {

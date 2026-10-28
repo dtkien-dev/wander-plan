@@ -116,3 +116,14 @@ describe('Supabase repository pagination through the real SDK', () => {
     await expect(travelRepository.listTrips()).rejects.toThrow('chưa tải đủ')
   })
 })
+
+ it('sends selected IDs and versions in one RPC and surfaces database rejection', async () => {
+  const items = [{ id: 'first', version: 3 }, { id: 'second', version: 5 }] as import('../types').ItineraryItem[]
+  transport.fetch.mockResolvedValueOnce(new Response(null, { status: 204 }))
+  await travelRepository.deleteItineraries('trip', items)
+  const [url, init] = transport.fetch.mock.calls.at(-1)!
+  expect(String(url)).toContain('/rpc/delete_trip_itinerary_items')
+  expect(JSON.parse(init.body)).toEqual({ target_trip_id: 'trip', selected_items: [{ id: 'first', version: 3 }, { id: 'second', version: 5 }] })
+  transport.fetch.mockResolvedValueOnce(new Response(JSON.stringify({ message: 'Lịch trình đã thay đổi.', code: '40001' }), { status: 400 }))
+  await expect(travelRepository.deleteItineraries('trip', items)).rejects.toThrow('Lịch trình đã thay đổi.')
+})

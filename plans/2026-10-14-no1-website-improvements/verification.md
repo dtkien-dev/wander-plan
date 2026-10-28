@@ -218,3 +218,7 @@ NOT RUN: fresh full-stack/browser/hosted authenticated QA, hosted migration hist
 - [x] Package 1f8c3df pushed non-force; exact remote branch SHA independently read back.
 - [x] Shared completion checkpoint prepared for the same authorized branch. No runtime/schema/CI changes, main merge or deploy.
 Limits: pattern/manual review is not a proof against arbitrary encodings/steganography; pre-existing remote history was not rewritten or comprehensively audited.
+
+## P28 / E044 — 28/10/2026
+PASS: 155 app tests, 298 embedded SQL assertions, lint, demo build, audit high gate, diff whitespace; desktop demo selection/confirmation/cancel. Same-agent scoped ITS passed. Three existing moderate dependency findings.
+NOT RUN: full Supabase upgrade/services/concurrent sessions/actual Realtime delivery/mobile/hosted UAT and production rollout.

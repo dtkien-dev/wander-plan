@@ -69,3 +69,6 @@ Final approval not requested this turn; incorporate feedback first.
 
 ## A018 — Unified UI release,16/10/2026
 Customer explicitly requests reviewing all website interfaces and releasing together. Preserve green identity and business/data/permission contracts; apply compact Group settings, clearer hierarchy and coordinated responsive changes across all routes. One gated0.7.0 release completed; no per-page deployments or database changes.
+
+## A048 — 28/10/2026
+Implement the proposed owner-only bulk itinerary deletion flow. Select all means the displayed snapshot, not future concurrent inserts. Any stale/missing selected item aborts the whole batch. Expenses/members unchanged; expense dates may still prevent trip date changes. No go-live approval.

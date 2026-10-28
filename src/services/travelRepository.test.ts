@@ -16,6 +16,31 @@ beforeEach(() => {
 })
 
 describe('demo travel repository', () => {
+  it('bulk deletes only selected rows atomically and retains expenses and people', async () => {
+    const before = (await travelRepository.loadWorkspace('demo-trip'))!
+    const items = before.itinerary.slice(0, 2)
+    await expect(travelRepository.deleteItineraries(before.trip.id, [items[0], { ...items[1], version: 999 }])).rejects.toThrow('đã thay đổi')
+    expect((await travelRepository.loadWorkspace(before.trip.id))!.itinerary).toEqual(before.itinerary)
+    await travelRepository.deleteItineraries(before.trip.id, items)
+    const after = (await travelRepository.loadWorkspace(before.trip.id))!
+    expect(after.itinerary).toEqual(before.itinerary.filter((item) => !items.some((entry) => entry.id === item.id)))
+    expect(after.expenses).toEqual(before.expenses)
+    expect(after.people).toEqual(before.people)
+    await travelRepository.deleteItineraries(before.trip.id, after.itinerary)
+    expect((await travelRepository.loadWorkspace(before.trip.id))!.itinerary).toEqual([])
+  })
+
+  it('refuses bulk deletion by editors or with duplicate/cross-trip selections', async () => {
+    const data = (await travelRepository.loadWorkspace('demo-trip'))!
+    const item = data.itinerary[0]
+    await expect(travelRepository.deleteItineraries(data.trip.id, [item, item])).rejects.toThrow()
+    await expect(travelRepository.deleteItineraries(data.trip.id, [{ ...item, tripId: 'other' }])).rejects.toThrow()
+    data.currentRole = 'editor'
+    localStorage.setItem('wander-plan-demo-trips-v2', JSON.stringify([data]))
+    await expect(travelRepository.deleteItineraries(data.trip.id, [item])).rejects.toThrow('Chỉ chủ nhóm')
+    expect((await travelRepository.loadWorkspace(data.trip.id))!.itinerary).toEqual(data.itinerary)
+  })
+
   it('rejects stale expense and itinerary edits and deletes without losing newer data', async () => {
     const before = (await travelRepository.loadWorkspace('demo-trip'))!
     const expense = before.expenses[0]

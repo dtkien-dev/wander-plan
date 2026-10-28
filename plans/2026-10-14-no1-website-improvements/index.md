@@ -2,25 +2,25 @@
 <!-- workflow-record version:4 kind:plan tracker-id:wp-20261014-01 -->
 Tracker ID: wp-20261014-01
 Created: 2026-10-14 Asia/Saigon
-Last updated: 2026-10-18 Asia/Saigon
+Last updated: 2026-10-28 Asia/Saigon
 Status: Implemented
 Plan mode: Exited
 Execution readiness: Ready
 Execute mode: Active
 Resume instruction: Resolve plans/2026-10-14-no1-website-improvements from the current clone root (tracker wp-20261014-01). Read docs/agent/README.md and workflow.md, then this index and every manifest file. Keep this exact repository-relative bundle as the execution source of truth; update it until explicit exit. If the execute skill is installed, it may be used with this resolved path.
 Workspace: Current clone root; never reuse another device's absolute path.
-Repository: origin/main 5ebbe82 (app 0.12.1). Fetch before resume; release records follow up on docs/release-0.12.1.
-Active action: None — E043 / P27 released 0.12.1; CI/Pages/public/authenticated read-only smoke passed.
+Repository: P28 on feat/itinerary-bulk-delete from origin/main 727e0fb (app 0.12.1). Resolve final local commit from Git log.
+Active action: None — A048 / E044 / P28 implemented and verified locally; awaiting full Supabase UAT and current-batch go-live approval.
 
 <!-- workflow-active-snapshot:start version:2 -->
 ## Active Snapshot
 Profile: Durable
 Required references: references/intake.md, references/implementation.md, references/parallel-execution.md, references/completion.md, references/post-merge-cleanup.md
 Goal: Deliver verified daily improvements through plan, code, QA, security, go-live and next-day notes.
-Current state: Production 0.12.1 released via PR #13 at 5ebbe82; PR/main CI and Pages succeeded. Full-local QA/independent ITS and post-deploy authenticated read-only smoke passed. Final records follow up on docs/release-0.12.1.
-Accepted decisions: D01–D06, A010, A019, A020, A023, A024, A026, A029 and A031–A047. A047 explicitly authorizes P27 0.12.1 push, PR, merge after CI and Pages verification; completed under E043. No production data writes.
+Current state: P28 implemented locally on feat/itinerary-bulk-delete from 727e0fb. 155 app tests, 298 embedded SQL assertions, lint/build/audit-high and desktop demo selection/confirmation/cancel passed. Same-agent scoped security review passed; full-stack/concurrent-session/mobile checks pending. No migration applied to shared/production databases; no push/merge/deploy.
+Accepted decisions: D01–D06, A010, A019, A020, A023, A024, A026, A029 and A031–A048. A047 explicitly authorizes P27 0.12.1 push, PR, merge after CI and Pages verification; completed under E043. No production data writes.
 Open items: R07/R17/R18 deferred by customer (A043/A044). E040 items 1–3 fixed under A045/P27; workspace refresh optimization remains deferred. Customer reports successful sign-in and requests no further R15 proposals; hosted email/Realtime remain unverified.
-Next safe action: Select a new batch with the customer if needed; R07/R17/R18 remain deferred and no new feature is approved. Fetch latest main/record checkpoint before edits.
+Next safe action: Full Supabase UAT for P28, then obtain current-batch go-live approval before production migration/publishing. Apply 20261028163323 before frontend. R07/R17/R18 remain deferred.
 <!-- workflow-active-snapshot:end -->
 
 Shared workflow: [portable workflow](../../docs/agent/workflow.md). The references/*.md above belong to the optional installed execute skill; they are not missing repository files and are not required on a new device. Shared workflow contains the portable execution and evidence rules.
@@ -74,4 +74,5 @@ phases/P24-itinerary-overlap-warning.md
 phases/P25-multi-day-itinerary.md
 phases/P26-toasts-excel-autofit.md
 phases/P27-form-validation-local-checks.md
+phases/P28-bulk-delete-itinerary.md
 <!-- workflow-manifest:end -->
