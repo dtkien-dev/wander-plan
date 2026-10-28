@@ -33,9 +33,10 @@ function deferred<T>() {
 
 function Consumer({ name }: { name: string }) {
   const query = useWorkspace()
-  const { identity, tripId, selectTrip, invitations } = useWorkspaceContext()
+  const { identity, tripId, selectTrip, invitations, trips } = useWorkspaceContext()
   const { respondInvitation } = useWorkspaceMutations()
   return <>
+    <output aria-label={`trip-order-${name}`}>{trips.data?.map((item) => item.id).join(",")}</output>
     <output aria-label={`identity-${name}`}>{identity}</output>
     <output aria-label={`trip-${name}`}>{tripId ?? 'none'}</output>
     <output aria-label={`data-${name}`}>{query.data?.trip.id ?? 'empty'}</output>
@@ -83,6 +84,16 @@ beforeEach(() => {
 afterEach(cleanup)
 
 describe('WorkspaceProvider integration', () => {
+  it('keeps the initial trip selected when rescheduled metadata reorders trips', async () => {
+    const { client } = mount()
+    await waitFor(() => expect(screen.getByLabelText('data-first')).toHaveTextContent('trip-a'))
+    await act(async () => { client.setQueryData(['trips', 'alice'], [trip('trip-b'), { ...trip('trip-a'), startDate: '2026-12-01' }, trip('trip-c')]) })
+    await waitFor(() => expect(screen.getByLabelText('trip-order-first')).toHaveTextContent('trip-b,trip-a,trip-c'))
+    expect(screen.getByLabelText('trip-first')).toHaveTextContent('trip-a')
+    expect(localStorage.getItem('wander-plan:active-trip:alice')).toBe('trip-a')
+    expect(activeChannels.size).toBe(1)
+  })
+
   it('refreshes hidden and restored invitations without membership events', async () => {
     const client = new QueryClient({ defaultOptions: { queries: { retry: false, staleTime: 30_000 } } })
     repository.listTrips.mockResolvedValue([])

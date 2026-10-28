@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, type PropsWithChildren } from 'react'
+import { createContext, useCallback, useContext, useEffect, useState, type PropsWithChildren } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '../lib/supabase'
 import { travelRepository } from '../services/travelRepository'
@@ -33,11 +33,16 @@ function useWorkspaceState() {
     enabled: enabled && Boolean(tripId),
   })
 
-  const selectTrip = (id: string) => {
+  const selectTrip = useCallback((id: string) => {
     try { localStorage.setItem(storageKey, id) }
     catch { /* Selection still works for this session if storage is blocked. */ }
     setSelection({ identity, id })
-  }
+  }, [identity, storageKey])
+
+  // Pin the initial/fallback trip before metadata updates can reorder the list.
+  useEffect(() => {
+    if (tripId && tripId !== requestedId) selectTrip(tripId)
+  }, [tripId, requestedId, selectTrip])
 
   useEffect(() => {
     if (!supabase || !session) return
