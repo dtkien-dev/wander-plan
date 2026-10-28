@@ -3,7 +3,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { travelRepository } from '../services/travelRepository'
 import { singleFlight } from '../lib/singleFlight'
 import { archivedTripsKey, invitationsKey, tripsKey, useWorkspaceContext, workspaceKey } from '../providers/WorkspaceProvider'
-import type { ChecklistDraft, ChecklistItem, Expense, ExpenseDraft, ItineraryDraft, ItineraryItem, SettlementPayment, Trip, TripDraft, TripImportDraft } from '../types'
+import type { ChecklistDraft, ChecklistItem, Expense, ExpenseDraft, ItineraryDraft, ItineraryItem, SettlementPayment, Trip, TripDraft, TripImportDraft, WorkspaceData, TrashedItineraryItem } from '../types'
 
 export function useWorkspace() {
   const { workspace, trips } = useWorkspaceContext()
@@ -45,11 +45,26 @@ export function useWorkspaceMutations() {
     mutationFn: ({ draft, tripId: id, existing }: { draft: ItineraryDraft; tripId: string; existing?: ItineraryItem }) => write(`itinerary:${id}:${existing?.id ?? 'new'}`, () => travelRepository.saveItinerary(draft, id, existing)),
     onSuccess: (_, variables, origin) => origin?.refresh(variables.tripId),
   })
-  const deleteItinerary = useMutation({ onMutate: capture, mutationFn: (item: ItineraryItem) => write(`delete-itinerary:${item.id}`, () => travelRepository.deleteItinerary(item)), onSuccess: (_, item, origin) => origin?.refresh(item.tripId) })
+  const deleteItinerary = useMutation({ onMutate: capture, mutationFn: (item: ItineraryItem) => write(`delete-itinerary:${item.id}`, () => travelRepository.deleteItinerary(item)), onSuccess: (_, item, origin) => origin?.refresh(item.tripId, true) })
   const deleteItineraries = useMutation({ onMutate: capture,
     mutationFn: ({ tripId: id, items }: { tripId: string; items: ItineraryItem[] }) => write(`delete-itineraries:${id}`, () => travelRepository.deleteItineraries(id, items)),
     onSuccess: (_, variables, origin) => origin?.refresh(variables.tripId, true),
     onError: (_, variables, origin) => origin?.refresh(variables.tripId, true),
+  })
+  const restoreItinerary = useMutation({ onMutate: capture,
+    mutationFn: (item: TrashedItineraryItem) => write(`restore-itinerary:${item.tripId}:${item.id}`, () => travelRepository.restoreItinerary(item)),
+    onSuccess: (_, item, origin) => origin?.refresh(item.tripId, true),
+    onError: (_, item, origin) => origin?.refresh(item.tripId, true),
+  })
+  const rescheduleTrip = useMutation({ onMutate: capture,
+    mutationFn: ({ source, startDate, shiftExpenses }: { source: WorkspaceData; startDate: string; shiftExpenses: boolean }) => write(`reschedule:${source.trip.id}`, () => travelRepository.rescheduleTrip(source, startDate, shiftExpenses)),
+    onSuccess: (_, variables, origin) => origin?.refresh(variables.source.trip.id, true),
+    onError: (_, variables, origin) => origin?.refresh(variables.source.trip.id, true),
+  })
+  const cloneTrip = useMutation({ onMutate: capture,
+    mutationFn: ({ source, name, startDate, requestId }: { source: WorkspaceData; name: string; startDate: string; requestId: string }) => write(`clone:${requestId}`, () => travelRepository.cloneTrip(source, name, startDate, requestId)),
+    onSuccess: async (id, _, origin) => { if (!origin) return; await origin.refresh(id, true); if (isCurrent(origin.identity)) origin.selectTrip(id) },
+    onError: (_, variables, origin) => origin?.refresh(variables.source.trip.id, true),
   })
   const expense = useMutation({ onMutate: capture,
     mutationFn: ({ draft, tripId: id, existing }: { draft: ExpenseDraft; tripId: string; existing?: Expense }) => write(`expense:${id}:${existing?.id ?? 'new'}`, () => travelRepository.saveExpense(draft, id, existing)),
@@ -105,5 +120,5 @@ export function useWorkspaceMutations() {
     },
     onError: (_, variables, origin) => origin?.refresh(variables.tripId, true),
   })
-  return { deleteItineraries, archiveTrip, checklist, recordPayment, undoPayment, deleteChecklist, displayName, itinerary, deleteItinerary, expense, deleteExpense, importTripData, createTrip, updateTrip, inviteMember, revokeInvitation, removeMember, respondInvitation }
+  return { restoreItinerary, rescheduleTrip, cloneTrip, deleteItineraries, archiveTrip, checklist, recordPayment, undoPayment, deleteChecklist, displayName, itinerary, deleteItinerary, expense, deleteExpense, importTripData, createTrip, updateTrip, inviteMember, revokeInvitation, removeMember, respondInvitation }
 }

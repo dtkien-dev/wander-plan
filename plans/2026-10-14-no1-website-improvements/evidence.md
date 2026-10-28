@@ -198,3 +198,22 @@ workflow-action:A051 status:completed
 Docs PR #17 at reviewed head 0cd47ce passed CI 40731357042 and merged as acc310a0e15a4fd695dd2f54c493312e0c116af5. Final main CI 40731549138 PASS; Pages 40731548893 verify/build/deploy PASS; public HTTP 200/meta 0.13.0 rechecked after final deployment. Application behavior remains the approved PR #16 release. Existing authenticated read-only smoke was performed on app release and is unchanged by docs-only follow-up. No hosted destructive test or production business-data writes.
 Final receipt is committed/pushed only on sharing branch docs/release-0.13.0, without another main deployment. Resolve final receipt SHA from Git log. Release complete, no next feature selected. Primary checkout edits retained.
 Separate non-release automation: Dependabot run 40730842281 failed security_update_not_possible for existing fast-uri (latest resolvable 3.1.8, required non-vulnerable 3.1.9). This was not CI/Pages and did not change dependencies; high-severity audit gate passed. Dependency maintenance remains a separate follow-up, not silently fixed under P28.
+
+## E048 / A052 — intake and phase plan
+workflow-action:A052 status:completed
+Customer authorized the three-feature batch and answered expense-date rule. Source branch feat/trip-reschedule-templates-trash from shared docs checkpoint 3d7403c (app main acc310a); fetched/reconciled remote, primary checkout dirty work retained. Read portable workflow, active record/manifest and relevant itinerary/trip/import/consent/checklist/frozen-money paths. Planned P29/P30/P31 and scopes/acceptance; no go-live approval or production mutation.
+
+## E049 / A053 — P29 implementation
+workflow-action:A053 status:open
+Owner current agent, serial. Scope per P29, plus shared types/repositories/cache and forward migration tests. Use existing single channel and household Modal/toast patterns. Local synthetic verification only, no production writes/publishing.
+
+A053 scope refinement: coupled forward contracts for P29/P30/P31 are implemented and tested together before demo/UI work; shared date/snapshot/locking rules require coordinated integration. No external publication/production effects.
+
+### E049 / A053 implementation checkpoint
+workflow-action:A053 status:completed
+Implemented all three coupled database/demo/cloud/UI contracts. SQL trash snapshots keep active exports/date validation unchanged; application direct DELETE revoked, member single delete now uses trip-locked RPC, owner bulk signature retained; one statement-level trip notification. Restore retains ID/increments version and respects active date constraints. Hourly private purge scheduled when pg_cron is available; no public purge execution. Trip shift validates trip/child preview versions and explicitly optional expense dates without financial edits. Clone uses the existing request-key lock/creation mechanism with provenance to reject mixed retries; copies active activities and reset checklist only, current owner membership only.
+New targeted tests protect date boundaries/money/source immutability, recovery/version/expiry, clone scope/retry, preview stale data/confirmation/cancel and real SDK RPC bodies; distinct UI/demo/transport/database contracts, no test-only production seams. 167 app tests (29 files), lint/demo build, 345 embedded SQL assertions (18 suites), audit-high and diff whitespace PASS. Three existing moderate dependency findings unchanged. Full-local/UAT/ITS still pending; no production writes/push.
+
+## E050 / A054 — integrated local UAT
+workflow-action:A054 status:open
+Owner current agent. Scope: apply only three missing forward migrations once on localhost; synthetic accounts/trips, actual browser owner/member/clone/trash/reschedule/mobile, SDK concurrent write/retry, scheduler expiry proof and credential/session cleanup. Shared local stack retained, no hosted or production mutation. After QA, run scoped ITS independently where skill requires and return defects to QA.

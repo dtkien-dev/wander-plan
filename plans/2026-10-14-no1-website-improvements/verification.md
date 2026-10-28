@@ -243,3 +243,6 @@ PASS: production migration 20261028163323 applied once with canonical history an
 ## P28 / E047 — final docs publication, 29/10/2026
 PASS: docs PR #17 CI 40731357042; merge acc310a; main CI 40731549138; Pages 40731548893 (verify/build/deploy); final public HTTP 200/meta 0.13.0. Docs-only follow-up, unchanged application behavior. No additional production data-write tests.
 Separate Dependabot update run 40730842281 FAILED: existing fast-uri update not possible under current dependency constraints. CI/audit-high/Pages PASS; dependency maintenance deferred outside this release.
+
+## P29/P30/P31 initial automated QA — A053/E049
+PASS: 167 app tests, lint/demo build, 345 embedded SQL assertions, audit-high/diff whitespace. Existing 3 moderate dependency warnings unchanged. Full-local/browser/concurrency/scheduler/ITS pending under A054.

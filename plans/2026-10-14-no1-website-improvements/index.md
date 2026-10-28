@@ -10,17 +10,17 @@ Execute mode: Active
 Resume instruction: Resolve plans/2026-10-14-no1-website-improvements from the current clone root (tracker wp-20261014-01). Read docs/agent/README.md and workflow.md, then this index and every manifest file. Keep this exact repository-relative bundle as the execution source of truth; update it until explicit exit. If the execute skill is installed, it may be used with this resolved path.
 Workspace: Current clone root; never reuse another device's absolute path.
 Repository: deployed main acc310a (app release 58b2906, version 0.13.0); final receipt shared on docs/release-0.13.0. Fetch and resolve latest branch head from Git log.
-Active action: None — P28 / A050–A051 / E046–E047 released and verified 0.13.0; final receipt on docs/release-0.13.0.
+Active action: A054 / E050 — P29/P30/P31 integrated local UAT in_progress; candidate 0.14.0 implemented/automated checks passed. No new-batch go-live approval.
 
 <!-- workflow-active-snapshot:start version:2 -->
 ## Active Snapshot
 Profile: Durable
 Required references: references/intake.md, references/implementation.md, references/parallel-execution.md, references/completion.md, references/post-merge-cleanup.md
 Goal: Deliver verified daily improvements through plan, code, QA, security, go-live and next-day notes.
-Current state: 0.13.0 release complete. App PR #16 at 58b2906, docs PR #17 at acc310a; production migration, PR/main CI and Pages verified. Final main CI 40731549138 and Pages 40731548893 PASS; public HTTP 200/version 0.13.0. Existing authenticated read-only selection UI smoke passed; no hosted destructive test. Final receipt shared on docs/release-0.13.0 without another deploy.
+Current state: P29/P30/P31 implementation batch active on feat/trip-reschedule-templates-trash from 3d7403c (released app main acc310a). Customer authorizes all three features and optional expense-date shifting; P29 first. Production remains 0.13.0; no new go-live approval.
 Accepted decisions: D01–D06, A010, A019, A020, A023, A024, A026, A029 and A031–A051. A047 explicitly authorizes P27 0.12.1 push, PR, merge after CI and Pages verification; completed under E043. No production data writes.
 Open items: R07/R17/R18 deferred by customer (A043/A044). E040 items 1–3 fixed under A045/P27; workspace refresh optimization remains deferred. Customer reports successful sign-in and requests no further R15 proposals; hosted email/Realtime remain unverified.
-Next safe action: None for P28; await customer-selected next batch. Existing dependency maintenance (moderate audit findings; separate Dependabot fast-uri update failure) remains outside P28. Deferred roadmap items unchanged.
+Next safe action: implement P29, P30 and P31 with dependency-ready phase tests; integrated UAT/QA then ITS; request concrete new-batch go-live approval only after verification.
 <!-- workflow-active-snapshot:end -->
 
 Shared workflow: [portable workflow](../../docs/agent/workflow.md). The references/*.md above belong to the optional installed execute skill; they are not missing repository files and are not required on a new device. Shared workflow contains the portable execution and evidence rules.
@@ -78,4 +78,7 @@ phases/P26-toasts-excel-autofit.md
 phases/P27-form-validation-local-checks.md
 phases/P28-bulk-delete-itinerary.md
 security-review-p28-2026-10-28.md
+phases/P29-itinerary-trash.md
+phases/P30-trip-reschedule.md
+phases/P31-trip-template-clone.md
 <!-- workflow-manifest:end -->

@@ -1,7 +1,8 @@
 import { demoWorkspace } from '../data/demoData'
 import { calculateExpenseSettlement, involvesFormerMember, validateSplit } from '../lib/expenseSettlement'
+import { checkDemoPlanSnapshot, planVersions, previewTripPlan } from '../lib/tripPlan'
 import { supabase } from '../lib/supabase'
-import type { ArchivedTrip, ChecklistDraft, ChecklistItem, Expense, FormerPerson, SettlementPayment, SplitMethod, ExpenseDraft, ItineraryDraft, ItineraryItem, Trip, TripDraft, TripImportDraft, TripImportResult, TripPerson, TripInvitation, WorkspaceData } from '../types'
+import type { ArchivedTrip, ChecklistDraft, ChecklistItem, Expense, FormerPerson, SettlementPayment, SplitMethod, ExpenseDraft, ItineraryDraft, ItineraryItem, Trip, TripDraft, TripImportDraft, TripImportResult, TripPerson, TripInvitation, WorkspaceData, TrashedItineraryItem } from '../types'
 
 const STORAGE_KEY = 'wander-plan-demo-workspace-v1'
 const PEOPLE_STORAGE_KEY = 'wander-plan-demo-people-v1'
@@ -26,6 +27,9 @@ export interface TravelRepository {
   inviteMember(tripId: string, email: string): Promise<void>
   removeMember(tripId: string, userId: string): Promise<void>
   saveItinerary(draft: ItineraryDraft, tripId: string, existing?: ItineraryItem): Promise<void>
+  restoreItinerary(item: TrashedItineraryItem): Promise<void>
+  rescheduleTrip(source: WorkspaceData, startDate: string, shiftExpenses: boolean): Promise<void>
+  cloneTrip(source: WorkspaceData, name: string, startDate: string, requestId: string): Promise<string>
   deleteItinerary(item: ItineraryItem): Promise<void>
   deleteItineraries(tripId: string, items: ItineraryItem[]): Promise<void>
   saveExpense(draft: ExpenseDraft, tripId: string, existing?: Expense): Promise<void>
@@ -37,12 +41,17 @@ const activeIds = (data: WorkspaceData) => new Set(data.people.flatMap((person) 
 const delay = () => new Promise((resolve) => window.setTimeout(resolve, 180))
 const cloneDemo = (): WorkspaceData => JSON.parse(JSON.stringify(demoWorkspace)) as WorkspaceData
 
+interface DemoWorkspaceData extends WorkspaceData {
+  cloneSource?: { tripId: string; version: number; startDate: string; name: string }
+}
+
 class DemoRepository implements TravelRepository {
-  private readAll(): WorkspaceData[] {
+  private readAll(): DemoWorkspaceData[] {
     const all = localStorage.getItem('wander-plan-demo-trips-v2')
-    if (all) return (JSON.parse(all) as WorkspaceData[]).map((data) => ({
+    if (all) return (JSON.parse(all) as DemoWorkspaceData[]).map((data) => ({
       ...data,
       checklist: data.checklist ?? [],
+      itineraryTrash: (data.itineraryTrash ?? []).filter((item) => Date.parse(item.expiresAt) > Date.now()),
       settlementPayments: data.settlementPayments ?? [],
       settlementPaymentCount: data.settlementPaymentCount ?? data.settlementPayments?.length ?? 0,
       itinerary: data.itinerary.map((item) => ({ ...item, endDate: item.endDate ?? null })),
@@ -53,6 +62,7 @@ class DemoRepository implements TravelRepository {
     const people = localStorage.getItem(PEOPLE_STORAGE_KEY)
     data.people = people ? JSON.parse(people) as TripPerson[] : data.people ?? [...demoPeople]
     data.trip.maxMembers ??= 4
+    data.itineraryTrash = (data.itineraryTrash ?? []).filter((item) => Date.parse(item.expiresAt) > Date.now())
     data.checklist ??= []
     data.settlementPayments ??= []
     data.settlementPaymentCount ??= 0
@@ -75,7 +85,7 @@ class DemoRepository implements TravelRepository {
     return data
   }
 
-  private write(data: WorkspaceData) {
+  private write(data: DemoWorkspaceData) {
     const all = this.readAll()
     const index = all.findIndex((entry) => entry.trip.id === data.trip.id)
     if (index >= 0) all[index] = data
@@ -103,7 +113,7 @@ class DemoRepository implements TravelRepository {
     await delay()
     const data = this.read(tripId)
     data.memberCount = data.people.filter((person) => person.status === 'active').length
-    return data
+    return { ...data, itineraryTrash: data.currentRole === 'owner' ? data.itineraryTrash : [] }
   }
 
   async createTrip(draft: TripDraft, requestId: string) {
@@ -231,6 +241,66 @@ class DemoRepository implements TravelRepository {
     this.write(data)
   }
 
+  private trashItems(data: DemoWorkspaceData, items: ItineraryItem[]) {
+    const ids = new Set(items.map((item) => item.id))
+    const deletedAt = new Date().toISOString()
+    const expiresAt = new Date(Date.now() + 7 * 86_400_000).toISOString()
+    data.itineraryTrash = [...(data.itineraryTrash ?? []).filter((item) => !ids.has(item.id)), ...items.map((item) => ({ ...item, deletedAt, expiresAt }))]
+    data.itinerary = data.itinerary.filter((item) => !ids.has(item.id))
+    data.trip.version += 1
+    this.write(data)
+  }
+
+  async restoreItinerary(item: TrashedItineraryItem) {
+    const data = this.read(item.tripId)
+    if (data.currentRole !== 'owner') throw new Error('Chỉ chủ nhóm được khôi phục lịch trình.')
+    const current = data.itineraryTrash?.find((entry) => entry.id === item.id && entry.version === item.version)
+    if (!current || Date.parse(current.expiresAt) <= Date.now()) throw new Error('Mục đã thay đổi hoặc hết 7 ngày khôi phục. Hãy tải lại.')
+    if (current.visitDate < data.trip.startDate || (current.endDate ?? current.visitDate) > data.trip.endDate) throw new Error('Ngày lịch trình nằm ngoài thời gian chuyến đi. Điều chỉnh ngày chuyến trước khi khôi phục.')
+    if (data.itinerary.some((entry) => entry.id === current.id)) throw new Error('Mục này đã tồn tại. Hãy tải lại.')
+    data.itinerary.push({ id: current.id, tripId: current.tripId, title: current.title, visitDate: current.visitDate, endDate: current.endDate,
+      startTime: current.startTime, endTime: current.endTime, estimatedCostVnd: current.estimatedCostVnd, address: current.address, mapsUrl: current.mapsUrl, notes: current.notes, version: current.version + 1 })
+    data.itineraryTrash = data.itineraryTrash!.filter((entry) => entry.id !== current.id)
+    data.trip.version += 1
+    this.write(data)
+  }
+
+  async rescheduleTrip(source: WorkspaceData, startDate: string, shiftExpenses: boolean) {
+    const data = this.read(source.trip.id)
+    if (data.currentRole !== 'owner') throw new Error('Chỉ chủ nhóm được dời chuyến đi.')
+    checkDemoPlanSnapshot(data, source, 'expenses')
+    const preview = previewTripPlan(data, startDate, shiftExpenses)
+    if (!preview.offset) throw new Error('Chọn ngày bắt đầu mới.')
+    if (preview.conflictingExpenses.length) throw new Error('Có chi phí nằm ngoài khoảng ngày mới. Chọn dời ngày chi phí hoặc điều chỉnh kế hoạch.')
+    data.trip = { ...preview.trip, version: data.trip.version + 2 }
+    data.itinerary = preview.itinerary.map((item) => ({ ...item, version: item.version + 1 }))
+    data.expenses = preview.expenses.map((item) => shiftExpenses ? { ...item, version: item.version + 1 } : item)
+    this.write(data)
+  }
+
+  async cloneTrip(source: WorkspaceData, name: string, startDate: string, requestId: string) {
+    const data = this.read(source.trip.id)
+    if (data.currentRole !== 'owner') throw new Error('Chỉ chủ nhóm được nhân bản chuyến đi.')
+    const cloneSource = { tripId: source.trip.id, version: source.trip.version, startDate, name: name.trim() }
+    const previous = this.readAll().find((entry) => entry.trip.id === requestId)
+    if (previous) {
+      if (JSON.stringify(previous.cloneSource) !== JSON.stringify(cloneSource)) throw new Error('Mã yêu cầu đã được dùng cho chuyến khác. Đóng cửa sổ và thử lại.')
+      return previous.trip.id
+    }
+    if (name.trim().length < 2 || name.trim().length > 100) throw new Error('Tên chuyến đi cần từ 2 đến 100 ký tự.')
+    checkDemoPlanSnapshot(data, source, 'checklist')
+    const preview = previewTripPlan(data, startDate, false)
+    const owner = data.people.find((person) => person.userId === data.currentUserId && person.status === 'active')
+    if (!owner) throw new Error('Không tìm thấy chủ chuyến đi.')
+    this.write({ trip: { ...preview.trip, id: requestId, name: name.trim(), version: 1 },
+      itinerary: preview.itinerary.map((item) => ({ ...item, id: crypto.randomUUID(), tripId: requestId, version: 1 })),
+      checklist: (data.checklist ?? []).map((item) => ({ ...item, id: crypto.randomUUID(), tripId: requestId, assignedTo: null, completed: false, version: 1 })),
+      expenses: [], settlementPayments: [], settlementPaymentCount: 0, formerPeople: [], itineraryTrash: [],
+      people: [{ ...owner, role: 'owner' }], currentRole: 'owner', currentUserId: data.currentUserId, memberCount: 1, ownDisplayName: data.ownDisplayName, cloneSource,
+    })
+    return requestId
+  }
+
   async deleteItineraries(tripId: string, items: ItineraryItem[]) {
     const data = this.read(tripId)
     if (data.currentRole !== 'owner') throw new Error('Chỉ chủ nhóm được xóa nhiều mục lịch trình.')
@@ -238,18 +308,14 @@ class DemoRepository implements TravelRepository {
     if (items.some((item) => item.tripId !== tripId || !data.itinerary.some((current) => current.id === item.id && current.version === item.version))) {
       throw new Error('Lịch trình đã thay đổi. Hãy tải lại và chọn lại các mục cần xóa.')
     }
-    const ids = new Set(items.map((item) => item.id))
-    data.itinerary = data.itinerary.filter((item) => !ids.has(item.id))
-    data.trip.version += 1
-    this.write(data)
+    this.trashItems(data, items)
   }
 
   async deleteItinerary(item: ItineraryItem) {
     const data = this.read(item.tripId)
     const current = data.itinerary.find((entry) => entry.id === item.id)
     if (!current || current.version !== item.version) throw new Error('Lịch trình đã thay đổi. Hãy tải lại và thử lại.')
-    data.itinerary = data.itinerary.filter((entry) => entry.id !== item.id)
-    this.write(data)
+    this.trashItems(data, [current])
   }
 
   async saveExpense(draft: ExpenseDraft, tripId: string, existing?: Expense) {
@@ -477,7 +543,7 @@ class SupabaseRepository implements TravelRepository {
     throwIfError(authError)
     if (!authData.session) throw new Error('Bạn cần đăng nhập.')
     const currentUserId = authData.session.user.id
-    const [itineraryRows, expenseRows, members, checklistRows, paymentRows, formerRows, profile, people] = await Promise.all([
+    const [itineraryRows, expenseRows, members, checklistRows, paymentRows, formerRows, profile, people, trashRows] = await Promise.all([
       loadAllRows((from, to) => supabase!.from('itinerary_items').select('id,trip_id,title,visit_date,end_date,start_time,end_time,estimated_cost_vnd,address,maps_url,notes,version', { count: 'exact' }).eq('trip_id', trip.id).order('visit_date').order('start_time').order('id').range(from, to)),
       loadAllRows((from, to) => supabase!.from('expenses').select('id,trip_id,title,category,expense_date,end_date,estimated_amount_vnd,actual_amount_vnd,paid_by,notes,version,split_method,expense_participants(user_id,share_units,share_amount_vnd)', { count: 'exact' }).eq('trip_id', trip.id).order('expense_date').order('id').range(from, to)),
       loadAllRows((from, to) => supabase!.from('trip_members').select('user_id,role', { count: 'exact' }).eq('trip_id', trip.id).order('user_id').range(from, to)),
@@ -487,6 +553,7 @@ class SupabaseRepository implements TravelRepository {
       loadAllRows((from, to) => supabase!.rpc('get_trip_former_people', { target_trip_id: trip.id }, { count: 'exact' }).order('user_id').range(from, to)),
       supabase.from('profiles').select('display_name').eq('id', currentUserId).single(),
       this.loadTripPeople(trip.id),
+      loadAllRows((from, to) => supabase!.from('itinerary_trash').select('id,trip_id,snapshot,deleted_at,expires_at', { count: 'exact' }).eq('trip_id', trip.id).order('deleted_at', { ascending: false }).order('id').range(from, to)),
     ])
     const currentMembership = members.find((member) => member.user_id === currentUserId)
     if (!currentMembership) throw new Error('Tài khoản chưa thuộc chuyến đi này.')
@@ -500,6 +567,7 @@ class SupabaseRepository implements TravelRepository {
       formerPeople: formerRows.map((row: any): FormerPerson => ({ userId: row.user_id, displayName: row.display_name })),
       trip,
       itinerary: itineraryRows.map(mapItinerary),
+      itineraryTrash: trashRows.map((row: any) => ({ ...mapItinerary(row.snapshot), deletedAt: row.deleted_at, expiresAt: row.expires_at })),
       expenses: expenseRows.map(mapExpense),
       people,
       memberCount: members.length,
@@ -598,6 +666,27 @@ class SupabaseRepository implements TravelRepository {
     }
   }
 
+  async restoreItinerary(item: TrashedItineraryItem) {
+    if (!supabase) return
+    const { error } = await supabase.rpc('restore_trip_itinerary_item', { target_trip_id: item.tripId, target_item_id: item.id, expected_version: item.version })
+    throwIfError(error)
+  }
+
+  async rescheduleTrip(source: WorkspaceData, startDate: string, shiftExpenses: boolean) {
+    if (!supabase) return
+    const { error } = await supabase.rpc('reschedule_trip', { target_trip_id: source.trip.id, expected_version: source.trip.version, new_start_date: startDate, shift_expenses: shiftExpenses,
+      expected_itinerary: planVersions(source.itinerary), expected_expenses: planVersions(source.expenses) })
+    throwIfError(error)
+  }
+
+  async cloneTrip(source: WorkspaceData, name: string, startDate: string, requestId: string) {
+    if (!supabase) throw new Error('Supabase chưa được cấu hình.')
+    const { data, error } = await supabase.rpc('clone_trip_template', { source_trip_id: source.trip.id, expected_version: source.trip.version, new_trip_name: name.trim(), new_start_date: startDate, request_id: requestId,
+      expected_itinerary: planVersions(source.itinerary), expected_checklist: planVersions(source.checklist ?? []) })
+    throwIfError(error)
+    return data as string
+  }
+
   async deleteItineraries(tripId: string, items: ItineraryItem[]) {
     if (!supabase) return
     const { error } = await supabase.rpc('delete_trip_itinerary_items', {
@@ -609,14 +698,8 @@ class SupabaseRepository implements TravelRepository {
 
   async deleteItinerary(item: ItineraryItem) {
     if (!supabase) return
-    const { data, error } = await supabase
-      .from('itinerary_items')
-      .delete()
-      .eq('id', item.id)
-      .eq('version', item.version)
-      .select('id')
+    const { error } = await supabase.rpc('delete_trip_itinerary_item', { target_trip_id: item.tripId, target_item_id: item.id, expected_version: item.version })
     throwIfError(error)
-    if (!data?.length) throw new Error('Không thể xóa vì lịch trình đã thay đổi. Hãy tải lại.')
   }
 
   async saveExpense(draft: ExpenseDraft, tripId: string, existing?: Expense) {

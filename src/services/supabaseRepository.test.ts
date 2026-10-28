@@ -1,3 +1,4 @@
+import { demoWorkspace } from '../data/demoData'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { travelRepository } from './travelRepository'
 
@@ -126,4 +127,29 @@ describe('Supabase repository pagination through the real SDK', () => {
   expect(JSON.parse(init.body)).toEqual({ target_trip_id: 'trip', selected_items: [{ id: 'first', version: 3 }, { id: 'second', version: 5 }] })
   transport.fetch.mockResolvedValueOnce(new Response(JSON.stringify({ message: 'Lịch trình đã thay đổi.', code: '40001' }), { status: 400 }))
   await expect(travelRepository.deleteItineraries('trip', items)).rejects.toThrow('Lịch trình đã thay đổi.')
+})
+
+it('serializes planning and restore RPCs with version snapshots rather than financial payloads', async () => {
+  const source = structuredClone(demoWorkspace)
+  transport.fetch.mockResolvedValueOnce(new Response(null, { status: 204 }))
+  await travelRepository.rescheduleTrip(source, '2027-01-01', true)
+  let [url, init] = transport.fetch.mock.calls.at(-1)!
+  expect(String(url)).toContain('/rpc/reschedule_trip')
+  let body = JSON.parse(init.body)
+  expect(body).toMatchObject({ target_trip_id: source.trip.id, expected_version: source.trip.version, new_start_date: '2027-01-01', shift_expenses: true })
+  expect(body.expected_expenses).toHaveLength(source.expenses.length)
+  expect(body.expected_expenses[0]).toEqual({ id: expect.any(String), version: expect.any(Number) })
+  transport.fetch.mockResolvedValueOnce(new Response(JSON.stringify('new-copy'), { status: 200 }))
+  expect(await travelRepository.cloneTrip(source, ' Copy ', '2027-01-01', 'request')).toBe('new-copy')
+  ;[url, init] = transport.fetch.mock.calls.at(-1)!
+  expect(String(url)).toContain('/rpc/clone_trip_template')
+  body = JSON.parse(init.body)
+  expect(body).toMatchObject({ source_trip_id: source.trip.id, request_id: 'request', new_trip_name: 'Copy' })
+  expect(body).not.toHaveProperty('expenses')
+  const item = { ...source.itinerary[0], deletedAt: '', expiresAt: '' }
+  transport.fetch.mockResolvedValueOnce(new Response(null, { status: 204 }))
+  await travelRepository.restoreItinerary(item)
+  ;[url, init] = transport.fetch.mock.calls.at(-1)!
+  expect(String(url)).toContain('/rpc/restore_trip_itinerary_item')
+  expect(JSON.parse(init.body)).toEqual({ target_trip_id: item.tripId, target_item_id: item.id, expected_version: item.version })
 })
