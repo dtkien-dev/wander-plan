@@ -75,3 +75,6 @@ Implement the proposed owner-only bulk itinerary deletion flow. Select all means
 
 ## A049 — P28 verification continuation
 Customer requests next steps and adherence to existing delivery workflow. Complete full-local UAT/QA, then scoped ITS and concrete release handoff before requesting current-batch go-live approval. Production remains unapproved.
+
+## A050 — 0.13.0 go-live approval, 28/10/2026
+After the concrete 0.13.0 go-live request (production forward migration, branch/PR/CI, merge, Pages and live verification), customer instructed proceeding with the next step. This authorizes that current batch for existing wander-plan Supabase/GitHub targets. No real itinerary deletion, unrelated features, permission/config changes or paid services authorized.

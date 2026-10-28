@@ -10,7 +10,7 @@ Execute mode: Active
 Resume instruction: Resolve plans/2026-10-14-no1-website-improvements from the current clone root (tracker wp-20261014-01). Read docs/agent/README.md and workflow.md, then this index and every manifest file. Keep this exact repository-relative bundle as the execution source of truth; update it until explicit exit. If the execute skill is installed, it may be used with this resolved path.
 Workspace: Current clone root; never reuse another device's absolute path.
 Repository: P28 on feat/itinerary-bulk-delete from origin/main 727e0fb (app 0.12.1). Resolve final local commit from Git log.
-Active action: None — A049 / E045 / P28 local UAT/QA and scoped ITS complete; candidate 0.13.0 awaiting customer go-live approval. Resolve final local head via Git log.
+Active action: A050 / E046 / P28 0.13.0 go-live approved, ITO rollout in_progress; candidate 087cd8a, current agent.
 
 <!-- workflow-active-snapshot:start version:2 -->
 ## Active Snapshot
