@@ -239,3 +239,7 @@ NOT RUN: full Supabase upgrade/services/concurrent sessions/actual Realtime deli
 
 ## P28 / E046 — production release, 28/10/2026
 PASS: production migration 20261028163323 applied once with canonical history and tested definition/grants. PR #16 CI 40730599697; merge 58b2906; main CI 40730811586; Pages 40730811820 verify/build/deploy. Public HTTP 200/version 0.13.0. Existing authenticated read-only browser: itinerary route, selection controls and initially disabled bulk-delete button present. No production data deletion/smoke writes. Screenshot capture timed out; no screenshot claim. Local console/advisor limitations remain; hosted destructive/concurrency UAT not run.
+
+## P28 / E047 — final docs publication, 29/10/2026
+PASS: docs PR #17 CI 40731357042; merge acc310a; main CI 40731549138; Pages 40731548893 (verify/build/deploy); final public HTTP 200/meta 0.13.0. Docs-only follow-up, unchanged application behavior. No additional production data-write tests.
+Separate Dependabot update run 40730842281 FAILED: existing fast-uri update not possible under current dependency constraints. CI/audit-high/Pages PASS; dependency maintenance deferred outside this release.

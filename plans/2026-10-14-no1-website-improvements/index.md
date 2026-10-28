@@ -2,30 +2,31 @@
 <!-- workflow-record version:4 kind:plan tracker-id:wp-20261014-01 -->
 Tracker ID: wp-20261014-01
 Created: 2026-10-14 Asia/Saigon
-Last updated: 2026-10-28 Asia/Saigon
+Last updated: 2026-10-29 Asia/Saigon
 Status: Implemented
 Plan mode: Exited
 Execution readiness: Ready
 Execute mode: Active
 Resume instruction: Resolve plans/2026-10-14-no1-website-improvements from the current clone root (tracker wp-20261014-01). Read docs/agent/README.md and workflow.md, then this index and every manifest file. Keep this exact repository-relative bundle as the execution source of truth; update it until explicit exit. If the execute skill is installed, it may be used with this resolved path.
 Workspace: Current clone root; never reuse another device's absolute path.
-Repository: app 0.13.0 released on main 58b2906; documentation closeout on docs/release-0.13.0. Fetch and resolve latest branch head from Git log.
-Active action: A051 / E047 docs-only release closeout in_progress; app 0.13.0 already deployed/verified under A050/E046.
+Repository: deployed main acc310a (app release 58b2906, version 0.13.0); final receipt shared on docs/release-0.13.0. Fetch and resolve latest branch head from Git log.
+Active action: None — P28 / A050–A051 / E046–E047 released and verified 0.13.0; final receipt on docs/release-0.13.0.
 
 <!-- workflow-active-snapshot:start version:2 -->
 ## Active Snapshot
 Profile: Durable
 Required references: references/intake.md, references/implementation.md, references/parallel-execution.md, references/completion.md, references/post-merge-cleanup.md
 Goal: Deliver verified daily improvements through plan, code, QA, security, go-live and next-day notes.
-Current state: app 0.13.0 released via PR #16 at 58b2906. Production canonical migration verified; PR/main CI and Pages PASS. HTTP 200/version 0.13.0 and existing authenticated read-only itinerary controls confirmed. No production business-data deletion/test writes. Docs closeout A051/E047 in_progress.
+Current state: 0.13.0 release complete. App PR #16 at 58b2906, docs PR #17 at acc310a; production migration, PR/main CI and Pages verified. Final main CI 40731549138 and Pages 40731548893 PASS; public HTTP 200/version 0.13.0. Existing authenticated read-only selection UI smoke passed; no hosted destructive test. Final receipt shared on docs/release-0.13.0 without another deploy.
 Accepted decisions: D01–D06, A010, A019, A020, A023, A024, A026, A029 and A031–A051. A047 explicitly authorizes P27 0.12.1 push, PR, merge after CI and Pages verification; completed under E043. No production data writes.
 Open items: R07/R17/R18 deferred by customer (A043/A044). E040 items 1–3 fixed under A045/P27; workspace refresh optimization remains deferred. Customer reports successful sign-in and requests no further R15 proposals; hosted email/Realtime remain unverified.
-Next safe action: Publish docs-only 0.13.0 closeout via CI, verify resulting Pages/live, then record final receipt on sharing branch. No new feature authorized; deferred items unchanged.
+Next safe action: None for P28; await customer-selected next batch. Existing dependency maintenance (moderate audit findings; separate Dependabot fast-uri update failure) remains outside P28. Deferred roadmap items unchanged.
 <!-- workflow-active-snapshot:end -->
 
 Shared workflow: [portable workflow](../../docs/agent/workflow.md). The references/*.md above belong to the optional installed execute skill; they are not missing repository files and are not required on a new device. Shared workflow contains the portable execution and evidence rules.
 
 ## Resume Checkpoint
+- E047/A051 (29/10): docs PR #17 merged acc310a after CI 40731357042; main CI 40731549138 and Pages 40731548893 PASS; final public HTTP 200/version 0.13.0. Release complete; final receipt on docs/release-0.13.0, resolve SHA from Git log. No new feature approved.
 - E046/A050/P28 (28/10): 0.13.0 app released at 58b2906 via PR #16; migration/grants/history, CI/Pages/public version and authenticated read-only controls PASS. E047 docs publication in progress. No production business-data test writes.
 - E043/A047/P27 (18/10): released 0.12.1. PR #13 reviewed head 40f316a merged at 5ebbe82; PR CI 39126404155, main CI 39126491308 and Pages 39126491352 PASS. Public HTTP 200/meta version and authenticated browser badge 0.12.1 confirmed; affected dialogs open, step=1, canceled without saving; console errors zero. No production schema/data writes. Final docs-only release records follow up on docs/release-0.12.1 (resolve latest SHA from Git log); primary user changes preserved. Deferred features unchanged.
 - E042/A046/P27 (18/10): candidate 0.12.1, actual-browser full-local UAT PASS (all-former metadata, frozen-money readback, whole-dong/exact-split/itinerary reload, negative/fractional/no-participant guards, 320/375px, zero console errors); 149 app tests/lint/build and full-local 281 SQL PASS. Two independent ITS lenses signed off after QA. Local app/tab stopped, synthetic sessions revoked, credential fixtures removed; existing local stack/data retained. Release note/ITO checklist prepared. All commits local on fix/forms-and-local-checks; resolve latest SHA from branch log. Await current-batch go-live approval; no push/deploy.

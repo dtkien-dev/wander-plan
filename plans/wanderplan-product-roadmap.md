@@ -140,3 +140,5 @@ Customer requested selected/select-all itinerary deletion with owner-only confir
 P28 A049/E045: 0.13.0 candidate has passed full-local QA/UAT and same-agent scoped ITS, including actual concurrency/Realtime and 320/375px UI. Await current-batch go-live approval; not released.
 
 P28 A050/E046: released 0.13.0, production migration verified, PR #16/main CI/Pages and public/authenticated read-only smoke PASS. No new feature selected; deferred items unchanged.
+
+29/10 — P28 documentation closeout complete: docs PR #17 merged acc310a, final main CI/Pages/public 0.13.0 PASS. Final receipt shared on docs/release-0.13.0; no next feature selected. Dependency maintenance remains separate.

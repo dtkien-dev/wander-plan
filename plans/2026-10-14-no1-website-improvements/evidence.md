@@ -192,3 +192,9 @@ Candidate de5feb2 published via PR #16 after history privacy scan. PR CI 4073059
 ## E047 / A051 — release documentation closeout
 workflow-action:A051 status:open
 Current-batch approval covers publishing release outcomes in docs/release-0.13.0 via docs-only PR/CI/main and verifying resulting Pages. Scope only release/tracker/roadmap/handoff; no application/schema/config changes. Initial app release at 58b2906 verified; final receipts follow after docs publication.
+
+### E047 final receipt — 29/10/2026 (Asia/Saigon)
+workflow-action:A051 status:completed
+Docs PR #17 at reviewed head 0cd47ce passed CI 40731357042 and merged as acc310a0e15a4fd695dd2f54c493312e0c116af5. Final main CI 40731549138 PASS; Pages 40731548893 verify/build/deploy PASS; public HTTP 200/meta 0.13.0 rechecked after final deployment. Application behavior remains the approved PR #16 release. Existing authenticated read-only smoke was performed on app release and is unchanged by docs-only follow-up. No hosted destructive test or production business-data writes.
+Final receipt is committed/pushed only on sharing branch docs/release-0.13.0, without another main deployment. Resolve final receipt SHA from Git log. Release complete, no next feature selected. Primary checkout edits retained.
+Separate non-release automation: Dependabot run 40730842281 failed security_update_not_possible for existing fast-uri (latest resolvable 3.1.8, required non-vulnerable 3.1.9). This was not CI/Pages and did not change dependencies; high-severity audit gate passed. Dependency maintenance remains a separate follow-up, not silently fixed under P28.
