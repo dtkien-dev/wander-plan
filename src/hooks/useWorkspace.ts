@@ -46,6 +46,11 @@ export function useWorkspaceMutations() {
     onSuccess: (_, variables, origin) => origin?.refresh(variables.tripId),
   })
   const deleteItinerary = useMutation({ onMutate: capture, mutationFn: (item: ItineraryItem) => write(`delete-itinerary:${item.id}`, () => travelRepository.deleteItinerary(item)), onSuccess: (_, item, origin) => origin?.refresh(item.tripId) })
+  const deleteItineraries = useMutation({ onMutate: capture,
+    mutationFn: ({ tripId: id, items }: { tripId: string; items: ItineraryItem[] }) => write(`delete-itineraries:${id}`, () => travelRepository.deleteItineraries(id, items)),
+    onSuccess: (_, variables, origin) => origin?.refresh(variables.tripId, true),
+    onError: (_, variables, origin) => origin?.refresh(variables.tripId, true),
+  })
   const expense = useMutation({ onMutate: capture,
     mutationFn: ({ draft, tripId: id, existing }: { draft: ExpenseDraft; tripId: string; existing?: Expense }) => write(`expense:${id}:${existing?.id ?? 'new'}`, () => travelRepository.saveExpense(draft, id, existing)),
     onSuccess: (_, variables, origin) => origin?.refresh(variables.tripId),
@@ -100,5 +105,5 @@ export function useWorkspaceMutations() {
     },
     onError: (_, variables, origin) => origin?.refresh(variables.tripId, true),
   })
-  return { archiveTrip, checklist, recordPayment, undoPayment, deleteChecklist, displayName, itinerary, deleteItinerary, expense, deleteExpense, importTripData, createTrip, updateTrip, inviteMember, revokeInvitation, removeMember, respondInvitation }
+  return { deleteItineraries, archiveTrip, checklist, recordPayment, undoPayment, deleteChecklist, displayName, itinerary, deleteItinerary, expense, deleteExpense, importTripData, createTrip, updateTrip, inviteMember, revokeInvitation, removeMember, respondInvitation }
 }

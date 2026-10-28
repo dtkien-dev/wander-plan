@@ -95,3 +95,10 @@ P09 depends onP08, wave9, coordinator only; [phase](phases/P09-migration-history
 
 ## A029 — Privacy-safe handoff publication
 User authorized sanitizing the shared records and pushing a fresh branch. E025 extends P23: preserve private history locally, publish only minimized docs on docs/portable-workflow from current main; no original candidate ancestors, force push, main merge or deploy. Verify outgoing snapshots, relative links, secrets/privacy and remote exact SHA.
+
+## A048 — P28 selected itinerary deletion
+Customer authorizes implementation, owner-only, select all, irreversible confirmation and atomic version checks. See phases/P28-bulk-delete-itinerary.md. Production rollout requires fresh approval.
+
+A048 result: P28 implemented and locally verified; see E044/verification. Full-stack UAT and production go-live approval pending.
+
+A049/E045 result: full-local QA/UAT then scoped ITS complete; metadata 0.13.0 candidate. See verification and scoped report. Next gate: customer go-live approval before production migration/push/merge.

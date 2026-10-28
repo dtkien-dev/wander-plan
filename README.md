@@ -261,3 +261,7 @@ To update a pin:
 4. Parse both YAML files, inspect the scoped diff and verify that each SHA belongs to the official action repository. Run the existing CI and Pages workflows and confirm every job succeeds before marking the update complete. Retain the previously verified SHA for rollback.
 
 See [GitHub's secure-use guidance](https://docs.github.com/en/actions/reference/security/secure-use#using-third-party-actions). Pinning these workflow references does not lock every transitive build dependency. This maintenance change needs no database migration or application-version increment.
+
+### Selected itinerary deletion rollout
+
+Apply the new `bulk_delete_itinerary` forward migration before deploying its frontend. Only an active trip owner can delete a selected snapshot of itinerary IDs/versions; any missing or changed row rolls back the complete batch. Select all covers currently displayed activities, including each multi-day activity once; concurrent new activities are retained. The RPC updates the trip version to notify existing Realtime subscribers. Expenses and membership are unchanged, so expense dates can still prevent changing trip dates. Deletion is permanent; export Excel before confirming if a copy is needed. A frontend rollback may retain the additive RPC; do not replay historical migrations.

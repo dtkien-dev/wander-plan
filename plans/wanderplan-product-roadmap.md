@@ -132,3 +132,8 @@ Kiểm tra file Excel xuất ra theo yêu cầu khách hàng: sửa lỗi màu c
 
 ## P26 — Thông báo trôi + lịch sử trên thiết bị, Excel tự giãn (0.12.0), hoàn tất 18/10
 Khách hàng chốt A037: thông báo trôi tự tắt sau 3 giây (lỗi giữ đến khi đóng), lịch sử 50 thông báo của chính mình lưu trên trình duyệt theo tài khoản, xem/xoá qua chuông; Excel tự tính độ rộng cột và chiều cao dòng. Không đổi database. Go-live A038: PR #10 merge `cb2d549`, CI/Pages đạt, production 0.12.0 xác nhận. [Release note 0.12.0](../docs/releases/2026-10-18-0.12.0.md).
+
+## 28/10/2026 — P28
+Customer requested selected/select-all itinerary deletion with owner-only confirmation. Implemented locally under A048/E044; automated QA and same-agent ITS passed. Full-stack UAT and current-batch go-live approval pending. Existing deferred items unchanged.
+
+P28 A049/E045: 0.13.0 candidate has passed full-local QA/UAT and same-agent scoped ITS, including actual concurrency/Realtime and 320/375px UI. Await current-batch go-live approval; not released.

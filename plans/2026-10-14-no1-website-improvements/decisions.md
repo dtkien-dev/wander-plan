@@ -69,3 +69,12 @@ Final approval not requested this turn; incorporate feedback first.
 
 ## A018 — Unified UI release,16/10/2026
 Customer explicitly requests reviewing all website interfaces and releasing together. Preserve green identity and business/data/permission contracts; apply compact Group settings, clearer hierarchy and coordinated responsive changes across all routes. One gated0.7.0 release completed; no per-page deployments or database changes.
+
+## A048 — 28/10/2026
+Implement the proposed owner-only bulk itinerary deletion flow. Select all means the displayed snapshot, not future concurrent inserts. Any stale/missing selected item aborts the whole batch. Expenses/members unchanged; expense dates may still prevent trip date changes. No go-live approval.
+
+## A049 — P28 verification continuation
+Customer requests next steps and adherence to existing delivery workflow. Complete full-local UAT/QA, then scoped ITS and concrete release handoff before requesting current-batch go-live approval. Production remains unapproved.
+
+## A050 — 0.13.0 go-live approval, 28/10/2026
+After the concrete 0.13.0 go-live request (production forward migration, branch/PR/CI, merge, Pages and live verification), customer instructed proceeding with the next step. This authorizes that current batch for existing wander-plan Supabase/GitHub targets. No real itinerary deletion, unrelated features, permission/config changes or paid services authorized.
