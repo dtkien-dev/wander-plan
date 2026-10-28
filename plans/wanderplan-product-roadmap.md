@@ -1,6 +1,6 @@
 # WanderPlan — bảng kế hoạch sản phẩm tổng hợp
 
-Chủ sở hữu: PO. Cập nhật: 18/10/2026 sau phát hành 0.12.1 (Asia/Saigon). Tracker thực thi: `wp-20261014-01` (bundle `2026-10-14-no1-website-improvements`).
+Chủ sở hữu: PO. Cập nhật: 28/10/2026 sau phát hành 0.13.0 (Asia/Saigon). Tracker thực thi: `wp-20261014-01` (bundle `2026-10-14-no1-website-improvements`).
 File này là bảng kế hoạch chung cho IT, QA, ITS, BA, ITO. Lịch theo ngày chi tiết: [daily-schedule-2026-10-15.md](daily-schedule-2026-10-15.md).
 
 ## Quy trình mỗi đợt
@@ -43,6 +43,7 @@ UAT hiện tại: Supabase stack đầy đủ chạy local (Auth, Realtime, Post
 | 0.11.1 | 18/10 | Excel dễ đọc: chữ tiêu đề trắng (sửa lỗi màu), “Đến ngày” cạnh “Ngày”, đường lưới, xuống dòng Địa chỉ/Ghi chú. |
 | 0.12.0 | 18/10 | Thông báo trôi tự tắt 3 giây (lỗi giữ đến khi đóng), lịch sử 50 thông báo trên thiết bị theo tài khoản qua chuông; Excel tự giãn cột/dòng. |
 | 0.12.1 | 18/10 | Sửa metadata khoản chi chỉ còn người tham gia đã rời, nhập tiền nguyên đồng; test/lint loại worktree và artifact. |
+| 0.13.0 | 28/10 | Chủ chuyến đi chọn/xóa nhiều hoặc toàn bộ lịch trình, xác nhận, kiểm tra phiên bản và giao dịch nguyên tử; giữ chi phí/thành viên, Realtime. |
 
 
 ## Bảng kế hoạch
@@ -137,3 +138,5 @@ Khách hàng chốt A037: thông báo trôi tự tắt sau 3 giây (lỗi giữ 
 Customer requested selected/select-all itinerary deletion with owner-only confirmation. Implemented locally under A048/E044; automated QA and same-agent ITS passed. Full-stack UAT and current-batch go-live approval pending. Existing deferred items unchanged.
 
 P28 A049/E045: 0.13.0 candidate has passed full-local QA/UAT and same-agent scoped ITS, including actual concurrency/Realtime and 320/375px UI. Await current-batch go-live approval; not released.
+
+P28 A050/E046: released 0.13.0, production migration verified, PR #16/main CI/Pages and public/authenticated read-only smoke PASS. No new feature selected; deferred items unchanged.

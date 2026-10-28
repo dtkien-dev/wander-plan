@@ -236,3 +236,6 @@ NOT RUN: full Supabase upgrade/services/concurrent sessions/actual Realtime deli
 | Scoped ITS | PASS, same-agent review; see scoped report |
 | Browser console / automated local advisor | NOT VERIFIED: collection timeout / no parseable CLI output |
 | Hosted production, CI/Pages release and smoke | NOT RUN: pending current-batch go-live approval |
+
+## P28 / E046 — production release, 28/10/2026
+PASS: production migration 20261028163323 applied once with canonical history and tested definition/grants. PR #16 CI 40730599697; merge 58b2906; main CI 40730811586; Pages 40730811820 verify/build/deploy. Public HTTP 200/version 0.13.0. Existing authenticated read-only browser: itinerary route, selection controls and initially disabled bulk-delete button present. No production data deletion/smoke writes. Screenshot capture timed out; no screenshot claim. Local console/advisor limitations remain; hosted destructive/concurrency UAT not run.
