@@ -183,3 +183,12 @@ workflow-action:A050 status:open
 Owner: current agent, serial. Customer go-live approval follows completed A049/E045 QA/ITS and release handoff. Candidate 087cd8a on feat/itinerary-bulk-delete; origin/main 727e0fb reconciled; primary checkout edits preserved. Scope: versioned production forward migration 20261028163323 only, branch push/PR/CI/merge/Pages, read-only public/authenticated smoke, release/tracker notes. No real trip deletions or data-test writes. Project active/healthy and prior migration chain confirmed; dry run lists exactly one missing migration. Capture schema-only recovery snapshot before additive DDL; leave additive RPC on frontend rollback. No historical replay/reset.
 
 E046 production DB checkpoint: intended project healthy; inspected required schema/owner helper and missing RPC. CLI dry run listed exactly 20261028163323. Saved schema-only public/private recovery snapshot in ignored local artifacts, then applied the canonical forward migration once through official CLI. No business-row DML executed. Function grants/history verification follows before frontend.
+
+### E046 release result — 0.13.0
+workflow-action:A050 status:completed
+Production forward migration applied exactly once; canonical history present, authenticated EXECUTE true / anon false, fixed search_path and definition hash matches tested local RPC. Schema-only recovery snapshot retained ignored, not a data backup; additive migration executes no business-row DML. CLI used to preserve canonical migration version.
+Candidate de5feb2 published via PR #16 after history privacy scan. PR CI 40730599697 PASS; merge 58b29061e1f2af92e6bdd25a6f4c0eb3cd88441e. Main CI 40730811586 PASS. Pages 40730811820 verify/build/deploy PASS. Public HTTP 200/meta 0.13.0. Existing authenticated browser session: version 0.13.0, itinerary page and select-all/bulk controls visible, bulk delete disabled with no selection. Navigation only; no production trip/expense/membership deletions or test writes. Screenshot capture timed out; DOM checks are evidence, no screenshot PASS claimed. Hosted destructive/concurrency testing remains unperformed; local UAT provides those checks.
+
+## E047 / A051 — release documentation closeout
+workflow-action:A051 status:open
+Current-batch approval covers publishing release outcomes in docs/release-0.13.0 via docs-only PR/CI/main and verifying resulting Pages. Scope only release/tracker/roadmap/handoff; no application/schema/config changes. Initial app release at 58b2906 verified; final receipts follow after docs publication.

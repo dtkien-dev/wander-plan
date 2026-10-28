@@ -1,5 +1,7 @@
 # Điểm bàn giao
 
+Current checkpoint (28/10/2026): 0.13.0 released at main 58b2906 via PR #16; production migration 20261028163323 and PR/main CI/Pages/public version/authenticated read-only itinerary controls verified. Docs closeout continues on `docs/release-0.13.0` under A051/E047; fetch/latest Git log before resuming. No real-data deletion tests or new backlog approvals. Primary checkout pre-existing edits preserved.
+
 Đọc trạng thái thực thi mới nhất ở [index của tracker wp-20261014-01](../../plans/2026-10-14-no1-website-improvements/index.md). Đây là cùng hồ sơ đã dùng từ đầu; thư mục docs/agent chỉ hướng dẫn truy cập, không thay tracker.
 
 - [Roadmap và quyết định còn mở](../../plans/wanderplan-product-roadmap.md)

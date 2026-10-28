@@ -102,3 +102,5 @@ Customer authorizes implementation, owner-only, select all, irreversible confirm
 A048 result: P28 implemented and locally verified; see E044/verification. Full-stack UAT and production go-live approval pending.
 
 A049/E045 result: full-local QA/UAT then scoped ITS complete; metadata 0.13.0 candidate. See verification and scoped report. Next gate: customer go-live approval before production migration/push/merge.
+
+A050/E046: 0.13.0 deployed and verified after go-live approval; A051/E047 publishes release notes and handoff. No new feature selected.

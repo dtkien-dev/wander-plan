@@ -78,3 +78,6 @@ Customer requests next steps and adherence to existing delivery workflow. Comple
 
 ## A050 — 0.13.0 go-live approval, 28/10/2026
 After the concrete 0.13.0 go-live request (production forward migration, branch/PR/CI, merge, Pages and live verification), customer instructed proceeding with the next step. This authorizes that current batch for existing wander-plan Supabase/GitHub targets. No real itinerary deletion, unrelated features, permission/config changes or paid services authorized.
+
+## A051 — release closeout
+Publish verified 0.13.0 release outcomes and checkpoint under the current approved batch; no new feature approval or hosted destructive-test authorization.
