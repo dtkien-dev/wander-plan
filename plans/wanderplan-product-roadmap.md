@@ -135,3 +135,5 @@ Khách hàng chốt A037: thông báo trôi tự tắt sau 3 giây (lỗi giữ 
 
 ## 28/10/2026 — P28
 Customer requested selected/select-all itinerary deletion with owner-only confirmation. Implemented locally under A048/E044; automated QA and same-agent ITS passed. Full-stack UAT and current-batch go-live approval pending. Existing deferred items unchanged.
+
+P28 A049/E045: 0.13.0 candidate has passed full-local QA/UAT and same-agent scoped ITS, including actual concurrency/Realtime and 320/375px UI. Await current-batch go-live approval; not released.

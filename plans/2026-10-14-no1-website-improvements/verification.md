@@ -222,3 +222,17 @@ Limits: pattern/manual review is not a proof against arbitrary encodings/stegano
 ## P28 / E044 — 28/10/2026
 PASS: 155 app tests, 298 embedded SQL assertions, lint, demo build, audit high gate, diff whitespace; desktop demo selection/confirmation/cancel. Same-agent scoped ITS passed. Three existing moderate dependency findings.
 NOT RUN: full Supabase upgrade/services/concurrent sessions/actual Realtime delivery/mobile/hosted UAT and production rollout.
+
+## P28 / E045 — full-local UAT and ITS, 28/10/2026
+| Check | Result |
+| --- | --- |
+| Local forward migration rehearsal / full Supabase pgTAP | PASS: only missing migration applied once; 298 assertions |
+| Concurrent edited selected row / duplicate deletes | PASS: no partial deletion; one duplicate succeeds |
+| Actual SDK and two-browser member Realtime | PASS: trip event delivered, member list refreshed without reload |
+| Select subset / multi-day / stale confirmation / select all / reload | PASS |
+| Expense, participants and membership preservation / trip date protection | PASS |
+| Actual 320px / 375px viewport, list and confirmation | PASS, no horizontal overflow |
+| Final 0.13.0 app tests / lint / demo build / audit-high | PASS: 155 tests; 3 existing moderate audit findings |
+| Scoped ITS | PASS, same-agent review; see scoped report |
+| Browser console / automated local advisor | NOT VERIFIED: collection timeout / no parseable CLI output |
+| Hosted production, CI/Pages release and smoke | NOT RUN: pending current-batch go-live approval |

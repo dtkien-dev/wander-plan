@@ -72,3 +72,6 @@ Customer explicitly requests reviewing all website interfaces and releasing toge
 
 ## A048 — 28/10/2026
 Implement the proposed owner-only bulk itinerary deletion flow. Select all means the displayed snapshot, not future concurrent inserts. Any stale/missing selected item aborts the whole batch. Expenses/members unchanged; expense dates may still prevent trip date changes. No go-live approval.
+
+## A049 — P28 verification continuation
+Customer requests next steps and adherence to existing delivery workflow. Complete full-local UAT/QA, then scoped ITS and concrete release handoff before requesting current-batch go-live approval. Production remains unapproved.
