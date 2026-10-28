@@ -10,7 +10,7 @@ Execute mode: Active
 Resume instruction: Resolve plans/2026-10-14-no1-website-improvements from the current clone root (tracker wp-20261014-01). Read docs/agent/README.md and workflow.md, then this index and every manifest file. Keep this exact repository-relative bundle as the execution source of truth; update it until explicit exit. If the execute skill is installed, it may be used with this resolved path.
 Workspace: Current clone root; never reuse another device's absolute path.
 Repository: deployed main acc310a (app release 58b2906, version 0.13.0); final receipt shared on docs/release-0.13.0. Fetch and resolve latest branch head from Git log.
-Active action: A054 / E050 — P29/P30/P31 integrated local UAT in_progress; candidate 0.14.0 implemented/automated checks passed. No new-batch go-live approval.
+Active action: A055 / E051 — P29/P30/P31 independent scoped ITS in_progress after QA; candidate 0.14.0. No go-live approval.
 
 <!-- workflow-active-snapshot:start version:2 -->
 ## Active Snapshot
