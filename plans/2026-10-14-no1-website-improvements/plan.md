@@ -1,6 +1,6 @@
 # Proposed roadmap
 Current status: Implemented — A040/A041 synthetic local and browser UAT completed. Released baseline remains complete.
-Current executable batch: [P33](phases/P33-site-admin-trip-co-owners.md) released0.15.0 under A062/E058, app PR22/7b647fa. Production migrations/admin contracts/CI/Pages/public/authenticated read-only UI verified. Docs-only closeout follows; deferred product features unchanged.
+Current executable batch: None — [P33](phases/P33-site-admin-trip-co-owners.md) released0.15.0 under A062/E058, app PR22/7b647fa, docs PR23/7e8dc7e. Production migrations/admin contracts/CI/Pages/public/authenticated read-only UI verified; final receipt on docs/release-0.15.0. Deferred product features unchanged.
 
 ## A041 — Browser Excel verification
 P26 follow-up after E036. Coordinator only; ignored local fixtures/browser plus canonical evidence. Acceptance: browser export captured, unchanged import preview skips, edited workbook applied once and multi-day fields retained after reload. No production access or permission expansion. Recovery: stop owned UAT process and revoke synthetic sessions, retain non-secret local evidence.

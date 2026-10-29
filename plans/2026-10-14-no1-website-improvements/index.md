@@ -3,14 +3,14 @@
 Tracker ID: wp-20261014-01
 Created: 2026-10-14 Asia/Saigon
 Last updated: 2026-10-29 Asia/Saigon
-Status: Released0.15.0; production contracts/admin/UI verified, docs closeout follows
+Status: Released0.15.0; final docs/main CI/Pages/public verified, delivery complete
 Plan mode: Exited
 Execution readiness: Ready
 Execute mode: Active
 Resume instruction: Resolve plans/2026-10-14-no1-website-improvements from the current clone root (tracker wp-20261014-01). Read docs/agent/README.md and workflow.md, then this index and every manifest file. Keep this exact repository-relative bundle as the execution source of truth; update it until explicit exit. If the execute skill is installed, it may be used with this resolved path.
 Workspace: Current clone root; never reuse another device's absolute path.
-Repository: deployed app main7b647fa (PR22,0.15.0). Docs closeout on docs/release-0.15.0; resolve final receipt via Git log.
-Active action: None — A062/E058 released/verified; docs closeout publication and final CI/Pages verification follows.
+Repository: final deployed main7e8dc7e (docs PR23), app7b647fa (PR22,0.15.0). Final receipt shared on docs/release-0.15.0; resolve SHA via Git log.
+Active action: None — A062/E058 and docs closeout complete; no new scope selected.
 
 <!-- workflow-active-snapshot:start version:2 -->
 ## Active Snapshot
@@ -20,12 +20,13 @@ Goal: Deliver verified daily improvements through plan, code, QA, security, go-l
 Current state: P33 released0.15.0 under A062/E058; both production migrations, approved verified-account admin grant, CI/Pages/public and authenticated read-only UI PASS. Docs-only closeout follows.
 Accepted decisions: prior product/financial/consent decisions retained. A061 adds website admin access across all trips, owner promotion of accepted members and creator-only co-owner demotion. Initial admin supplied privately; no new-batch production approval.
 Open items: R07/R17/R18 deferred by customer (A043/A044). E040 items 1–3 fixed under A045/P27; workspace refresh optimization remains deferred. Customer reports successful sign-in and requests no further R15 proposals; hosted email/Realtime remain unverified.
-Next safe action: publish docs/release-0.15.0 outcomes through CI-gated PR, verify final Pages/public and share final receipt. No new feature selected; preserve primary checkout changes.
+Next safe action: await new customer scope; fetch/read final receipt before resuming. No further rollout needed. Preserve primary checkout changes.
 <!-- workflow-active-snapshot:end -->
 
 Shared workflow: [portable workflow](../../docs/agent/workflow.md). The references/*.md above belong to the optional installed execute skill; they are not missing repository files and are not required on a new device. Shared workflow contains the portable execution and evidence rules.
 
 ## Resume Checkpoint
+- Final0.15.0 receipt29/10: docs PR23 merged7e8dc7e after PR CI40875837375; final main CI40876025804 and Pages40876025875 PASS for that SHA. Public HTTP200/meta0.15.0 and unchanged app entry verified. App PR22/7b647fa/admin provisioning remain verified. No business-data test writes. Final receipt branch docs/release-0.15.0; resolve SHA via Git log, no new scope.
 - E058/A062/P33 (29/10):0.15.0 app PR22/7b647fa; PR CI40874958708/main CI40875101095/Pages40875101197 PASS. Two production forward migrations once after private backup, strict verified-account registry bootstrap and grants/RLS checks PASS. Public HTTP200/meta0.15.0; actual Google sign-in/admin indicator/Group/promotion dialog open+cancel, zero app console errors. No business-data test writes or email. Docs closeout docs/release-0.15.0 follows; resolve latest receipt via Git log.
 - E057/A061/P33 (29/10): candidate0.15.0 on feat/site-admin-trip-co-owners;175 app tests,389 embedded/full-local SQL, lint/build/audit/advisor and actual two-browser Realtime/mobile/concurrent-role/cache-revocation QA PASS. Independent ITS remediations rechecked; no remaining scoped finding. No production grant/DB/data/push/merge/deploy. Two forward migrations and private bootstrap require new go-live approval. Resolve local commit via Git log; initial admin identity remains outside Git.
 - E056/A060/P32 (29/10): customer go-live approved; PR20/fa59861 deployed, PR CI40866629066/main CI40866751685/Pages40866751533 PASS. Public HTML/entry script HTTP200, meta0.14.0; real browser login smoke PASS. No new console errors after reload; pre-deployment stale token noted. Authenticated/hosted write tests not performed, no DB changes or login emails. Docs closeout on docs/release-workspace-refactor follows; resolve latest final receipt via Git log.
