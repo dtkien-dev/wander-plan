@@ -1,7 +1,7 @@
 # P34 — Thùng rác khoản chi 7 ngày
 
 Date: 29/10/2026 Asia/Saigon. Owner: current agent. Baseline: fetched origin/main 7e8dc7e (0.15.0); branch feat/ui-upgrade, worktree .worktrees/ui-upgrade. Candidate 0.16.0.
-Status: BA rules settled (A063); IT in progress.
+Status: candidate 0.16.0 implemented and verified locally (E059); awaiting go-live approval.
 
 ## Scope / PO and BA (A063)
 - Deleting an expense moves a server-owned snapshot to trash for 7 days; hourly cleanup removes expired rows (reuse the P29 scheduler pattern).

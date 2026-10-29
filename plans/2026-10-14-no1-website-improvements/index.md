@@ -10,7 +10,7 @@ Execute mode: Active
 Resume instruction: Resolve plans/2026-10-14-no1-website-improvements from the current clone root (tracker wp-20261014-01). Read docs/agent/README.md and workflow.md, then this index and every manifest file. Keep this exact repository-relative bundle as the execution source of truth; update it until explicit exit. If the execute skill is installed, it may be used with this resolved path.
 Workspace: Current clone root; never reuse another device's absolute path.
 Repository: deployed app main7b647fa (PR22,0.15.0). Docs closeout on docs/release-0.15.0; resolve final receipt via Git log.
-Active action: A063/E059 open — P34 expense trash IT on feat/ui-upgrade (.worktrees/ui-upgrade); P35 redesign queued.
+Active action: None — A063/E059 P34 candidate 0.16.0 complete locally (f733fdb on feat/ui-upgrade); awaiting customer go-live approval. P35 redesign queued.
 
 <!-- workflow-active-snapshot:start version:2 -->
 ## Active Snapshot
@@ -26,6 +26,7 @@ Next safe action: publish docs/release-0.15.0 outcomes through CI-gated PR, veri
 Shared workflow: [portable workflow](../../docs/agent/workflow.md). The references/*.md above belong to the optional installed execute skill; they are not missing repository files and are not required on a new device. Shared workflow contains the portable execution and evidence rules.
 
 ## Resume Checkpoint
+- E059/A063/P34 (29/10): impeccable review (26/40, 13/20) and customer decisions recorded; expense trash candidate 0.16.0 at f733fdb on feat/ui-upgrade. 178 app tests, 406 embedded/full-local SQL, two-account Realtime UAT and same-agent ITS PASS. Migration 20261029150000 applied only locally. No push/production change; await go-live approval, then P35 redesign.
 - E058/A062/P33 (29/10):0.15.0 app PR22/7b647fa; PR CI40874958708/main CI40875101095/Pages40875101197 PASS. Two production forward migrations once after private backup, strict verified-account registry bootstrap and grants/RLS checks PASS. Public HTTP200/meta0.15.0; actual Google sign-in/admin indicator/Group/promotion dialog open+cancel, zero app console errors. No business-data test writes or email. Docs closeout docs/release-0.15.0 follows; resolve latest receipt via Git log.
 - E057/A061/P33 (29/10): candidate0.15.0 on feat/site-admin-trip-co-owners;175 app tests,389 embedded/full-local SQL, lint/build/audit/advisor and actual two-browser Realtime/mobile/concurrent-role/cache-revocation QA PASS. Independent ITS remediations rechecked; no remaining scoped finding. No production grant/DB/data/push/merge/deploy. Two forward migrations and private bootstrap require new go-live approval. Resolve local commit via Git log; initial admin identity remains outside Git.
 - E056/A060/P32 (29/10): customer go-live approved; PR20/fa59861 deployed, PR CI40866629066/main CI40866751685/Pages40866751533 PASS. Public HTML/entry script HTTP200, meta0.14.0; real browser login smoke PASS. No new console errors after reload; pre-deployment stale token noted. Authenticated/hosted write tests not performed, no DB changes or login emails. Docs closeout on docs/release-workspace-refactor follows; resolve latest final receipt via Git log.
