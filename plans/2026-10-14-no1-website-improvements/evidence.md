@@ -1,5 +1,9 @@
 # Evidence
 
+## E056 / A060 — P32 approved go-live, 29/10/2026
+workflow-action:A060 status:open
+Customer approved the concrete P32 publication/CI/merge/Pages verification request. Owner current agent, serial. Verified clean chore/workspace-refactor at 78f6d5a, fetched origin/main still 9c7a872; GitHub target dtkien-dev/wander-plan, base main, authenticated repository owner. Scope: approval/rollout records, reviewed hook/import-only refactor, branch publication, PR, CI-gated merge and Pages/public/browser read-only verification. No migration or production business-data writes. Prior local QA/ITS retained; no source changes since checks. Recovery: frontend revert through PR if necessary; no DB repair required. Current action remains open until deployment outcomes are verified.
+
 ## E055 / A059 — workspace hook boundary, 29/10/2026
 workflow-action:A059 status:completed
 Customer requests checking/refactoring through the existing workflow. Owner current agent, serial; baseline fetched origin/main 9c7a872, branch chore/workspace-refactor in an isolated worktree. Primary checkout pre-existing changes retained. Scope P32: move the unchanged mutation hook into its own module; update all callers/test mocks and architecture guidance. No query redesign, repository/DB/storage/money/permission change, new dependency or production interaction. Local implementation, checks and commits only; no publication/merge/deploy approval inferred. QA/ITS pending; rollback is one frontend revert.
