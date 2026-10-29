@@ -1,5 +1,7 @@
 # Điểm bàn giao
 
+Latest released checkpoint 29/10/2026: P32/A060/E056 approved and deployed via PR20/fa59861. Main CI40866751685/Pages40866751533 PASS; public HTTP200/meta0.14.0 and actual-browser login smoke verified. Signed-out browser prevents authenticated-dialog smoke; no login emails/production writes/DB changes. Docs-only release closeout continues on docs/release-workspace-refactor; fetch and inspect latest branch checkpoint/PR/CI before resuming. Earlier pending-approval notes are historical. No new feature scope; primary checkout edits retained.
+
 Latest local checkpoint 29/10/2026: P32/A059/E055 behavior-preserving workspace read/write hook separation on chore/workspace-refactor from fetched origin/main 9c7a872 (released 0.14.0). 32 focused before/after, 168 app tests, 353 embedded SQL assertions, lint/demo build/audit-high and semantic equivalence PASS; same-agent scoped ITS clear. Browser/full-Supabase/hosted not rerun. No push/merge/deploy or new go-live approval. Read P32 and resolve local commit via Git log; primary checkout pre-existing changes retained.
 
 Current checkpoint (28/10/2026): 0.13.0 released at main 58b2906 via PR #16; production migration 20261028163323 and PR/main CI/Pages/public version/authenticated read-only itinerary controls verified. Docs closeout continues on `docs/release-0.13.0` under A051/E047; fetch/latest Git log before resuming. No real-data deletion tests or new backlog approvals. Primary checkout pre-existing edits preserved.

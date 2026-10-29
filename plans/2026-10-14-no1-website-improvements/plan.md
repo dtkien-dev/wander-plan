@@ -1,6 +1,6 @@
 # Proposed roadmap
 Current status: Implemented — A040/A041 synthetic local and browser UAT completed. Released baseline remains complete.
-Current executable batch: P32 / A059–E055 workspace read/write hook separation implemented and verified locally; publication/go-live pending approval. Baseline origin/main 9c7a872 is released 0.14.0. See [P32](phases/P32-workspace-hook-boundary.md) for scope, acceptance and recovery; deferred product features unchanged.
+Current executable batch: P32 released under A060/E056, PR20/fa59861, main CI/Pages and public smoke PASS; version remains 0.14.0. Docs-only closeout publication follows. See [P32](phases/P32-workspace-hook-boundary.md) for scope, acceptance and recovery; deferred product features unchanged.
 
 ## A041 — Browser Excel verification
 P26 follow-up after E036. Coordinator only; ignored local fixtures/browser plus canonical evidence. Acceptance: browser export captured, unchanged import preview skips, edited workbook applied once and multi-day fields retained after reload. No production access or permission expansion. Recovery: stop owned UAT process and revoke synthetic sessions, retain non-secret local evidence.

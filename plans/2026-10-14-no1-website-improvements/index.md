@@ -3,29 +3,30 @@
 Tracker ID: wp-20261014-01
 Created: 2026-10-14 Asia/Saigon
 Last updated: 2026-10-29 Asia/Saigon
-Status: Implemented locally; P32 QA/ITS complete, publication pending approval
+Status: Released — P32 go-live and public smoke verified; docs closeout publication follows
 Plan mode: Exited
 Execution readiness: Ready
 Execute mode: Active
 Resume instruction: Resolve plans/2026-10-14-no1-website-improvements from the current clone root (tracker wp-20261014-01). Read docs/agent/README.md and workflow.md, then this index and every manifest file. Keep this exact repository-relative bundle as the execution source of truth; update it until explicit exit. If the execute skill is installed, it may be used with this resolved path.
 Workspace: Current clone root; never reuse another device's absolute path.
-Repository: fetched origin/main 9c7a872 (released 0.14.0). Local refactor on chore/workspace-refactor; resolve final commit through Git log.
-Active action: A060/E056 — customer-approved P32 publication, CI, merge, Pages/live verification in_progress.
+Repository: P32 deployed main fa59861 (PR20), version 0.14.0 retained. Docs closeout on docs/release-workspace-refactor; resolve final commit through Git log.
+Active action: None — A060/E056 deployed and verified; publish docs closeout within approved batch, then verify final CI/Pages.
 
 <!-- workflow-active-snapshot:start version:2 -->
 ## Active Snapshot
 Profile: Durable
 Required references: references/intake.md, references/implementation.md, references/parallel-execution.md, references/completion.md, references/post-merge-cleanup.md
 Goal: Deliver verified daily improvements through plan, code, QA, security, go-live and next-day notes.
-Current state: P29/P30/P31 released as 0.14.0. P32 read/write hook extraction implemented and QA/ITS complete locally on chore/workspace-refactor from 9c7a872. Production unchanged; no current-batch go-live approval.
+Current state: P32 read/write hook extraction released under A060 as PR20/fa59861; main CI/Pages and public browser smoke PASS. Version remains 0.14.0; no DB change. Docs-only closeout publication follows.
 Accepted decisions: D01–D06, A010, A019, A020, A023, A024, A026, A029 and A031–A051. A047 explicitly authorizes P27 0.12.1 push, PR, merge after CI and Pages verification; completed under E043. No production data writes.
 Open items: R07/R17/R18 deferred by customer (A043/A044). E040 items 1–3 fixed under A045/P27; workspace refresh optimization remains deferred. Customer reports successful sign-in and requests no further R15 proposals; hosted email/Realtime remain unverified.
-Next safe action: present the verified P32 refactor for publication/go-live approval. After approval: re-fetch, publish purpose branch/PR, require CI, merge and verify Pages/live. No migration needed. Preserve primary checkout changes.
+Next safe action: publish docs/release-workspace-refactor with E056 outcomes/release note, require CI then merge and verify final Pages/live. No further feature work selected. Preserve primary checkout changes.
 <!-- workflow-active-snapshot:end -->
 
 Shared workflow: [portable workflow](../../docs/agent/workflow.md). The references/*.md above belong to the optional installed execute skill; they are not missing repository files and are not required on a new device. Shared workflow contains the portable execution and evidence rules.
 
 ## Resume Checkpoint
+- E056/A060/P32 (29/10): customer go-live approved; PR20/fa59861 deployed, PR CI40866629066/main CI40866751685/Pages40866751533 PASS. Public HTML/entry script HTTP200, meta0.14.0; real browser login smoke PASS. No new console errors after reload; pre-deployment stale token noted. Authenticated/hosted write tests not performed, no DB changes or login emails. Docs closeout on docs/release-workspace-refactor follows; resolve latest final receipt via Git log.
 - E055/A059/P32 (29/10): unchanged mutation hook moved to src/hooks/useWorkspaceMutations.ts; all callers/mocks and architecture docs updated. 32 focused tests before/after, 168 total app tests, 353 embedded SQL assertions, lint/demo build/audit-high (zero findings), semantic equivalence and diff whitespace PASS. Same-agent scoped ITS clear. No browser/full-Supabase/hosted rerun, push/merge/deploy; go-live approval pending. Resolve local commit on chore/workspace-refactor via Git log.
 - E047/A051 (29/10): docs PR #17 merged acc310a after CI 40731357042; main CI 40731549138 and Pages 40731548893 PASS; final public HTTP 200/version 0.13.0. Release complete; final receipt on docs/release-0.13.0, resolve SHA from Git log. No new feature approved.
 - E046/A050/P28 (28/10): 0.13.0 app released at 58b2906 via PR #16; migration/grants/history, CI/Pages/public version and authenticated read-only controls PASS. E047 docs publication in progress. No production business-data test writes.

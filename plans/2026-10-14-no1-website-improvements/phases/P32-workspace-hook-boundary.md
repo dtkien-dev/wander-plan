@@ -3,7 +3,7 @@
 Date: 29/10/2026 (Asia/Saigon). Owner: current agent, serial.
 Authorization: customer requests checking and performing refactoring through the repository delivery workflow. Local implementation/verification/commits authorized; publication and production require a concrete current-batch go-live decision.
 Baseline: fetched origin/main 9c7a872 (released 0.14.0). Branch: chore/workspace-refactor, isolated worktree.
-Status: Implemented locally; QA/ITS complete under A059/E055. Await publication/go-live approval.
+Status: Released under A060/E056 — PR20/fa59861, main CI/Pages and public smoke verified; docs closeout follows.
 
 ## PO / BA scope
 Move the existing useWorkspaceMutations implementation intact to its own hook module. Keep useWorkspace/useTripPeople together as read adapters. Update all application imports, test mocks, README architecture routing and AGENTS guidance. No compatibility re-export: all consumers are repository-local.
@@ -26,4 +26,4 @@ Revert the extraction/import changes as one frontend unit; no DB rollback. No pu
 - ITS: implementing agent reviewed the scoped diff after QA. Account/trip capture, singleFlight, selection guards, archive cancellation and failure refresh unchanged. No new trust boundary or blocking finding; review is not independent.
 - NOT RUN: actual-browser UAT, full Supabase/service concurrency or hosted tests. No UI, query strategy or transport logic changes. No measured performance gain claimed.
 - ITO after approval: fetch/reconcile remote and exact reviewed commit; publish branch/PR; require shared CI; merge only after CI; verify Pages and public app plus affected navigation/action dialogs without saving real data. Version retained at 0.14.0 for this internal refactor; identify delivery by commit. No migration or production configuration change required.
-- Next: customer publication/go-live decision. Local implementation and documentation commit discoverable via Git log on chore/workspace-refactor.
+- Released under A060: PR20/fa59861; PR CI40866629066, main CI40866751685 and Pages40866751533 PASS. HTML/entry script HTTP200/meta0.14.0, actual browser login page PASS. Browser signed out; authenticated dialogs not checked. Initial stale refresh token predates deployed reload; no new error afterward. No DB or production business-data writes. Release note: docs/releases/2026-10-29-workspace-refactor.md. Final docs closeout receipt on docs/release-workspace-refactor; resolve commit/PR through Git log.
