@@ -1,7 +1,7 @@
 # P33 — Website admin and trip co-owners
 
 Date: 29/10/2026 Asia/Saigon. Owner: current agent. Baseline: fetched origin/main 3591711 (0.14.0); branch feat/site-admin-trip-co-owners, isolated worktree.
-Status: implemented locally; QA/UAT and independent ITS complete under A061/E057. Candidate0.15.0 awaiting new go-live approval.
+Status: released0.15.0 under A062/E058, PR22/7b647fa; production migrations/admin contracts, CI/Pages/public and authenticated read-only UI verified. Docs closeout follows.
 
 ## Accepted scope / PO and BA
 - Website admin may view and manage every trip, including trips without their membership. Admin is a separate server-managed account capability, not a trip membership or extra occupied seat.
