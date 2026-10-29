@@ -1,6 +1,6 @@
 # Verification
 
-##0.15.0 approved production release — E058/A062
+## 0.15.0 approved production release — E058/A062
 PASS: private schema/data backup+ACL, both canonical missing migrations once and empty follow-up dry-run; approved unique verified-account bootstrap; production registry RLS/private access, role RPC grants, direct member UPDATE/DELETE denial and post-lock archive guard. Read-only authenticated SQL verifies global active/archive metadata access without printing identity/counts. PR22 CI40874958708, merge7b647fa, main CI40875101095/Pages40875101197 PASS; public HTTP200/meta0.15.0. Actual existing Google sign-in, admin indicator/Group/role-dialog open+cancel and zero app console errors PASS. No real role/trip/member/payment test writes or login email. Backup restore/hosted role-change concurrency not run. Docs closeout and final receipt follow on docs/release-0.15.0.
 
 ## P33 / A061–E057 — candidate0.15.0,29/10/2026
