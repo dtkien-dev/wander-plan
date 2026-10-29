@@ -1,5 +1,7 @@
 # Điểm bàn giao
 
+Final P32 receipt — 29/10/2026: app PR20/fa59861 and docs PR21/3591711 complete. Final main CI40867271365/Pages40867271453 PASS; public HTTP200/meta0.14.0 and same entry asset verified after docs deployment. No active action/new feature. Final receipt is shared on docs/release-workspace-refactor (resolve SHA through Git log). Earlier pending closeout notes are historical. Authenticated smoke remains unverified; production data/config/DB untouched. Primary checkout changes retained.
+
 Latest released checkpoint 29/10/2026: P32/A060/E056 approved and deployed via PR20/fa59861. Main CI40866751685/Pages40866751533 PASS; public HTTP200/meta0.14.0 and actual-browser login smoke verified. Signed-out browser prevents authenticated-dialog smoke; no login emails/production writes/DB changes. Docs-only release closeout continues on docs/release-workspace-refactor; fetch and inspect latest branch checkpoint/PR/CI before resuming. Earlier pending-approval notes are historical. No new feature scope; primary checkout edits retained.
 
 Latest local checkpoint 29/10/2026: P32/A059/E055 behavior-preserving workspace read/write hook separation on chore/workspace-refactor from fetched origin/main 9c7a872 (released 0.14.0). 32 focused before/after, 168 app tests, 353 embedded SQL assertions, lint/demo build/audit-high and semantic equivalence PASS; same-agent scoped ITS clear. Browser/full-Supabase/hosted not rerun. No push/merge/deploy or new go-live approval. Read P32 and resolve local commit via Git log; primary checkout pre-existing changes retained.
