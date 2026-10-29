@@ -288,3 +288,18 @@ PR18 merged b732461 after CI40794182415 PASS. Main CI40794364399 and Pages407943
 ## E054 / A058 — release records publication
 workflow-action:A058 status:open
 Publish and merge docs-only closeout under existing approved go-live, require CI and Pages verification. No new schema/application/business-data changes. Final receipt shared on docs/release-0.14.0, resolve latest commit from Git log.
+
+## E059 / A063 — UI review and P34 expense trash
+workflow-action:A063 status:open
+Customer request: review and upgrade the UI under the standard workflow. Authorization: PO/BA decisions recorded in A063; IT/QA/ITS for P34 locally. Scope: branch feat/ui-upgrade from origin/main 7e8dc7e in .worktrees/ui-upgrade; new forward migration for expense trash, repositories/types/demo, expense UI and tests, PRODUCT.md, tracker records. No push, production DB or deploy without go-live approval. Primary checkout pre-existing edits preserved.
+Review evidence: impeccable dual-agent critique/audit on demo build (no data). Nielsen 26/40, audit 13/20, P1 ×4, detector source findings 3 verified false positives (`--ease-spring` is ease-out). Login not reviewable in demo; screen reader/zoom/runtime perf not tested.
+
+E059 IT/QA: implementation f733fdb on feat/ui-upgrade. Forward migration 20261029150000 (expense_trash table, BEFORE DELETE snapshot trigger with participants, restore_trip_expense RPC, hourly purge, Realtime). Demo/cloud repositories, restoreExpense mutation, Realtime subscription, in-app delete dialog and expense Trash dialog; version 0.16.0; README/AGENTS rollout notes; PRODUCT.md.
+QA: 178 app tests/30 files, lint, demo build, audit-high (0) PASS. 406 embedded SQL and 406 full-local SQL (21 suites, 17 new) PASS. Only the missing migration applied once to the shared local stack; local cron job, Realtime publication and grants verified. Demo browser 1280/375px: delete dialog, trash list, restore, no horizontal overflow PASS. Full-local two-account UAT (synthetic uat-a owner on 127.0.0.1:5173, uat-b member on :5174): member delete → owner list/settlement/trash refresh via Realtime; owner sees 2 entries while member sees only own; owner restore refused after participant removal with the A063 message (expected 400); owner restores member deletion and member sees it via Realtime. Console: only the expected 400 of the refused restore. Not tested: hosted Supabase, actual hourly expiry, 320px for trash dialog.
+Cleanup: synthetic sessions revoked, magic-link files and .env.uat.local removed, owned servers stopped; synthetic trip/data and shared stack retained.
+ITS (same agent, not independent): RLS limits trash to deleter/owners on active trips; clients cannot write trash; restore authenticated-only, purge private; server-owned snapshot with forced id/trip_id and existing validation triggers; trip-then-row locking. Low, non-blocking: version/permission error ordering reveals trash presence to a member who knows the exact id and deletion time; Realtime DELETE payloads carry only UUID keys (same accepted P29 pattern). No secrets or real data in records.
+workflow-action:A063 status:completed
+
+## E060 / A064 — approved 0.16.0 go-live
+workflow-action:A064 status:open
+Customer explicitly approved the 0.16.0 candidate go-live on 29/10/2026 ("golive"). Scope: push feat/ui-upgrade and open a CI-gated PR; private ignored production schema/data backup; dry-run then apply only missing migration 20261029150000 once before frontend; verify grants/RLS/cron/Realtime; merge checked head to main; Pages/public/authenticated read-only smoke; closeout records. No production business-data test writes or email. Approval does not cover P35.

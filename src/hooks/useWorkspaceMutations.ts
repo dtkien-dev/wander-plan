@@ -3,7 +3,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { travelRepository } from '../services/travelRepository'
 import { singleFlight } from '../lib/singleFlight'
 import { archivedTripsKey, invitationsKey, tripsKey, useWorkspaceContext, workspaceKey } from '../providers/WorkspaceProvider'
-import type { ChecklistDraft, ChecklistItem, Expense, ExpenseDraft, ItineraryDraft, ItineraryItem, MemberRole, SettlementPayment, Trip, TripDraft, TripImportDraft, WorkspaceData, TrashedItineraryItem } from '../types'
+import type { ChecklistDraft, ChecklistItem, Expense, ExpenseDraft, ItineraryDraft, ItineraryItem, MemberRole, SettlementPayment, Trip, TripDraft, TripImportDraft, WorkspaceData, TrashedItineraryItem, TrashedExpense } from '../types'
 
 export function useWorkspaceMutations() {
   const client = useQueryClient()
@@ -59,6 +59,11 @@ export function useWorkspaceMutations() {
     mutationFn: ({ draft, tripId: id, existing }: { draft: ExpenseDraft; tripId: string; existing?: Expense }) => write(`expense:${id}:${existing?.id ?? 'new'}`, () => travelRepository.saveExpense(draft, id, existing)),
     onSuccess: (_, variables, origin) => origin?.refresh(variables.tripId),
   })
+  const restoreExpense = useMutation({ onMutate: capture,
+    mutationFn: (item: TrashedExpense) => write(`restore-expense:${item.tripId}:${item.id}`, () => travelRepository.restoreExpense(item)),
+    onSuccess: (_, item, origin) => origin?.refresh(item.tripId),
+    onError: (_, item, origin) => origin?.refresh(item.tripId),
+  })
   const deleteExpense = useMutation({ onMutate: capture, mutationFn: (item: Expense) => write(`delete-expense:${item.id}`, () => travelRepository.deleteExpense(item)), onSuccess: (_, item, origin) => origin?.refresh(item.tripId) })
   const importTripData = useMutation({ onMutate: capture, mutationFn: ({ draft, tripId: id }: { draft: TripImportDraft; tripId: string }) => write(`import:${id}`, () => travelRepository.importTripData(draft, id)), onSuccess: (_, variables, origin) => origin?.refresh(variables.tripId) })
   const createTrip = useMutation({ onMutate: capture,
@@ -109,5 +114,5 @@ export function useWorkspaceMutations() {
     },
     onError: (_, variables, origin) => origin?.refresh(variables.tripId, true),
   })
-  return { setMemberRole, restoreItinerary, rescheduleTrip, cloneTrip, deleteItineraries, archiveTrip, checklist, recordPayment, undoPayment, deleteChecklist, displayName, itinerary, deleteItinerary, expense, deleteExpense, importTripData, createTrip, updateTrip, inviteMember, revokeInvitation, removeMember, respondInvitation }
+  return { setMemberRole, restoreItinerary, rescheduleTrip, cloneTrip, deleteItineraries, archiveTrip, checklist, recordPayment, undoPayment, deleteChecklist, displayName, itinerary, deleteItinerary, expense, deleteExpense, restoreExpense, importTripData, createTrip, updateTrip, inviteMember, revokeInvitation, removeMember, respondInvitation }
 }

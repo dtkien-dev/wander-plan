@@ -2,7 +2,7 @@ import { demoWorkspace } from '../data/demoData'
 import { calculateExpenseSettlement, involvesFormerMember, validateSplit } from '../lib/expenseSettlement'
 import { checkDemoPlanSnapshot, planVersions, previewTripPlan } from '../lib/tripPlan'
 import { supabase } from '../lib/supabase'
-import type { ArchivedTrip, MemberRole, ChecklistDraft, ChecklistItem, Expense, FormerPerson, SettlementPayment, SplitMethod, ExpenseDraft, ItineraryDraft, ItineraryItem, Trip, TripDraft, TripImportDraft, TripImportResult, TripPerson, TripInvitation, WorkspaceData, TrashedItineraryItem } from '../types'
+import type { ArchivedTrip, MemberRole, ChecklistDraft, ChecklistItem, Expense, FormerPerson, SettlementPayment, SplitMethod, ExpenseDraft, ItineraryDraft, ItineraryItem, Trip, TripDraft, TripImportDraft, TripImportResult, TripPerson, TripInvitation, WorkspaceData, TrashedItineraryItem, TrashedExpense } from '../types'
 
 const STORAGE_KEY = 'wander-plan-demo-workspace-v1'
 const PEOPLE_STORAGE_KEY = 'wander-plan-demo-people-v1'
@@ -36,6 +36,7 @@ export interface TravelRepository {
   deleteItineraries(tripId: string, items: ItineraryItem[]): Promise<void>
   saveExpense(draft: ExpenseDraft, tripId: string, existing?: Expense): Promise<void>
   deleteExpense(expense: Expense): Promise<void>
+  restoreExpense(expense: TrashedExpense): Promise<void>
   importTripData(draft: TripImportDraft, tripId: string): Promise<TripImportResult>
 }
 
@@ -70,6 +71,7 @@ class DemoRepository implements TravelRepository {
       trip: { ...data.trip, createdByUserId: data.trip.createdByUserId ?? 'demo-owner' },
       checklist: data.checklist ?? [],
       itineraryTrash: (data.itineraryTrash ?? []).filter((item) => Date.parse(item.expiresAt) > Date.now()),
+      expenseTrash: (data.expenseTrash ?? []).filter((item) => Date.parse(item.expiresAt) > Date.now()),
       settlementPayments: data.settlementPayments ?? [],
       settlementPaymentCount: data.settlementPaymentCount ?? data.settlementPayments?.length ?? 0,
       itinerary: data.itinerary.map((item) => ({ ...item, endDate: item.endDate ?? null })),
@@ -82,6 +84,7 @@ class DemoRepository implements TravelRepository {
     data.trip.createdByUserId ??= 'demo-owner'
     data.trip.maxMembers ??= 4
     data.itineraryTrash = (data.itineraryTrash ?? []).filter((item) => Date.parse(item.expiresAt) > Date.now())
+    data.expenseTrash = (data.expenseTrash ?? []).filter((item) => Date.parse(item.expiresAt) > Date.now())
     data.checklist ??= []
     data.settlementPayments ??= []
     data.settlementPaymentCount ??= 0
@@ -132,7 +135,8 @@ class DemoRepository implements TravelRepository {
     await delay()
     const data = this.read(tripId)
     data.memberCount = data.people.filter((person) => person.status === 'active').length
-    return { ...data, itineraryTrash: data.currentRole === 'owner' ? data.itineraryTrash : [] }
+    return { ...data, itineraryTrash: data.currentRole === 'owner' ? data.itineraryTrash : [],
+      expenseTrash: (data.expenseTrash ?? []).filter((item) => data.currentRole === 'owner' || item.deletedByUserId === data.currentUserId) }
   }
 
   async createTrip(draft: TripDraft, requestId: string) {
@@ -368,7 +372,25 @@ class DemoRepository implements TravelRepository {
     const current = data.expenses.find((entry) => entry.id === expense.id)
     if (!current || current.version !== expense.version) throw new Error('Chi phí đã thay đổi. Hãy tải lại và thử lại.')
     if (involvesFormerMember(current, activeIds(data))) throw new Error('Khoản chi có người đã rời nhóm nên không thể xóa.')
+    const deletedAt = new Date().toISOString()
+    data.expenseTrash = [...(data.expenseTrash ?? []).filter((entry) => entry.id !== current.id),
+      { ...current, deletedAt, expiresAt: new Date(Date.now() + 7 * 86_400_000).toISOString(), deletedByUserId: data.currentUserId ?? 'demo-owner' }]
     data.expenses = data.expenses.filter((entry) => entry.id !== expense.id)
+    this.write(data)
+  }
+
+  async restoreExpense(expense: TrashedExpense) {
+    const data = this.read(expense.tripId)
+    const current = data.expenseTrash?.find((entry) => entry.id === expense.id && entry.version === expense.version && entry.deletedAt === expense.deletedAt)
+    if (!current || Date.parse(current.expiresAt) <= Date.now()) throw new Error('Khoản chi đã thay đổi hoặc hết 7 ngày khôi phục. Hãy tải lại.')
+    if (data.currentRole !== 'owner' && current.deletedByUserId !== data.currentUserId) throw new Error('Chỉ người đã xóa hoặc chủ nhóm được khôi phục khoản chi.')
+    if (involvesFormerMember(current, activeIds(data))) throw new Error('Không thể khôi phục vì người trả hoặc người tham gia khoản chi này đã rời nhóm.')
+    if (current.expenseDate < data.trip.startDate || (current.endDate ?? current.expenseDate) > data.trip.endDate) throw new Error('Ngày khoản chi nằm ngoài thời gian chuyến đi. Điều chỉnh ngày chuyến trước khi khôi phục.')
+    if (data.expenses.some((entry) => entry.id === current.id)) throw new Error('Khoản chi này đã tồn tại. Hãy tải lại.')
+    data.expenses.push({ id: current.id, tripId: current.tripId, title: current.title, category: current.category, expenseDate: current.expenseDate, endDate: current.endDate,
+      estimatedAmountVnd: current.estimatedAmountVnd, actualAmountVnd: current.actualAmountVnd, paidByUserId: current.paidByUserId, participantUserIds: current.participantUserIds,
+      splitMethod: current.splitMethod, splitValues: current.splitValues, notes: current.notes, version: current.version + 1 })
+    data.expenseTrash = data.expenseTrash!.filter((entry) => entry.id !== current.id)
     this.write(data)
   }
 
@@ -575,7 +597,7 @@ class SupabaseRepository implements TravelRepository {
     throwIfError(authError)
     if (!authData.session) throw new Error('Bạn cần đăng nhập.')
     const currentUserId = authData.session.user.id
-    const [itineraryRows, expenseRows, members, checklistRows, paymentRows, formerRows, profile, people, trashRows, isSiteAdmin] = await Promise.all([
+    const [itineraryRows, expenseRows, members, checklistRows, paymentRows, formerRows, profile, people, trashRows, isSiteAdmin, expenseTrashRows] = await Promise.all([
       loadAllRows((from, to) => supabase!.from('itinerary_items').select('id,trip_id,title,visit_date,end_date,start_time,end_time,estimated_cost_vnd,address,maps_url,notes,version', { count: 'exact' }).eq('trip_id', trip.id).order('visit_date').order('start_time').order('id').range(from, to)),
       loadAllRows((from, to) => supabase!.from('expenses').select('id,trip_id,title,category,expense_date,end_date,estimated_amount_vnd,actual_amount_vnd,paid_by,notes,version,split_method,expense_participants(user_id,share_units,share_amount_vnd)', { count: 'exact' }).eq('trip_id', trip.id).order('expense_date').order('id').range(from, to)),
       loadAllRows((from, to) => supabase!.from('trip_members').select('user_id,role', { count: 'exact' }).eq('trip_id', trip.id).order('user_id').range(from, to)),
@@ -587,6 +609,8 @@ class SupabaseRepository implements TravelRepository {
       this.loadTripPeople(trip.id),
       loadAllRows((from, to) => supabase!.from('itinerary_trash').select('id,trip_id,snapshot,deleted_at,expires_at', { count: 'exact' }).eq('trip_id', trip.id).order('deleted_at', { ascending: false }).order('id').range(from, to)),
       this.isSiteAdmin(),
+      // RLS returns only the caller's own deletions, or every entry for owners.
+      loadAllRows((from, to) => supabase!.from('expense_trash').select('id,trip_id,deleted_by,snapshot,deleted_at,expires_at', { count: 'exact' }).eq('trip_id', trip.id).order('deleted_at', { ascending: false }).order('id').range(from, to)),
     ])
     const currentMembership = members.find((member) => member.user_id === currentUserId)
     if (!currentMembership && !isSiteAdmin) throw new Error('Tài khoản chưa thuộc chuyến đi này.')
@@ -602,6 +626,7 @@ class SupabaseRepository implements TravelRepository {
       itinerary: itineraryRows.map(mapItinerary),
       itineraryTrash: trashRows.map((row: any) => ({ ...mapItinerary(row.snapshot), deletedAt: row.deleted_at, expiresAt: row.expires_at })),
       expenses: expenseRows.map(mapExpense),
+      expenseTrash: expenseTrashRows.map((row: any): TrashedExpense => ({ ...mapExpense(row.snapshot), deletedAt: row.deleted_at, expiresAt: row.expires_at, deletedByUserId: row.deleted_by })),
       people,
       memberCount: members.length,
       currentUserId,
@@ -698,6 +723,12 @@ class SupabaseRepository implements TravelRepository {
       const { error } = await supabase.from('itinerary_items').insert({ ...payload, trip_id: tripId })
       throwIfError(error)
     }
+  }
+
+  async restoreExpense(expense: TrashedExpense) {
+    if (!supabase) return
+    const { error } = await supabase.rpc('restore_trip_expense', { target_trip_id: expense.tripId, target_expense_id: expense.id, expected_version: expense.version, expected_deleted_at: expense.deletedAt })
+    throwIfError(error)
   }
 
   async restoreItinerary(item: TrashedItineraryItem) {

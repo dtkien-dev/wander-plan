@@ -82,6 +82,12 @@ export interface Expense {
   version: number
 }
 
+export interface TrashedExpense extends Expense {
+  deletedAt: string
+  expiresAt: string
+  deletedByUserId: string
+}
+
 export interface SettlementPayment {
   id: string
   tripId: string
@@ -100,6 +106,8 @@ export interface FormerPerson {
 export interface WorkspaceData {
   isSiteAdmin?: boolean
   itineraryTrash?: TrashedItineraryItem[]
+  /** Only entries the current user may restore: their own deletions, or all for owners. */
+  expenseTrash?: TrashedExpense[]
   checklist?: ChecklistItem[]
   formerPeople?: FormerPerson[]
   settlementPayments?: SettlementPayment[]
