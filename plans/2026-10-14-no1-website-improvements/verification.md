@@ -246,3 +246,6 @@ Separate Dependabot update run 40730842281 FAILED: existing fast-uri update not 
 
 ## P29/P30/P31 initial automated QA — A053/E049
 PASS: 167 app tests, lint/demo build, 345 embedded SQL assertions, audit-high/diff whitespace. Existing 3 moderate dependency warnings unchanged. Full-local/browser/concurrency/scheduler/ITS pending under A054.
+
+## P29/P30/P31 final candidate — 29/10/2026
+0.14.0: 168 app tests, lint/build, 353 embedded and full-local SQL assertions PASS. Hardening regression covers trip/payload/deletion-instance binding; updated real SDK transport and demo restore tests PASS. Independent delta reviewer found no actionable defect; original High resolved, eight new pgTAP assertions pass in both engines. Three existing moderate audit findings remain; high gate passes. Prior actual browser owner/member/mobile/Realtime/concurrent-write/scheduler QA under E050 passed. Browser was not replayed after timestamp-only RPC fix. Production unchanged at 0.13.0; fresh go-live approval required.

@@ -26,3 +26,6 @@ Continue `feat/itinerary-bulk-delete`; resolve latest local commit via Git log (
 
 ## Final checkpoint — 29/10/2026 (Asia/Saigon)
 0.13.0 release complete. App PR #16: 58b2906; docs PR #17: acc310a. Final main CI 40731549138 / Pages 40731548893 PASS; final public HTTP 200/meta 0.13.0. Production canonical migration/grants/definition and existing authenticated read-only itinerary controls verified. No hosted deletion/test writes. Final receipt shared on `docs/release-0.13.0`; resolve latest SHA from Git log, fetch and read its tracker checkpoint before resuming. No active action/new feature. Separate Dependabot fast-uri update failed due dependency constraints; CI/audit-high/Pages passed, maintenance not included. Primary checkout pre-existing edits retained.
+
+## Candidate checkpoint — 29/10/2026
+P29/P30/P31 candidate 0.14.0 locally ready on feat/trip-reschedule-templates-trash. A055/E051 complete; fetch and inspect latest Git log. 168 app tests, 353 embedded/full-local SQL, lint/build pass; integrated UAT and independent ITS evidence in tracker. Four forward migrations, including final trash provenance hardening, required before frontend. No feature push or production mutation. Await current-batch go-live approval; prior 0.13.0 approval does not cover this release. Primary checkout edits preserved.

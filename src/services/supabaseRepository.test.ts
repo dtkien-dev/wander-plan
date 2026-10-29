@@ -151,5 +151,5 @@ it('serializes planning and restore RPCs with version snapshots rather than fina
   await travelRepository.restoreItinerary(item)
   ;[url, init] = transport.fetch.mock.calls.at(-1)!
   expect(String(url)).toContain('/rpc/restore_trip_itinerary_item')
-  expect(JSON.parse(init.body)).toEqual({ target_trip_id: item.tripId, target_item_id: item.id, expected_version: item.version })
+  expect(JSON.parse(init.body)).toEqual({ target_trip_id: item.tripId, target_item_id: item.id, expected_version: item.version, expected_deleted_at: item.deletedAt })
 })

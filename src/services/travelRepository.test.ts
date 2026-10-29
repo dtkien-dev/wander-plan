@@ -22,6 +22,7 @@ describe('demo travel repository', () => {
     await travelRepository.deleteItinerary(item)
     let current = (await travelRepository.loadWorkspace('demo-trip'))!
     expect(current.itineraryTrash![0]).toMatchObject(item)
+    await expect(travelRepository.restoreItinerary({ ...current.itineraryTrash![0], deletedAt: '2000-01-01T00:00:00.000Z' })).rejects.toThrow('đã thay đổi')
     await travelRepository.restoreItinerary(current.itineraryTrash![0])
     current = (await travelRepository.loadWorkspace('demo-trip'))!
     expect(current.itinerary.find((entry) => entry.id === item.id)).toEqual({ ...item, version: item.version + 1 })

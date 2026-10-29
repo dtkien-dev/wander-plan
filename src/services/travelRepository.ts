@@ -254,7 +254,7 @@ class DemoRepository implements TravelRepository {
   async restoreItinerary(item: TrashedItineraryItem) {
     const data = this.read(item.tripId)
     if (data.currentRole !== 'owner') throw new Error('Chỉ chủ nhóm được khôi phục lịch trình.')
-    const current = data.itineraryTrash?.find((entry) => entry.id === item.id && entry.version === item.version)
+    const current = data.itineraryTrash?.find((entry) => entry.id === item.id && entry.version === item.version && entry.deletedAt === item.deletedAt)
     if (!current || Date.parse(current.expiresAt) <= Date.now()) throw new Error('Mục đã thay đổi hoặc hết 7 ngày khôi phục. Hãy tải lại.')
     if (current.visitDate < data.trip.startDate || (current.endDate ?? current.visitDate) > data.trip.endDate) throw new Error('Ngày lịch trình nằm ngoài thời gian chuyến đi. Điều chỉnh ngày chuyến trước khi khôi phục.')
     if (data.itinerary.some((entry) => entry.id === current.id)) throw new Error('Mục này đã tồn tại. Hãy tải lại.')
@@ -668,7 +668,7 @@ class SupabaseRepository implements TravelRepository {
 
   async restoreItinerary(item: TrashedItineraryItem) {
     if (!supabase) return
-    const { error } = await supabase.rpc('restore_trip_itinerary_item', { target_trip_id: item.tripId, target_item_id: item.id, expected_version: item.version })
+    const { error } = await supabase.rpc('restore_trip_itinerary_item', { target_trip_id: item.tripId, target_item_id: item.id, expected_version: item.version, expected_deleted_at: item.deletedAt })
     throwIfError(error)
   }
 

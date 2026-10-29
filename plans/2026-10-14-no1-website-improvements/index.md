@@ -10,7 +10,7 @@ Execute mode: Active
 Resume instruction: Resolve plans/2026-10-14-no1-website-improvements from the current clone root (tracker wp-20261014-01). Read docs/agent/README.md and workflow.md, then this index and every manifest file. Keep this exact repository-relative bundle as the execution source of truth; update it until explicit exit. If the execute skill is installed, it may be used with this resolved path.
 Workspace: Current clone root; never reuse another device's absolute path.
 Repository: deployed main acc310a (app release 58b2906, version 0.13.0); final receipt shared on docs/release-0.13.0. Fetch and resolve latest branch head from Git log.
-Active action: A055 / E051 — P29/P30/P31 independent scoped ITS in_progress after QA; candidate 0.14.0. No go-live approval.
+Active action: none — A055/E051 completed; P29/P30/P31 candidate 0.14.0 ready for current-batch go-live approval.
 
 <!-- workflow-active-snapshot:start version:2 -->
 ## Active Snapshot
@@ -20,7 +20,7 @@ Goal: Deliver verified daily improvements through plan, code, QA, security, go-l
 Current state: P29/P30/P31 implementation batch active on feat/trip-reschedule-templates-trash from 3d7403c (released app main acc310a). Customer authorizes all three features and optional expense-date shifting; P29 first. Production remains 0.13.0; no new go-live approval.
 Accepted decisions: D01–D06, A010, A019, A020, A023, A024, A026, A029 and A031–A051. A047 explicitly authorizes P27 0.12.1 push, PR, merge after CI and Pages verification; completed under E043. No production data writes.
 Open items: R07/R17/R18 deferred by customer (A043/A044). E040 items 1–3 fixed under A045/P27; workspace refresh optimization remains deferred. Customer reports successful sign-in and requests no further R15 proposals; hosted email/Realtime remain unverified.
-Next safe action: implement P29, P30 and P31 with dependency-ready phase tests; integrated UAT/QA then ITS; request concrete new-batch go-live approval only after verification.
+Next safe action: present verified 0.14.0 candidate for new-batch go-live approval. Only after approval: publish/CI, target/backup preflight, four missing forward migrations before frontend, Pages/live verification.
 <!-- workflow-active-snapshot:end -->
 
 Shared workflow: [portable workflow](../../docs/agent/workflow.md). The references/*.md above belong to the optional installed execute skill; they are not missing repository files and are not required on a new device. Shared workflow contains the portable execution and evidence rules.
@@ -81,4 +81,7 @@ security-review-p28-2026-10-28.md
 phases/P29-itinerary-trash.md
 phases/P30-trip-reschedule.md
 phases/P31-trip-template-clone.md
+security-review-p29-p31-2026-10-29.md
 <!-- workflow-manifest:end -->
+
+Latest checkpoint 29/10: A055/E051 complete; independent review High fixed by forward provenance migration and verified in 353 embedded/full-local SQL, 168 app tests, lint/build. Prior E050 browser/mobile/Realtime/concurrency UAT passed. Candidate local on feat/trip-reschedule-templates-trash; resolve final commit via Git log. No push or production changes. Await fresh go-live approval.
