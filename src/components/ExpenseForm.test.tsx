@@ -153,7 +153,7 @@ describe('ExpenseForm', () => {
       splitValues: { owner: 50000, friend: 100000 }, notes: '', version: 1 }
     render(<ExpenseForm expense={saved} tripStart="2026-11-27" tripEnd="2026-11-30" pending={false} people={people} currentUserId="owner" onSubmit={onSubmit} onCancel={vi.fn()} />)
     expect(screen.getByLabelText('Số tiền của Người bạn đồng hành')).toHaveValue(100000)
-    fireEvent.change(screen.getByLabelText('Thực tế'), { target: { value: '180000' } })
+    fireEvent.change(screen.getByLabelText(/^Thực tế/), { target: { value: '180000' } })
     fireEvent.click(screen.getByRole('button', { name: 'Lưu thay đổi' }))
     expect(await screen.findByText(/thiếu 30\.000/)).toBeInTheDocument()
     expect(onSubmit).not.toHaveBeenCalled()
@@ -171,7 +171,7 @@ describe('ExpenseForm', () => {
     for (const label of ['Người thanh toán', 'Dự kiến', 'Thực tế']) expect(screen.queryByLabelText(label)).not.toBeInTheDocument()
     expect(screen.queryByRole('radio')).not.toBeInTheDocument()
     fireEvent.change(screen.getByLabelText('Khoản chi'), { target: { value: 'Ăn tối cả nhóm' } })
-    fireEvent.change(screen.getByLabelText('Ghi chú'), { target: { value: 'Đã đối chiếu hóa đơn' } })
+    fireEvent.change(screen.getByLabelText(/^Ghi chú/), { target: { value: 'Đã đối chiếu hóa đơn' } })
     fireEvent.click(screen.getByRole('button', { name: 'Lưu thay đổi' }))
     await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1))
     expect(onSubmit.mock.calls[0][0]).toMatchObject({ title: 'Ăn tối cả nhóm', notes: 'Đã đối chiếu hóa đơn', estimatedAmountVnd: 0, actualAmountVnd: 90000, paidByUserId: 'gone', participantUserIds, splitMethod: 'shares', splitValues: saved.splitValues })
@@ -183,7 +183,7 @@ describe('ExpenseForm', () => {
     fireEvent.change(screen.getByLabelText('Khoản chi'), { target: { value: 'Vé xe buýt' } })
     fireEvent.click(screen.getByRole('radio', { name: 'Theo số tiền' }))
     for (const [label, value] of [['Dự kiến', '12503'], ['Thực tế', '15003'], ['Số tiền của Bạn', '5001'], ['Số tiền của Người bạn đồng hành', '10002']]) {
-      const input = screen.getByLabelText(label) as HTMLInputElement
+      const input = screen.getByLabelText(new RegExp(`^${label}`)) as HTMLInputElement
       for (const invalid of ['-1', '1.5']) {
         fireEvent.change(input, { target: { value: invalid } })
         expect(input.checkValidity()).toBe(false)

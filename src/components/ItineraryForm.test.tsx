@@ -39,7 +39,7 @@ describe('ItineraryForm overlap warning', () => {
     renderForm({ onSubmit })
     fireEvent.change(screen.getByLabelText('Tên địa điểm'), { target: { value: 'Ăn sáng' } })
     fireEvent.change(screen.getByLabelText('Địa chỉ'), { target: { value: 'Chợ Bến Thành' } })
-    fireEvent.change(screen.getByLabelText('Google Maps URL'), { target: { value: 'https://maps.app.goo.gl/xyz' } })
+    fireEvent.change(screen.getByLabelText(/^Google Maps URL/), { target: { value: 'https://maps.app.goo.gl/xyz' } })
     const cost = screen.getByLabelText('Chi phí dự kiến') as HTMLInputElement
     for (const value of ['-1', '1.5']) {
       fireEvent.change(cost, { target: { value } })
@@ -59,7 +59,7 @@ describe('ItineraryForm overlap warning', () => {
     fireEvent.change(screen.getByLabelText('Bắt đầu'), { target: { value: '20:00' } })
     fireEvent.change(screen.getByLabelText('Kết thúc'), { target: { value: '08:00' } })
     fireEvent.change(screen.getByLabelText('Địa chỉ'), { target: { value: 'Lạc Dương' } })
-    fireEvent.change(screen.getByLabelText('Google Maps URL'), { target: { value: 'https://maps.app.goo.gl/xyz' } })
+    fireEvent.change(screen.getByLabelText(/^Google Maps URL/), { target: { value: 'https://maps.app.goo.gl/xyz' } })
     fireEvent.click(screen.getByRole('button', { name: 'Thêm địa điểm' }))
     await waitFor(() => expect(onSubmit).toHaveBeenCalledWith(expect.objectContaining({ endDate: '2026-11-29', startTime: '20:00', endTime: '08:00' }), expect.anything()))
   })

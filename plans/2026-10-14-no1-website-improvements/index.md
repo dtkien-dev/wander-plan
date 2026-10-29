@@ -10,7 +10,7 @@ Execute mode: Active
 Resume instruction: Resolve plans/2026-10-14-no1-website-improvements from the current clone root (tracker wp-20261014-01). Read docs/agent/README.md and workflow.md, then this index and every manifest file. Keep this exact repository-relative bundle as the execution source of truth; update it until explicit exit. If the execute skill is installed, it may be used with this resolved path.
 Workspace: Current clone root; never reuse another device's absolute path.
 Repository: deployed app main7b647fa (PR22,0.15.0). Docs closeout on docs/release-0.15.0; resolve final receipt via Git log.
-Active action: None — 0.16.0 released (A064/E060); P35 redesign next, needs customer direction and its own go-live approval.
+Active action: A065/E061 open — P35 redesign on feat/ui-redesign (.worktrees/ui-upgrade).
 
 <!-- workflow-active-snapshot:start version:2 -->
 ## Active Snapshot

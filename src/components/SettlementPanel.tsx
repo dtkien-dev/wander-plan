@@ -1,4 +1,4 @@
-import { ArrowRight, CheckCircle2, HandCoins, Undo2 } from 'lucide-react'
+import { CheckCircle2, Undo2 } from 'lucide-react'
 import type { MemberBalance, SettlementTransfer } from '../lib/expenseSettlement'
 import { formatCurrency } from '../lib/format'
 import type { SettlementPayment } from '../types'
@@ -29,13 +29,13 @@ interface SettlementPanelProps {
 export function SettlementPanel({ balances, transfers, payments, currentUserId, pending, personName, isFormer = () => false, onConfirm, onUndo }: SettlementPanelProps) {
   return (
     <section className={styles.settlement} aria-labelledby="settlement-title">
-      <header><span><HandCoins size={22} /></span><div><p className="eyebrow">Quyết toán thực tế</p><h2 id="settlement-title">Ai cần trả cho ai?</h2><p className={styles.settlementHint}>Người nhận tiền xác nhận khi đã nhận; số dư tự tính lại.</p></div></header>
-      <div className={styles.balances}>{balances.map((balance) => <div key={balance.userId}><span>{personName(balance.userId)}</span><strong className={balance.amountVnd >= 0 ? styles.credit : styles.debt}>{describeBalance(balance.amountVnd)}</strong></div>)}</div>
+      <header><h2 id="settlement-title">Ai cần trả cho ai?</h2><p className={styles.settlementHint}>Chỉ tính khoản đã chi thực tế. Người nhận tiền xác nhận khi đã nhận; số dư tự tính lại.</p></header>
+      <ul className={styles.balances} aria-label="Số dư từng người">{balances.map((balance) => <li key={balance.userId}><span>{personName(balance.userId)}</span><strong className={balance.amountVnd > 0 ? 'amount-receive' : balance.amountVnd < 0 ? 'amount-owe' : ''}>{describeBalance(balance.amountVnd)}</strong></li>)}</ul>
       <div className={styles.transfers}>{transfers.length ? transfers.map((transfer) => (
         <article key={`${transfer.fromUserId}-${transfer.toUserId}`}>
-          <strong>{personName(transfer.fromUserId)}</strong><ArrowRight size={18} /><strong>{personName(transfer.toUserId)}</strong><span>{formatCurrency(transfer.amountVnd)}</span>
+          <p className={styles.transferSentence}><strong>{personName(transfer.fromUserId)}</strong> trả <strong>{personName(transfer.toUserId)}</strong></p><data className={styles.transferAmount} value={transfer.amountVnd}>{formatCurrency(transfer.amountVnd)}</data>
           {transfer.toUserId === currentUserId
-            ? <button className={`button button--soft ${styles.transferAction}`} type="button" disabled={pending} onClick={() => onConfirm(transfer)}><CheckCircle2 size={17} /> Đã nhận tiền</button>
+            ? <button className={`button button--primary ${styles.transferAction}`} type="button" disabled={pending} onClick={() => onConfirm(transfer)}><CheckCircle2 size={17} /> Đã nhận tiền</button>
             : <small className={styles.transferAction}>Chờ {personName(transfer.toUserId)} xác nhận đã nhận</small>}
         </article>
       )) : <p>{payments.length ? 'Đã quyết toán xong.' : 'Chưa có khoản thực tế cần quyết toán.'}</p>}</div>

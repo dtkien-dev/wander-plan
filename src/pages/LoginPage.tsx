@@ -63,12 +63,18 @@ export function LoginPage() {
     <main className={styles.page} data-ai-id="login-page">
       <section className={styles.story}>
         <Brand />
-        <p className={styles.eyebrow}>Mỗi chuyến đi · Một kế hoạch chung</p>
         <h1>Gom mọi kế hoạch chuyến đi vào một nơi.</h1>
         <p>Từ ly cà phê đầu tiên đến tổng chi phí cuối ngày — cả nhóm luôn nhìn cùng một kế hoạch.</p>
+        <figure className={styles.sample} aria-label="Ví dụ bảng lịch trong ngày">
+          <figcaption>Ví dụ</figcaption>
+          <ol aria-hidden="true">
+            <li><time>07:00</time><span>Bánh căn Nhà Chung</span><em>Xong</em></li>
+            <li className={styles.sampleNow}><time>09:30</time><span>Đồi chè Cầu Đất</span><em>Đang diễn ra</em></li>
+            <li><time>15:30</time><span>Cà phê Tùng</span><em>Sắp tới</em></li>
+          </ol>
+        </figure>
       </section>
       <section className={styles.card} aria-labelledby="login-title">
-        <span className={styles.index}>ĐĂNG NHẬP</span>
         <h2 id="login-title">Chào bạn đồng hành.</h2>
         <p>{accessConfig.googleSignIn ? 'Đăng nhập bằng Google hoặc liên kết gửi đến email, không cần mật khẩu.' : 'Đăng nhập bằng liên kết gửi đến email, không cần mật khẩu.'} Sau khi đăng nhập, bạn có thể tạo chuyến đi hoặc chấp nhận lời mời trong ứng dụng để tham gia cùng nhóm.</p>
         {!accessConfig.allowNewAccounts && <p className={styles.note}>Tài khoản mới cần được chủ nhóm mời bằng email trước khi đăng nhập lần đầu.</p>}
@@ -86,7 +92,7 @@ export function LoginPage() {
           </button>
         </form>
         {message && <p className={styles.message} role="status">{message}</p>}
-        {(error || authError) && <p id="login-error" className={styles.message} role="alert">{error || authError}</p>}
+        {(error || authError) && <p id="login-error" className={styles.error} role="alert">{error || authError}</p>}
       </section>
     </main>
   )

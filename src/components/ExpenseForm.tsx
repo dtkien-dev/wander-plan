@@ -117,7 +117,7 @@ export function ExpenseForm({ expense, tripStart, tripEnd, pending, people, curr
   const stayAmount = actual ?? estimated
   return (
     <form className="form" onSubmit={handleSubmit((values) => onSubmit(toDraft(values, formerParticipantIds)))}>
-      <label className="field field--wide">Khoản chi<input {...register('title')} aria-invalid={Boolean(errors.title)} />{errors.title && <span>{errors.title.message}</span>}</label>
+      <label className="field field--wide">Khoản chi<input aria-required="true" {...register('title')} aria-invalid={Boolean(errors.title)} />{errors.title && <span>{errors.title.message}</span>}</label>
       <label className="field">Phân loại<select {...register('category')}><option value="food">Ăn uống</option><option value="transport">Di chuyển</option><option value="stay">Lưu trú</option><option value="ticket">Vé tham quan</option><option value="other">Khác</option></select></label>
       <label className="field">{startDateLabels[category] ?? 'Ngày'}<input type="date" min={tripStart} max={tripEnd} {...register('expenseDate')} aria-invalid={Boolean(errors.expenseDate)} />{errors.expenseDate && <span>{errors.expenseDate.message}</span>}</label>
       {category === 'transport' && <label className="field field--wide field--check"><input type="checkbox" {...register('roundTrip')} /> <span>Khứ hồi (một khoản cho cả lượt đi và về)</span></label>}
@@ -132,8 +132,8 @@ export function ExpenseForm({ expense, tripStart, tripEnd, pending, people, curr
         </div>
       ) : (
         <>
-        <label className="field">{isStay ? 'Dự kiến (tổng)' : 'Dự kiến'}<input type="number" inputMode="numeric" min="0" step="1" {...register('estimatedAmountVnd', { valueAsNumber: true })} aria-invalid={Boolean(errors.estimatedAmountVnd)} />{errors.estimatedAmountVnd && <span>{errors.estimatedAmountVnd.message}</span>}</label>
-        <label className="field">{isStay ? 'Thực tế (tổng)' : 'Thực tế'}<input type="number" inputMode="numeric" min="0" step="1" placeholder="Chưa phát sinh" {...register('actualAmountVnd', { setValueAs: (value) => value === '' || value == null ? null : Number(value) })} aria-invalid={Boolean(errors.actualAmountVnd)} />{errors.actualAmountVnd && <span>{errors.actualAmountVnd.message}</span>}</label>
+        <label className="field">{isStay ? 'Dự kiến (tổng)' : 'Dự kiến'}<span className="money-input"><input type="number" inputMode="numeric" min="0" step="1" {...register('estimatedAmountVnd', { valueAsNumber: true })} aria-invalid={Boolean(errors.estimatedAmountVnd)} /></span>{Number(estimated) >= 1000 && <small className="field-preview" aria-hidden="true">{formatCurrency(Number(estimated))}</small>}{errors.estimatedAmountVnd && <span>{errors.estimatedAmountVnd.message}</span>}</label>
+        <label className="field">{isStay ? 'Thực tế (tổng)' : 'Thực tế'}<small className="field-optional" aria-hidden="true"> (không bắt buộc)</small><span className="money-input"><input type="number" inputMode="numeric" min="0" step="1" placeholder="Chưa phát sinh" {...register('actualAmountVnd', { setValueAs: (value) => value === '' || value == null ? null : Number(value) })} aria-invalid={Boolean(errors.actualAmountVnd)} /></span>{Number(actual) >= 1000 && <small className="field-preview" aria-hidden="true">{formatCurrency(Number(actual))}</small>}{errors.actualAmountVnd && <span>{errors.actualAmountVnd.message}</span>}</label>
         <label className="field field--wide">Người thanh toán<select {...register('paidByUserId')} aria-invalid={Boolean(errors.paidByUserId)}>{activePeople.map((person) => <option key={person.userId} value={person.userId}>{person.displayName}</option>)}</select>{errors.paidByUserId && <span>{errors.paidByUserId.message}</span>}</label>
         <fieldset className="field field--wide participant-field"><legend>Người tham gia</legend><div>{activePeople.map((person) => <label key={person.userId}><input type="checkbox" value={person.userId} {...register('participantUserIds')} /> <span>{person.displayName}</span></label>)}</div>{errors.participantUserIds && <span>{errors.participantUserIds.message}</span>}</fieldset>
         <fieldset className="field field--wide split-field" aria-describedby={errors.splitMethod ? 'split-error' : undefined}>
@@ -144,7 +144,7 @@ export function ExpenseForm({ expense, tripStart, tripEnd, pending, people, curr
               {selectedPeople.map((person) => splitMethod === 'shares'
                 ? <label key={`shares-${person.userId}`}><span>{person.displayName}</span><input type="number" inputMode="numeric" min="1" max={MAX_SHARE_UNITS} step="1" aria-label={`Số phần của ${person.displayName}`} {...register(`shareUnits.${person.userId}`, { setValueAs: toNumber })} /><small>{sharePreview ? formatCurrency(sharePreview.get(person.userId) ?? 0) : '—'}</small></label>
                 : <label key={`amounts-${person.userId}`}><span>{person.displayName}</span><input type="number" inputMode="numeric" min="0" step="1" aria-label={`Số tiền của ${person.displayName}`} {...register(`shareAmounts.${person.userId}`, { setValueAs: toNumber })} /></label>)}
-              <p className="field-hint" role="status">{splitMethod === 'shares'
+              <p className={`field-hint ${splitMethod === 'amounts' ? (amountTotal === splitTarget ? 'field-hint--ok' : 'field-hint--off') : ''}`} role="status">{splitMethod === 'shares'
                 ? `Tính trên ${formatCurrency(splitTarget)}; phần lẻ do người thanh toán chịu nếu có tham gia.`
                 : `Đã chia ${formatCurrency(amountTotal)} / ${formatCurrency(splitTarget)}${amountTotal === splitTarget ? '' : ` · còn lệch ${formatCurrency(Math.abs(splitTarget - amountTotal))}`}`}</p>
             </div>
@@ -153,7 +153,7 @@ export function ExpenseForm({ expense, tripStart, tripEnd, pending, people, curr
         </fieldset>
         </>
       )}
-      <label className="field field--wide">Ghi chú<textarea rows={3} maxLength={500} {...register('notes')} aria-invalid={Boolean(errors.notes)} />{errors.notes && <span>{errors.notes.message}</span>}</label>
+      <label className="field field--wide">Ghi chú<small className="field-optional" aria-hidden="true"> (không bắt buộc)</small><textarea rows={3} maxLength={500} {...register('notes')} aria-invalid={Boolean(errors.notes)} />{errors.notes && <span>{errors.notes.message}</span>}</label>
       <div className="form__actions field--wide">
         <button className="button button--ghost" type="button" onClick={onCancel}>Hủy</button>
         <button className="button button--primary" type="submit" disabled={pending}>{pending ? 'Đang lưu…' : expense ? 'Lưu thay đổi' : 'Thêm chi phí'}</button>

@@ -1,55 +1,51 @@
 .page { display: grid; }
 .page > header { grid-template-columns: 1fr; }
-.grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: start; gap: 24px; }
-.settings, .people { min-width: 0; padding: 24px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-surface); }
+.grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: start; gap: 16px; }
+.settings, .people { min-width: 0; padding: 18px 20px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-surface); }
 .settings { grid-column: 1 / -1; }
-.settings > header, .people > header { display: grid; grid-template-columns: auto 1fr; align-items: start; column-gap: 12px; margin-bottom: 22px; }
+.settings > header, .people > header { display: grid; gap: 4px; margin-bottom: 16px; }
 .settings > header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
 .settings > header > div { min-width: 0; }
-.settings .sectionIcon { display: none; }
-.sectionIcon { grid-row: span 3; display: grid; place-items: center; width: 46px; height: 46px; color: var(--color-primary); background: var(--color-mint); border-radius: var(--radius-inset); }
-.settings h2, .people h2 { min-width: 0; margin: 0; font-size: 23px; overflow-wrap: anywhere; }
-.settings :global(.eyebrow), .people :global(.eyebrow) { margin-bottom: 4px; }
+.settings h2, .people h2 { min-width: 0; margin: 0; font-size: 18px; overflow-wrap: anywhere; }
 .readonly { grid-column: 1 / -1; width: max-content; margin-top: 12px; padding: 6px 9px; color: var(--color-text-muted); background: var(--color-surface-muted); border-radius: var(--radius-pill); font-size: 12px; font-weight: 700; }
 .tripFacts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; padding-top: 20px; border-top: 1px solid var(--color-border); }
 .tripFacts span { display: grid; grid-template-columns: 20px 1fr; align-items: center; gap: 8px; color: var(--color-text-muted); font-size: 14px; }
 .tripFacts svg { color: var(--color-secondary); }
 .profile { margin-bottom: 24px; padding: 14px 0; border-top: 1px solid var(--color-border); border-bottom: 1px solid var(--color-border); }
 .profile summary, .archive summary { cursor: pointer; font-size: 14px; font-weight: 600; min-height: 44px; align-content: center; }
-.profile summary span { display: block; margin: 4px 0 0 18px; color: var(--color-text-muted); font-size: 12px; font-weight: 400; }
+.profile summary span { display: block; margin: 2px 0 0 18px; color: var(--color-text-muted); font-size: 12px; font-weight: 400; }
 .profile[open] :global(.form) { margin-top: 20px; }
 .profile :global(.form) p { margin-bottom: 0; font-size: 12px; color: var(--color-text-muted); }
 .archive { margin-top: 28px; padding-top: 16px; border-top: 1px solid var(--color-border); color: var(--color-text-muted); }
 .grid > section:last-child:not(.settings) { margin-top: 0; }
 .people > header { margin-bottom: 18px; }
-.people > header p:last-child { grid-column: 2; margin: 4px 0 0; color: var(--color-text-muted); font-size: 14px; }
-.invite { display: grid; gap: 8px; margin-bottom: 20px; padding: 16px; background: rgba(255,253,247,.8); border: 1px solid var(--color-border); border-radius: var(--radius-inset); }
+.people > header p:last-child { margin: 0; color: var(--color-text-muted); font-size: 14px; }
+.invite { display: grid; gap: 8px; margin-bottom: 16px; padding: 0 0 16px; border-bottom: 1px solid var(--color-border); }
 .invite > label { font-size: 14px; font-weight: 700; }
 .invite > div { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; }
-.invite input { min-width: 0; min-height: 44px; padding: 10px 11px; color: var(--color-text); background: #fbfaf5; border: 1px solid var(--color-border); border-radius: var(--radius-control); font-size: 16px; }
+.invite input { min-width: 0; min-height: 44px; padding: 10px 11px; color: var(--color-text); background: var(--color-field); border: 1px solid var(--color-border-strong); border-radius: var(--radius-control); font-size: 16px; }
 .invite > span { color: var(--color-danger); font-size: 12px; font-weight: 600; }
 .capacity { margin: 0; color: var(--color-text-muted); font-size: 13px; line-height: 1.6; }
 .peopleList { display: grid; margin: 0; padding: 0; list-style: none; }
-.peopleList li { display: grid; grid-template-columns: 38px minmax(0, 1fr) auto; align-items: center; gap: 12px; padding: 16px 0; border-top: 1px solid var(--color-border); }
+.peopleList li { display: grid; grid-template-columns: 38px minmax(0, 1fr) auto; align-items: center; gap: 12px; padding: 12px 0; border-top: 1px solid var(--color-border); }
 .avatar { display: grid; place-items: center; width: 38px; height: 38px; color: var(--color-primary); background: var(--color-mint); border-radius: 50%; font-size: 15px; font-weight: 700; }
 .identity { display: grid; min-width: 0; gap: 2px; }
 .peopleList strong, .peopleList small { min-width: 0; overflow-wrap: anywhere; }
 .peopleList strong { font-size: 14px; }
 .peopleList small { color: var(--color-text-muted); font-size: 12px; }
-.memberActions { display: grid; justify-items: end; gap: 6px; }
-.memberActions > button { max-width: 210px; min-height: 44px; text-align: end; overflow-wrap: anywhere; }
-.status { display: inline-grid; grid-auto-flow: column; align-items: center; gap: 4px; padding: 6px 8px; color: var(--color-primary); background: var(--color-mint); border-radius: var(--radius-pill); font-size: 11px; font-weight: 700; }
-.pending { color: #75411f; background: #f8e6d2; }
-.removeMember { display: inline-grid; grid-auto-flow: column; align-items: center; gap: 5px; min-height: 44px; padding: 5px 8px; color: var(--color-danger); background: transparent; border: 0; border-radius: var(--radius-control); font: inherit; font-size: 11px; font-weight: 600; cursor: pointer; }
-.removeMember:hover:not(:disabled) { background: color-mix(in srgb, var(--color-danger) 8%, transparent); }
-.removeMember:focus-visible { outline: 3px solid color-mix(in srgb, var(--color-danger) 24%, transparent); outline-offset: 2px; }
+.memberActions { display: flex; flex-wrap: wrap; align-items: center; justify-content: end; gap: 4px 6px; }
+.memberButton { display: inline-flex; align-items: center; gap: 5px; min-height: 44px; padding: 0 10px; color: var(--color-primary); background: transparent; border: 1px solid var(--color-border); border-radius: var(--radius-control); font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; }
+.memberButton:hover:not(:disabled) { background: var(--color-mint); }
+.status { display: inline-flex; align-items: center; gap: 4px; padding: 4px 8px; color: var(--color-primary); background: var(--color-mint); border-radius: var(--radius-pill); font-size: 12px; font-weight: 700; }
+.pending { color: var(--color-on-change); background: var(--color-change); }
+.removeMember { display: inline-flex; align-items: center; gap: 5px; min-height: 44px; padding: 0 10px; color: var(--color-danger); background: transparent; border: 1px solid var(--color-border); border-radius: var(--radius-control); font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; }
+.removeMember:hover:not(:disabled) { background: var(--color-danger-bg); }
 .removeMember:disabled { cursor: wait; opacity: .6; }
 .peopleLoading, .peopleError { padding: 24px 12px; color: var(--color-text-muted); text-align: center; }
 .peopleError { display: grid; justify-items: center; gap: 8px; }
 .peopleError p { margin: 0; }
 @media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
 @media (max-width: 560px) { .tripFacts { grid-template-columns: 1fr; gap: 12px; } }
-@media (max-width: 560px) { .settings, .people { padding: 20px 16px; } .invite > div { grid-template-columns: 1fr; } .invite .button { width: 100%; } .peopleList li { grid-template-columns: 42px minmax(0, 1fr); } .memberActions { grid-column: 2; justify-items: start; } }
+@media (max-width: 560px) { .settings, .people { padding: 20px 16px; } .invite > div { grid-template-columns: 1fr; } .invite .button { width: 100%; } .peopleList li { grid-template-columns: 42px minmax(0, 1fr); } .memberActions { grid-column: 2; justify-content: start; } }
 
 .invitationConfirm { overflow-wrap: anywhere; }
-@media (max-width: 560px) { .memberActions > button { text-align: start; } }

@@ -16,14 +16,19 @@ function parseDate(value: string) {
   return date
 }
 
-function dateInTimezone(now: Date, timezone: string) {
+function clockInTimezone(now: Date, timezone: string) {
   const parts = new Intl.DateTimeFormat('en-CA', {
     timeZone: timezone,
-    year: 'numeric', month: '2-digit', day: '2-digit',
+    year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hourCycle: 'h23',
   }).formatToParts(now)
   const values = Object.fromEntries(parts.map(({ type, value }) => [type, value]))
-  return `${values.year}-${values.month}-${values.day}`
+  return { date: `${values.year}-${values.month}-${values.day}`, time: `${values.hour}:${values.minute}` }
 }
+
+const dateInTimezone = (now: Date, timezone: string) => clockInTimezone(now, timezone).date
+
+/** The trip's local calendar date and HH:MM time, for "today" views. */
+export const getTripClock = (trip: Pick<Trip, 'timezone'>, now = new Date()) => clockInTimezone(now, trip.timezone)
 
 export function getTripReminder(trip: Pick<Trip, 'startDate' | 'endDate' | 'timezone'>, now = new Date()): TripReminder {
   const today = parseDate(dateInTimezone(now, trip.timezone))
