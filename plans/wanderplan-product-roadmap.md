@@ -1,5 +1,7 @@
 # WanderPlan — bảng kế hoạch sản phẩm tổng hợp
 
+29/10/2026 — A063/A064: rà soát giao diện bằng impeccable (26/40, 13/20). P34 thùng rác chi phí 7 ngày đã phát hành 0.16.0 (PR24/96c419e, migration production, CI/Pages/public đạt). Tiếp theo P35 làm mới toàn bộ giao diện, chỉ giữ tên WanderPlan; cần duyệt go-live riêng.
+
 29/10/2026 — P33 đã phát hành0.15.0 theo A062/E058: PR22/7b647fa, hai migration production, cấp admin tài khoản đã xác minh, CI/Pages/public và smoke có đăng nhập đạt. Không thử ghi dữ liệu chuyến/thành viên/thanh toán thật. Hồ sơ đóng đợt trên docs/release-0.15.0; không chọn tính năng mới.
 
 29/10/2026 — P33/A061/E057: admin website quản lý mọi chuyến và nhiều chủ nhóm; chỉ người tạo chuyến thu hồi quyền đồng chủ nhóm. Candidate0.15.0 local QA/UAT/ITS đạt; chờ duyệt go-live riêng cho hai migration, cấp admin tài khoản đã xác minh và phát hành. [Phạm vi](2026-10-14-no1-website-improvements/phases/P33-site-admin-trip-co-owners.md), [kết quả/ITO](../docs/releases/2026-10-29-0.15.0.md). Danh tính admin đầu tiên giữ ngoài Git; backlog hoãn không đổi.
@@ -51,6 +53,7 @@ UAT hiện tại: Supabase stack đầy đủ chạy local (Auth, Realtime, Post
 | 0.11.1 | 18/10 | Excel dễ đọc: chữ tiêu đề trắng (sửa lỗi màu), “Đến ngày” cạnh “Ngày”, đường lưới, xuống dòng Địa chỉ/Ghi chú. |
 | 0.12.0 | 18/10 | Thông báo trôi tự tắt 3 giây (lỗi giữ đến khi đóng), lịch sử 50 thông báo trên thiết bị theo tài khoản qua chuông; Excel tự giãn cột/dòng. |
 | 0.12.1 | 18/10 | Sửa metadata khoản chi chỉ còn người tham gia đã rời, nhập tiền nguyên đồng; test/lint loại worktree và artifact. |
+| 0.16.0 | 29/10 | Thùng rác chi phí 7 ngày: người xóa và chủ nhóm khôi phục; chặn khi có người đã rời nhóm; hộp thoại xóa trong app. |
 | 0.13.0 | 28/10 | Chủ chuyến đi chọn/xóa nhiều hoặc toàn bộ lịch trình, xác nhận, kiểm tra phiên bản và giao dịch nguyên tử; giữ chi phí/thành viên, Realtime. |
 
 
