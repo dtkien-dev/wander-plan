@@ -288,3 +288,8 @@ PR18 merged b732461 after CI40794182415 PASS. Main CI40794364399 and Pages407943
 ## E054 / A058 — release records publication
 workflow-action:A058 status:open
 Publish and merge docs-only closeout under existing approved go-live, require CI and Pages verification. No new schema/application/business-data changes. Final receipt shared on docs/release-0.14.0, resolve latest commit from Git log.
+
+## E059 / A063 — UI review and P34 expense trash
+workflow-action:A063 status:open
+Customer request: review and upgrade the UI under the standard workflow. Authorization: PO/BA decisions recorded in A063; IT/QA/ITS for P34 locally. Scope: branch feat/ui-upgrade from origin/main 7e8dc7e in .worktrees/ui-upgrade; new forward migration for expense trash, repositories/types/demo, expense UI and tests, PRODUCT.md, tracker records. No push, production DB or deploy without go-live approval. Primary checkout pre-existing edits preserved.
+Review evidence: impeccable dual-agent critique/audit on demo build (no data). Nielsen 26/40, audit 13/20, P1 ×4, detector source findings 3 verified false positives (`--ease-spring` is ease-out). Login not reviewable in demo; screen reader/zoom/runtime perf not tested.

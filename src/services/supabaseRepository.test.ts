@@ -174,4 +174,10 @@ it('serializes planning and restore RPCs with version snapshots rather than fina
   ;[url, init] = transport.fetch.mock.calls.at(-1)!
   expect(String(url)).toContain('/rpc/restore_trip_itinerary_item')
   expect(JSON.parse(init.body)).toEqual({ target_trip_id: item.tripId, target_item_id: item.id, expected_version: item.version, expected_deleted_at: item.deletedAt })
+  const trashed = { ...source.expenses[0], deletedAt: '2026-10-29T10:00:00Z', expiresAt: '2026-11-05T10:00:00Z', deletedByUserId: 'demo-owner' }
+  transport.fetch.mockResolvedValueOnce(new Response(null, { status: 204 }))
+  await travelRepository.restoreExpense(trashed)
+  ;[url, init] = transport.fetch.mock.calls.at(-1)!
+  expect(String(url)).toContain('/rpc/restore_trip_expense')
+  expect(JSON.parse(init.body)).toEqual({ target_trip_id: trashed.tripId, target_expense_id: trashed.id, expected_version: trashed.version, expected_deleted_at: trashed.deletedAt })
 })

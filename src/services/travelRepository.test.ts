@@ -55,6 +55,37 @@ describe('demo travel repository', () => {
     expect(current.expenses).toEqual(before.expenses)
   })
 
+  it('keeps deleted demo expenses for the deleter or owners and blocks restore after a participant left', async () => {
+    const before = (await travelRepository.loadWorkspace('demo-trip'))!
+    const expense = before.expenses.find((entry) => entry.id === 'demo-e-1')!
+    await travelRepository.deleteExpense(expense)
+    let current = (await travelRepository.loadWorkspace('demo-trip'))!
+    expect(current.expenses.some((entry) => entry.id === expense.id)).toBe(false)
+    expect(current.expenseTrash).toEqual([expect.objectContaining({ id: expense.id, deletedByUserId: 'demo-owner' })])
+    await expect(travelRepository.restoreExpense({ ...current.expenseTrash![0], deletedAt: '2000-01-01T00:00:00.000Z' })).rejects.toThrow('đã thay đổi')
+    let saved = savedTrips()
+    saved[0].currentUserId = 'demo-editor'
+    saved[0].currentRole = 'editor'
+    localStorage.setItem('wander-plan-demo-trips-v2', JSON.stringify(saved))
+    expect((await travelRepository.loadWorkspace('demo-trip'))!.expenseTrash).toEqual([])
+    await expect(travelRepository.restoreExpense(current.expenseTrash![0])).rejects.toThrow('người đã xóa hoặc chủ nhóm')
+    saved[0].currentUserId = 'demo-owner'
+    saved[0].currentRole = 'owner'
+    localStorage.setItem('wander-plan-demo-trips-v2', JSON.stringify(saved))
+    await travelRepository.restoreExpense(current.expenseTrash![0])
+    current = (await travelRepository.loadWorkspace('demo-trip'))!
+    expect(current.expenses.find((entry) => entry.id === expense.id)).toEqual({ ...expense, version: expense.version + 1 })
+    expect(current.expenseTrash).toEqual([])
+    await travelRepository.deleteExpense(current.expenses.find((entry) => entry.id === expense.id)!)
+    saved = savedTrips()
+    saved[0].people = saved[0].people.map((person) => person.userId === 'demo-editor' ? { ...person, status: 'invited' as const } : person)
+    localStorage.setItem('wander-plan-demo-trips-v2', JSON.stringify(saved))
+    await expect(travelRepository.restoreExpense(saved[0].expenseTrash![0])).rejects.toThrow('đã rời nhóm')
+    saved[0].expenseTrash![0].expiresAt = new Date(Date.now() - 1).toISOString()
+    localStorage.setItem('wander-plan-demo-trips-v2', JSON.stringify(saved))
+    expect((await travelRepository.loadWorkspace('demo-trip'))!.expenseTrash).toEqual([])
+  })
+
   it('reschedules demo date ranges only with explicit expense choice and preserves finances', async () => {
     const source = (await travelRepository.loadWorkspace('demo-trip'))!
     await expect(travelRepository.rescheduleTrip(source, '2026-12-04', false)).rejects.toThrow('ngoài khoảng')

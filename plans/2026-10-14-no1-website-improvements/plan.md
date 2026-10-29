@@ -107,3 +107,6 @@ A050/E046: 0.13.0 deployed and verified after go-live approval; A051/E047 publis
 
 ## A052 — P29–P31 trip planning improvements
 Execute P29 trash/recovery first, P30 atomic reschedule preview second, P31 template clone third. Customer approves implementation, expense-date shifting is optional/explicit; preserve money/payments/membership consent. Each phase implements demo/cloud/UI and targeted contracts, then integrated local UAT/QA, scoped ITS, concrete go-live decision. No production deployment before current-batch approval. Full scopes and acceptance are in stable phase files.
+
+## A063 — P34 expense trash, then P35 redesign
+Customer reviewed impeccable findings and approved: P34 expense trash (0.16.0) first, then P35 full redesign keeping only the WanderPlan name (0.17.0). Rules and acceptance in stable phase files. Each release needs separate go-live approval.

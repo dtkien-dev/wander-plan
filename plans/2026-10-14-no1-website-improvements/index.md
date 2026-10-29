@@ -10,7 +10,7 @@ Execute mode: Active
 Resume instruction: Resolve plans/2026-10-14-no1-website-improvements from the current clone root (tracker wp-20261014-01). Read docs/agent/README.md and workflow.md, then this index and every manifest file. Keep this exact repository-relative bundle as the execution source of truth; update it until explicit exit. If the execute skill is installed, it may be used with this resolved path.
 Workspace: Current clone root; never reuse another device's absolute path.
 Repository: deployed app main7b647fa (PR22,0.15.0). Docs closeout on docs/release-0.15.0; resolve final receipt via Git log.
-Active action: None — A062/E058 released/verified; docs closeout publication and final CI/Pages verification follows.
+Active action: A063/E059 open — P34 expense trash IT on feat/ui-upgrade (.worktrees/ui-upgrade); P35 redesign queued.
 
 <!-- workflow-active-snapshot:start version:2 -->
 ## Active Snapshot
@@ -87,6 +87,8 @@ phases/P30-trip-reschedule.md
 phases/P31-trip-template-clone.md
 security-review-p29-p31-2026-10-29.md
 phases/P33-site-admin-trip-co-owners.md
+phases/P34-expense-trash.md
+phases/P35-ui-redesign.md
 security-review-p33-2026-10-29.md
 phases/P32-workspace-hook-boundary.md
 <!-- workflow-manifest:end -->
