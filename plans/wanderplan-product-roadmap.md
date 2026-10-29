@@ -3,6 +3,8 @@
 Chủ sở hữu: PO. Cập nhật: 28/10/2026 sau phát hành 0.13.0 (Asia/Saigon). Tracker thực thi: `wp-20261014-01` (bundle `2026-10-14-no1-website-improvements`).
 File này là bảng kế hoạch chung cho IT, QA, ITS, BA, ITO. Lịch theo ngày chi tiết: [daily-schedule-2026-10-15.md](daily-schedule-2026-10-15.md).
 
+29/10/2026 — P32/A059/E055: tách hook đọc workspace và mutation, giữ nguyên hành vi; triển khai/QA/ITS local hoàn tất trên chore/workspace-refactor từ bản phát hành 0.14.0. Chờ duyệt xuất bản/go-live; không migration hay tính năng mới. Tối ưu refresh toàn workspace vẫn hoãn đến khi đo được nhu cầu. [Phạm vi và bằng chứng P32](2026-10-14-no1-website-improvements/phases/P32-workspace-hook-boundary.md).
+
 ## Quy trình mỗi đợt
 
 | Bước | Vai trò | Đầu ra bắt buộc |

@@ -1,7 +1,7 @@
 import { useRef, useState, type FormEvent } from 'react'
 import { Copy, CalendarRange } from 'lucide-react'
 import { Modal } from './Modal'
-import { useWorkspaceMutations } from '../hooks/useWorkspace'
+import { useWorkspaceMutations } from '../hooks/useWorkspaceMutations'
 import { useNotify } from '../providers/NotificationProvider'
 import { previewTripPlan } from '../lib/tripPlan'
 import type { WorkspaceData } from '../types'

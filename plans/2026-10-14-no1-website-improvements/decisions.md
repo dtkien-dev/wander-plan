@@ -1,4 +1,7 @@
 # Decisions
+
+## A059 — refactor inspection and execution, 29/10/2026
+Customer requests checking and proceeding through the repository workflow after discussion of refactoring. Select a small behavior-preserving read/write hook separation (P32); preserve existing business contracts and deferred features. Implementation, local verification and local commits authorized. No go-live approval inferred. Full workspace refresh redesign remains deferred pending measured need.
 ## A047 — Go-live 0.12.1, 18/10/2026
 Customer explicitly approves pushing fix/forms-and-local-checks, creating a PR to main, merging after CI passes and verifying Pages for candidate 0.12.1. Scope: reviewed P27 runtime/config/test/version changes and sanitized delivery records. No database migration or production test-data writes.
 

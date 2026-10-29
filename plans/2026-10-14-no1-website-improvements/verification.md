@@ -1,5 +1,8 @@
 # Verification
 
+## P32 / A059–E055 — 29/10/2026
+Baseline fetched origin/main 9c7a872; local branch chore/workspace-refactor. PASS: 32 focused provider/page/component tests before/after; 168 total app tests/29 suites, lint, TypeScript/demo build, 353 embedded SQL assertions/19 suites, audit-high zero findings and final diff whitespace. Assert comparison: mutation/read function bodies and mutation imports unchanged (normalized line endings). Same-agent scoped ITS after QA: no blocker, no new security surface. Test-audit: existing assertions retained, only module/mock routing changed; no duplicate tests introduced. NOT RUN: actual browser UAT/full Supabase/hosted/concurrent-service tests. No performance gain or independent security review claimed. No publication/production effects. Next gate: current-batch publication/go-live approval, then remote CI/Pages verification; no migration.
+
 ## E043 / P27 — Release 0.12.1, 18/10/2026
 - PASS: published exact PR #13 head 40f316a; shared PR CI 39126404155, merge with matching-head guard at 5ebbe82.
 - PASS: main CI 39126491308; Pages 39126491352 verify/build/deploy all succeeded.

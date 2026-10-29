@@ -4,7 +4,8 @@ import { ItineraryPage } from './ItineraryPage'
 import { demoWorkspace } from '../data/demoData'
 
 const mocks = vi.hoisted(() => ({ workspace: vi.fn(), mutations: vi.fn(), success: vi.fn() }))
-vi.mock('../hooks/useWorkspace', () => ({ useWorkspace: mocks.workspace, useWorkspaceMutations: mocks.mutations }))
+vi.mock('../hooks/useWorkspace', () => ({ useWorkspace: mocks.workspace }))
+vi.mock('../hooks/useWorkspaceMutations', () => ({ useWorkspaceMutations: mocks.mutations }))
 vi.mock('../providers/NotificationProvider', () => ({ useNotify: () => ({ success: mocks.success, error: vi.fn() }) }))
 let data: typeof demoWorkspace
 let remove: ReturnType<typeof vi.fn>

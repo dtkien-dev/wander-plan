@@ -46,7 +46,7 @@ Technology logos are embedded in the SVG so the diagram works without external i
 | --- | --- |
 | Bootstrap and routing | `src/main.tsx`, `src/App.tsx`, `src/components/AppShell.tsx`; dashboard, itinerary, expenses and group routes |
 | Authentication | `src/providers/AuthProvider.tsx`, `src/pages/LoginPage.tsx`; sessions, sign-in/sign-out and callback errors |
-| Workspace and cache | `src/providers/WorkspaceProvider.tsx`, `src/hooks/useWorkspace.ts`; trip selection, queries/mutations and one Realtime channel at a time |
+| Workspace and cache | `src/providers/WorkspaceProvider.tsx` owns trip selection, queries and one Realtime channel; `src/hooks/useWorkspace.ts` reads data, `src/hooks/useWorkspaceMutations.ts` writes and refreshes the originating cache |
 | Data access | `src/services/travelRepository.ts`; shared interface for SupabaseRepository and DemoRepository |
 | Types and calculations | `src/types.ts`, `src/lib/expenseSettlement.ts`; application data, expense splits and settlement |
 | Import/export | `src/lib/travelExcel.ts`, `src/lib/xlsxGuard.ts`, `src/lib/tripReminder.ts`; Excel and ICS calendar files |

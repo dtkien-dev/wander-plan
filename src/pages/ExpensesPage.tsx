@@ -8,7 +8,8 @@ import { actualOrEstimated, describeExpenseDates, formatCurrency, formatDate, sa
 import { calculateExpenseSettlement, involvesFormerMember, type SettlementTransfer } from '../lib/expenseSettlement'
 import { downloadTravelExcelReport } from '../lib/travelExcel'
 import { useNotify } from '../providers/NotificationProvider'
-import { useWorkspace, useWorkspaceMutations } from '../hooks/useWorkspace'
+import { useWorkspace } from '../hooks/useWorkspace'
+import { useWorkspaceMutations } from '../hooks/useWorkspaceMutations'
 import type { Expense, ExpenseCategory, ExpenseDraft, SettlementPayment, SplitMethod, TripImportDraft } from '../types'
 import styles from './ExpensesPage.module.css'
 

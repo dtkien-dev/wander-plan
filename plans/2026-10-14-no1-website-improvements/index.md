@@ -3,29 +3,30 @@
 Tracker ID: wp-20261014-01
 Created: 2026-10-14 Asia/Saigon
 Last updated: 2026-10-29 Asia/Saigon
-Status: Implemented
+Status: Implemented locally; P32 QA/ITS complete, publication pending approval
 Plan mode: Exited
 Execution readiness: Ready
 Execute mode: Active
 Resume instruction: Resolve plans/2026-10-14-no1-website-improvements from the current clone root (tracker wp-20261014-01). Read docs/agent/README.md and workflow.md, then this index and every manifest file. Keep this exact repository-relative bundle as the execution source of truth; update it until explicit exit. If the execute skill is installed, it may be used with this resolved path.
 Workspace: Current clone root; never reuse another device's absolute path.
-Repository: deployed main acc310a (app release 58b2906, version 0.13.0); final receipt shared on docs/release-0.13.0. Fetch and resolve latest branch head from Git log.
-Active action: A058/E054 — 0.14.0 released; docs-only closeout publication and final CI/Pages checks in_progress.
+Repository: fetched origin/main 9c7a872 (released 0.14.0). Local refactor on chore/workspace-refactor; resolve final commit through Git log.
+Active action: None — A059/E055 completed locally; P32 publication/go-live approval pending.
 
 <!-- workflow-active-snapshot:start version:2 -->
 ## Active Snapshot
 Profile: Durable
 Required references: references/intake.md, references/implementation.md, references/parallel-execution.md, references/completion.md, references/post-merge-cleanup.md
 Goal: Deliver verified daily improvements through plan, code, QA, security, go-live and next-day notes.
-Current state: P29/P30/P31 implementation batch active on feat/trip-reschedule-templates-trash from 3d7403c (released app main acc310a). Customer authorizes all three features and optional expense-date shifting; P29 first. Production remains 0.13.0; no new go-live approval.
+Current state: P29/P30/P31 released as 0.14.0. P32 read/write hook extraction implemented and QA/ITS complete locally on chore/workspace-refactor from 9c7a872. Production unchanged; no current-batch go-live approval.
 Accepted decisions: D01–D06, A010, A019, A020, A023, A024, A026, A029 and A031–A051. A047 explicitly authorizes P27 0.12.1 push, PR, merge after CI and Pages verification; completed under E043. No production data writes.
 Open items: R07/R17/R18 deferred by customer (A043/A044). E040 items 1–3 fixed under A045/P27; workspace refresh optimization remains deferred. Customer reports successful sign-in and requests no further R15 proposals; hosted email/Realtime remain unverified.
-Next safe action: present verified 0.14.0 candidate for new-batch go-live approval. Only after approval: publish/CI, target/backup preflight, four missing forward migrations before frontend, Pages/live verification.
+Next safe action: present the verified P32 refactor for publication/go-live approval. After approval: re-fetch, publish purpose branch/PR, require CI, merge and verify Pages/live. No migration needed. Preserve primary checkout changes.
 <!-- workflow-active-snapshot:end -->
 
 Shared workflow: [portable workflow](../../docs/agent/workflow.md). The references/*.md above belong to the optional installed execute skill; they are not missing repository files and are not required on a new device. Shared workflow contains the portable execution and evidence rules.
 
 ## Resume Checkpoint
+- E055/A059/P32 (29/10): unchanged mutation hook moved to src/hooks/useWorkspaceMutations.ts; all callers/mocks and architecture docs updated. 32 focused tests before/after, 168 total app tests, 353 embedded SQL assertions, lint/demo build/audit-high (zero findings), semantic equivalence and diff whitespace PASS. Same-agent scoped ITS clear. No browser/full-Supabase/hosted rerun, push/merge/deploy; go-live approval pending. Resolve local commit on chore/workspace-refactor via Git log.
 - E047/A051 (29/10): docs PR #17 merged acc310a after CI 40731357042; main CI 40731549138 and Pages 40731548893 PASS; final public HTTP 200/version 0.13.0. Release complete; final receipt on docs/release-0.13.0, resolve SHA from Git log. No new feature approved.
 - E046/A050/P28 (28/10): 0.13.0 app released at 58b2906 via PR #16; migration/grants/history, CI/Pages/public version and authenticated read-only controls PASS. E047 docs publication in progress. No production business-data test writes.
 - E043/A047/P27 (18/10): released 0.12.1. PR #13 reviewed head 40f316a merged at 5ebbe82; PR CI 39126404155, main CI 39126491308 and Pages 39126491352 PASS. Public HTTP 200/meta version and authenticated browser badge 0.12.1 confirmed; affected dialogs open, step=1, canceled without saving; console errors zero. No production schema/data writes. Final docs-only release records follow up on docs/release-0.12.1 (resolve latest SHA from Git log); primary user changes preserved. Deferred features unchanged.
@@ -82,6 +83,7 @@ phases/P29-itinerary-trash.md
 phases/P30-trip-reschedule.md
 phases/P31-trip-template-clone.md
 security-review-p29-p31-2026-10-29.md
+phases/P32-workspace-hook-boundary.md
 <!-- workflow-manifest:end -->
 
 Latest checkpoint 29/10: A055/E051 complete; independent review High fixed by forward provenance migration and verified in 353 embedded/full-local SQL, 168 app tests, lint/build. Prior E050 browser/mobile/Realtime/concurrency UAT passed. Candidate local on feat/trip-reschedule-templates-trash; resolve final commit via Git log. No push or production changes. Await fresh go-live approval.

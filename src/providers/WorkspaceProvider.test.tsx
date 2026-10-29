@@ -5,7 +5,8 @@ import type { Session } from '@supabase/supabase-js'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { WorkspaceProvider, useWorkspaceContext } from './WorkspaceProvider'
 import { App } from '../App'
-import { useWorkspace, useWorkspaceMutations } from '../hooks/useWorkspace'
+import { useWorkspace } from '../hooks/useWorkspace'
+import { useWorkspaceMutations } from '../hooks/useWorkspaceMutations'
 import type { Trip, TripInvitation, WorkspaceData } from '../types'
 
 const authState = vi.hoisted(() => ({ session: { user: { id: 'alice' } } as Session, isDemo: false }))
