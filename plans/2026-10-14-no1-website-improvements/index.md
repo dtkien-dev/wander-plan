@@ -10,7 +10,7 @@ Execute mode: Active
 Resume instruction: Resolve plans/2026-10-14-no1-website-improvements from the current clone root (tracker wp-20261014-01). Read docs/agent/README.md and workflow.md, then this index and every manifest file. Keep this exact repository-relative bundle as the execution source of truth; update it until explicit exit. If the execute skill is installed, it may be used with this resolved path.
 Workspace: Current clone root; never reuse another device's absolute path.
 Repository: deployed main3591711 (P32,0.14.0); local candidate0.15.0 on feat/site-admin-trip-co-owners. Resolve commit via Git log.
-Active action: None — A061/E057 complete locally; P33 new-batch go-live approval pending.
+Active action: A062/E058 — approved0.15.0 backup/migrations/admin bootstrap/CI/Pages/live verification in_progress.
 
 <!-- workflow-active-snapshot:start version:2 -->
 ## Active Snapshot

@@ -1,5 +1,9 @@
 # Evidence
 
+## E058 / A062 — approved0.15.0 rollout,29/10/2026
+workflow-action:A062 status:open
+Customer approved P33 go-live. Current coordinator; clean feat/site-admin-trip-co-owners at914a2a5, fetched main3591711 unchanged. GitHub target/default main and healthy Supabase project matched existing configuration. CLI dry-run confirms exactly two approved pending migrations, no seeds/roles/vault effects. Scope private backup, apply each once, exact privately specified verified-account bootstrap, push/PR/CI-gated merge and Pages/live read-only verification; no real trip/member/payment writes. Private identity and operational backup remain outside Git. Prior QA/independent ITS retained; no code change. Record exact outcomes before completion.
+
 ## E057 / A061 — website admin and trip co-owners, 29/10/2026
 workflow-action:A061 status:completed
 Cleanup verified: synthetic sessions revoked and global-admin registry row removed; ignored credential fixture/login page/local UAT env removed, owned tabs and port5183 app stopped. Shared local stack and business fixtures retained. Only repository files are included in local commit; no real identity or service credentials.
