@@ -1,8 +1,11 @@
 # Evidence
 
 ## E058 / A062 — approved0.15.0 rollout,29/10/2026
-workflow-action:A062 status:open
+workflow-action:A062 status:completed
 Customer approved P33 go-live. Current coordinator; clean feat/site-admin-trip-co-owners at914a2a5, fetched main3591711 unchanged. GitHub target/default main and healthy Supabase project matched existing configuration. CLI dry-run confirms exactly two approved pending migrations, no seeds/roles/vault effects. Scope private backup, apply each once, exact privately specified verified-account bootstrap, push/PR/CI-gated merge and Pages/live read-only verification; no real trip/member/payment writes. Private identity and operational backup remain outside Git. Prior QA/independent ITS retained; no code change. Record exact outcomes before completion.
+
+E058 result: private public/private schema+data backup completed and protected ACL verified, then exact canonical20261029120247/20261029122209 applied once; post-apply dry-run empty. Approved existing verified account granted registry role with strict unique/verified checks and idempotent insert; identity excluded from records. Catalog checks for RLS, private registry access denial, RPC authenticated/anon grants, revoked direct member UPDATE/DELETE and post-lock archive guard all true. Read-only transaction under approved identity confirms admin status and coverage of all active trips/archived metadata, returning only booleans.
+Published approved headade4627, PR22 CI40874958708 PASS, merge7b647fa958d52c8a44ee718ef8c6da8e60082a44; main CI40875101095/Pages40875101197 PASS. Public HTTP200/meta0.15.0; actual existing Google sign-in completed, authenticated admin indicator/Group controls/promotion dialog open+cancel PASS, zero app console errors. No actual role change/trip/member/payment test write, email or configuration change. Docs closeout on docs/release-0.15.0 follows; final PR/main CI/Pages receipt discoverable via Git log. No new backlog scope.
 
 ## E057 / A061 — website admin and trip co-owners, 29/10/2026
 workflow-action:A061 status:completed
