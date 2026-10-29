@@ -4,3 +4,5 @@ Owner supplies new name/start date; retain trip duration/destination/budget/capa
 Acceptance: copy days/multi-day/settings/tasks, reset assignments/completion, empty source, stale source, repeat/concurrent request, no old financial/member data, demo persistence and identity-safe selection; local browser/mobile.
 
 Final verification: E050 integrated browser/local UAT and E051 independent ITS/remediation complete. 168 app tests, 353 embedded/full-local SQL, lint/build PASS. Four forward migrations must precede frontend; no production approval yet.
+
+Released 0.14.0 under A057/E053: production four migrations once, PR18 b732461, CI/Pages and authenticated read-only UI PASS. Customer go-live approval recorded; no business-data test writes.

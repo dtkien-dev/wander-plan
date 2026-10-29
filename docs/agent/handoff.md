@@ -31,3 +31,6 @@ Continue `feat/itinerary-bulk-delete`; resolve latest local commit via Git log (
 P29/P30/P31 candidate 0.14.0 locally ready on feat/trip-reschedule-templates-trash. A055/E051 complete; fetch and inspect latest Git log. 168 app tests, 353 embedded/full-local SQL, lint/build pass; integrated UAT and independent ITS evidence in tracker. Four forward migrations, including final trash provenance hardening, required before frontend. No feature push or production mutation. Await current-batch go-live approval; prior 0.13.0 approval does not cover this release. Primary checkout edits preserved.
 
 Dependency follow-up A056/E052 completed: Vitest4.1.12, fast-uri3.1.9; zero npm audit findings, clean install/168 app tests/353 embedded SQL/lint/build pass, independent lock/registry integrity review clear. Candidate remains local and awaiting go-live approval; resolve latest commit from Git log.
+
+## Released 0.14.0 — 29/10/2026
+App PR18 merged b732461 after approved go-live. MainCI40794364399/Pages40794364198 PASS, public/authenticated0.14.0 and read-only move/clone/trash dialogs PASS. Four production migrations, private backup, grants/Realtime/hourly cron verified; no business-data test writes. A058/E054 docs closeout on docs/release-0.14.0; fetch and inspect latest Git log/tracker before resuming. No new backlog scope; primary checkout edits retained.

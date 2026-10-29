@@ -252,3 +252,6 @@ PASS: 167 app tests, lint/demo build, 345 embedded SQL assertions, audit-high/di
 
 ## A056/E052 dependency remediation
 Vitest4.1.12 and fast-uri3.1.9: clean npm ci, 168 app tests, lint/TypeScript/build, 353 embedded SQL PASS. npm audit --audit-level=low: zero vulnerabilities. Package set unchanged, no override/dependency added. Prior full-local SQL/browser evidence retained; not repeated for dependency-only patch.
+
+## 0.14.0 go-live E053
+Customer approved; PR18 b732461, CI40794182415/mainCI40794364399/Pages40794364198 PASS. Four missing migrations applied once after private schema/data backup; subsequent dry-run empty. RPC grants/signatures/trash constraints/Realtime/hourly cron verified. Public HTTP200/meta0.14.0; authenticated UI0.14.0, move/clone/trash open/cancel, zero console errors. No production data writes for smoke or actual expiry/backup restore rehearsal.
