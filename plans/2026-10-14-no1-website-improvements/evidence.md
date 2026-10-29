@@ -246,3 +246,7 @@ QA: clean npm ci, 168 tests/29 files on Vitest 4.1.12, lint, TypeScript/demo bui
 
 workflow-action:A056 status:completed
 Independent Platform/Supply Chain reviewer: no issue; manifest/lock alignment, all nine changed package integrity hashes match npm registry, upstream optional peer range confirmed, fast-uri satisfies existing requirement, no unrelated config changes. Did not independently rerun tests/audit. Candidate ready to return to go-live approval; no production action authorized or performed under this maintenance action.
+
+## E053 / A057 — approved 0.14.0 go-live
+workflow-action:A057 status:open
+Customer explicitly approves current 0.14.0 candidate including A056 dependency patches. Scope: publish feature branch/PR, CI, verified wander-plan production database backup and four missing forward migrations before frontend; merge exact checked head to main, Pages/live/authenticated read-only smoke and closeout records. No real business-data test writes, invitations or account-policy changes. Preserve primary checkout. Target verified GitHub dtkien-dev/wander-plan/main and Supabase wander-plan; production history ends 20261028163323; pg_cron available, realtime publication exists.
