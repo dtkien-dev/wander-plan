@@ -16,8 +16,8 @@ const mocks = vi.hoisted(() => ({
 vi.mock('../hooks/useWorkspace', () => ({
   useWorkspace: mocks.useWorkspace,
   useTripPeople: mocks.useTripPeople,
-  useWorkspaceMutations: mocks.useWorkspaceMutations,
 }))
+vi.mock('../hooks/useWorkspaceMutations', () => ({ useWorkspaceMutations: mocks.useWorkspaceMutations }))
 
 const trip = {
   id: 'trip-hue', name: 'Hành trình Huế', destination: 'Huế', startDate: '2027-02-10', endDate: '2027-02-12',

@@ -4,7 +4,7 @@ import { TripPlanActions } from './TripPlanActions'
 import { demoWorkspace } from '../data/demoData'
 
 const mocks = vi.hoisted(() => ({ move: vi.fn(), copy: vi.fn(), notify: vi.fn() }))
-vi.mock('../hooks/useWorkspace', () => ({ useWorkspaceMutations: () => ({ rescheduleTrip: { mutateAsync: mocks.move, isPending: false }, cloneTrip: { mutateAsync: mocks.copy, isPending: false } }) }))
+vi.mock('../hooks/useWorkspaceMutations', () => ({ useWorkspaceMutations: () => ({ rescheduleTrip: { mutateAsync: mocks.move, isPending: false }, cloneTrip: { mutateAsync: mocks.copy, isPending: false } }) }))
 vi.mock('../providers/NotificationProvider', () => ({ useNotify: () => ({ success: mocks.notify }) }))
 beforeEach(() => { vi.clearAllMocks(); mocks.move.mockResolvedValue(undefined); mocks.copy.mockResolvedValue('new-trip') })
 afterEach(cleanup)

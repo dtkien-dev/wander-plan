@@ -12,7 +12,7 @@ const mocks = vi.hoisted(() => ({
 }))
 
 vi.mock('../providers/WorkspaceProvider', () => ({ useWorkspaceContext: () => mocks.context }))
-vi.mock('../hooks/useWorkspace', () => ({ useWorkspaceMutations: () => mocks.mutations }))
+vi.mock('../hooks/useWorkspaceMutations', () => ({ useWorkspaceMutations: () => mocks.mutations }))
 
 const invitation = {
   tripId: 'invited-trip', tripName: 'Chuyến Huế', destination: 'Huế', startDate: '2027-02-10', endDate: '2027-02-12',
