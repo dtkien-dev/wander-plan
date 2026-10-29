@@ -10,7 +10,7 @@ import { useWorkspaceMutations } from '../hooks/useWorkspaceMutations'
 import type { Trip, TripInvitation, WorkspaceData } from '../types'
 
 const authState = vi.hoisted(() => ({ session: { user: { id: 'alice' } } as Session, isDemo: false }))
-const repository = vi.hoisted(() => ({ listTrips: vi.fn(), listArchivedTrips: vi.fn(), setTripArchived: vi.fn(), loadInvitations: vi.fn(), loadWorkspace: vi.fn(), respondInvitation: vi.fn(), updateTrip: vi.fn() }))
+const repository = vi.hoisted(() => ({ isSiteAdmin: vi.fn(), listTrips: vi.fn(), listArchivedTrips: vi.fn(), setTripArchived: vi.fn(), loadInvitations: vi.fn(), loadWorkspace: vi.fn(), respondInvitation: vi.fn(), updateTrip: vi.fn() }))
 const realtime = vi.hoisted(() => ({ channel: vi.fn(), removeChannel: vi.fn() }))
 vi.mock('./AuthProvider', () => ({ useAuth: () => authState }))
 vi.mock('../services/travelRepository', () => ({ travelRepository: repository }))
@@ -69,6 +69,7 @@ beforeEach(() => {
   activeChannels = new Set()
   response = undefined
   repository.listTrips.mockResolvedValue([trip('trip-a'), trip('trip-b'), trip('trip-c')])
+  repository.isSiteAdmin.mockResolvedValue(false)
   repository.loadInvitations.mockResolvedValue([invitation])
   repository.listArchivedTrips.mockResolvedValue([])
   repository.loadWorkspace.mockImplementation(async (id: string) => workspace(id))
@@ -85,6 +86,21 @@ beforeEach(() => {
 afterEach(cleanup)
 
 describe('WorkspaceProvider integration', () => {
+  it('clears privileged trip caches when the server revokes website admin access', async () => {
+    repository.isSiteAdmin.mockResolvedValue(true)
+    const { client } = mount()
+    await waitFor(() => expect(screen.getByLabelText('data-first')).toHaveTextContent('trip-a'))
+    await waitFor(() => expect(client.getQueryData(['site-admin', 'alice'])).toBe(true))
+    client.setQueryData(['workspace', 'alice', 'inactive-trip'], workspace('inactive-trip'))
+    repository.isSiteAdmin.mockResolvedValue(false)
+    repository.listTrips.mockResolvedValue([])
+    repository.loadWorkspace.mockResolvedValue(null)
+    await act(async () => { await client.invalidateQueries({ queryKey: ['site-admin', 'alice'] }) })
+    await waitFor(() => expect(screen.getByLabelText('trip-first')).toHaveTextContent('none'))
+    expect(screen.getByLabelText('data-first')).toHaveTextContent('empty')
+    expect(client.getQueryData(['workspace', 'alice', 'inactive-trip'])).toBeUndefined()
+    expect(activeChannels.size).toBe(1)
+  })
   it('keeps the initial trip selected when rescheduled metadata reorders trips', async () => {
     const { client } = mount()
     await waitFor(() => expect(screen.getByLabelText('data-first')).toHaveTextContent('trip-a'))

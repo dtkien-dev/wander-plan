@@ -3,6 +3,7 @@ export type ExpenseCategory = 'food' | 'transport' | 'stay' | 'ticket' | 'other'
 export type SplitMethod = 'equal' | 'shares' | 'amounts'
 
 export interface Trip {
+  createdByUserId?: string
   archivedAt?: string | null
   id: string
   name: string
@@ -97,6 +98,7 @@ export interface FormerPerson {
 }
 
 export interface WorkspaceData {
+  isSiteAdmin?: boolean
   itineraryTrash?: TrashedItineraryItem[]
   checklist?: ChecklistItem[]
   formerPeople?: FormerPerson[]

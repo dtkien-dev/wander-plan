@@ -17,7 +17,7 @@ const navItems = [
 
 export function AppShell() {
   const { isDemo, session, signOut } = useAuth()
-  const { identity, tripId } = useWorkspaceContext()
+  const { identity, tripId, isSiteAdmin } = useWorkspaceContext()
   const [signOutError, setSignOutError] = useState('')
   const [signingOut, setSigningOut] = useState(false)
   const logout = async () => {
@@ -52,6 +52,7 @@ export function AppShell() {
       </header>
       {signOutError && <div className="shell-alert" role="alert">{signOutError}<button type="button" onClick={() => setSignOutError('')}>Đóng</button></div>}
       <main className="page" data-ai-id="page-content">
+        {isSiteAdmin && <p className="eyebrow" aria-label="Vai trò website">Admin website · Quản lý mọi chuyến</p>}
         <TripManager />
         <div key={`${identity}-${tripId ?? 'none'}`}><Outlet /></div>
       </main>

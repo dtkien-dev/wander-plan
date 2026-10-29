@@ -3,29 +3,30 @@
 Tracker ID: wp-20261014-01
 Created: 2026-10-14 Asia/Saigon
 Last updated: 2026-10-29 Asia/Saigon
-Status: Released — P32 go-live and public smoke verified; docs closeout publication follows
+Status: P33 implemented locally; QA/UAT/independent ITS complete, go-live approval pending
 Plan mode: Exited
 Execution readiness: Ready
 Execute mode: Active
 Resume instruction: Resolve plans/2026-10-14-no1-website-improvements from the current clone root (tracker wp-20261014-01). Read docs/agent/README.md and workflow.md, then this index and every manifest file. Keep this exact repository-relative bundle as the execution source of truth; update it until explicit exit. If the execute skill is installed, it may be used with this resolved path.
 Workspace: Current clone root; never reuse another device's absolute path.
-Repository: P32 deployed main fa59861 (PR20), version 0.14.0 retained. Docs closeout on docs/release-workspace-refactor; resolve final commit through Git log.
-Active action: None — A060/E056 deployed and verified; publish docs closeout within approved batch, then verify final CI/Pages.
+Repository: deployed main3591711 (P32,0.14.0); local candidate0.15.0 on feat/site-admin-trip-co-owners. Resolve commit via Git log.
+Active action: A062/E058 — approved0.15.0 backup/migrations/admin bootstrap/CI/Pages/live verification in_progress.
 
 <!-- workflow-active-snapshot:start version:2 -->
 ## Active Snapshot
 Profile: Durable
 Required references: references/intake.md, references/implementation.md, references/parallel-execution.md, references/completion.md, references/post-merge-cleanup.md
 Goal: Deliver verified daily improvements through plan, code, QA, security, go-live and next-day notes.
-Current state: P32 read/write hook extraction released under A060 as PR20/fa59861; main CI/Pages and public browser smoke PASS. Version remains 0.14.0; no DB change. Docs-only closeout publication follows.
-Accepted decisions: D01–D06, A010, A019, A020, A023, A024, A026, A029 and A031–A051. A047 explicitly authorizes P27 0.12.1 push, PR, merge after CI and Pages verification; completed under E043. No production data writes.
+Current state: P33 website admin and co-owners candidate0.15.0 local QA/UAT/independent ITS complete. Two forward migrations applied once only locally. No production grant/migration/publication. P32 release/docs complete at main3591711.
+Accepted decisions: prior product/financial/consent decisions retained. A061 adds website admin access across all trips, owner promotion of accepted members and creator-only co-owner demotion. Initial admin supplied privately; no new-batch production approval.
 Open items: R07/R17/R18 deferred by customer (A043/A044). E040 items 1–3 fixed under A045/P27; workspace refresh optimization remains deferred. Customer reports successful sign-in and requests no further R15 proposals; hosted email/Realtime remain unverified.
-Next safe action: publish docs/release-workspace-refactor with E056 outcomes/release note, require CI then merge and verify final Pages/live. No further feature work selected. Preserve primary checkout changes.
+Next safe action: present verified P33 candidate for new go-live approval, covering private backup, two forward migrations, exact approved-account bootstrap, PR/CI/merge/Pages and read-only smoke. Preserve primary checkout changes.
 <!-- workflow-active-snapshot:end -->
 
 Shared workflow: [portable workflow](../../docs/agent/workflow.md). The references/*.md above belong to the optional installed execute skill; they are not missing repository files and are not required on a new device. Shared workflow contains the portable execution and evidence rules.
 
 ## Resume Checkpoint
+- E057/A061/P33 (29/10): candidate0.15.0 on feat/site-admin-trip-co-owners;175 app tests,389 embedded/full-local SQL, lint/build/audit/advisor and actual two-browser Realtime/mobile/concurrent-role/cache-revocation QA PASS. Independent ITS remediations rechecked; no remaining scoped finding. No production grant/DB/data/push/merge/deploy. Two forward migrations and private bootstrap require new go-live approval. Resolve local commit via Git log; initial admin identity remains outside Git.
 - E056/A060/P32 (29/10): customer go-live approved; PR20/fa59861 deployed, PR CI40866629066/main CI40866751685/Pages40866751533 PASS. Public HTML/entry script HTTP200, meta0.14.0; real browser login smoke PASS. No new console errors after reload; pre-deployment stale token noted. Authenticated/hosted write tests not performed, no DB changes or login emails. Docs closeout on docs/release-workspace-refactor follows; resolve latest final receipt via Git log.
 - E055/A059/P32 (29/10): unchanged mutation hook moved to src/hooks/useWorkspaceMutations.ts; all callers/mocks and architecture docs updated. 32 focused tests before/after, 168 total app tests, 353 embedded SQL assertions, lint/demo build/audit-high (zero findings), semantic equivalence and diff whitespace PASS. Same-agent scoped ITS clear. No browser/full-Supabase/hosted rerun, push/merge/deploy; go-live approval pending. Resolve local commit on chore/workspace-refactor via Git log.
 - E047/A051 (29/10): docs PR #17 merged acc310a after CI 40731357042; main CI 40731549138 and Pages 40731548893 PASS; final public HTTP 200/version 0.13.0. Release complete; final receipt on docs/release-0.13.0, resolve SHA from Git log. No new feature approved.
@@ -84,6 +85,8 @@ phases/P29-itinerary-trash.md
 phases/P30-trip-reschedule.md
 phases/P31-trip-template-clone.md
 security-review-p29-p31-2026-10-29.md
+phases/P33-site-admin-trip-co-owners.md
+security-review-p33-2026-10-29.md
 phases/P32-workspace-hook-boundary.md
 <!-- workflow-manifest:end -->
 

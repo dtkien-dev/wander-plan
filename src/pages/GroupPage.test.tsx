@@ -20,6 +20,7 @@ vi.mock('../hooks/useWorkspace', () => ({
 vi.mock('../hooks/useWorkspaceMutations', () => ({ useWorkspaceMutations: mocks.useWorkspaceMutations }))
 
 const trip = {
+  createdByUserId: 'owner-id',
   id: 'trip-hue', name: 'Hành trình Huế', destination: 'Huế', startDate: '2027-02-10', endDate: '2027-02-12',
   timezone: 'Asia/Ho_Chi_Minh', budgetVnd: 2_000_000, maxMembers: 4, version: 1,
 }
@@ -42,6 +43,7 @@ function setup(role: WorkspaceData['currentRole'], revokeInvitation = vi.fn().mo
   mocks.useWorkspace.mockReturnValue({ data: workspace(role), isLoading: false, isError: false, refetch: vi.fn() })
   mocks.useTripPeople.mockReturnValue({ data: people, isLoading: false, isError: false, refetch: vi.fn() })
   mocks.useWorkspaceMutations.mockReturnValue({
+    setMemberRole: { mutateAsync: vi.fn().mockResolvedValue(undefined), isPending: false },
     displayName: { mutateAsync: vi.fn(), isPending: false },
     checklist: { mutateAsync: vi.fn(), isPending: false },
     deleteChecklist: { mutateAsync: vi.fn(), isPending: false },
@@ -58,6 +60,44 @@ beforeEach(() => vi.clearAllMocks())
 afterEach(cleanup)
 
 describe('GroupPage invitations', () => {
+  it('confirms role changes, preserves errors and allows creator-only demotion', async () => {
+    setup('owner')
+    const roles = mocks.useWorkspaceMutations().setMemberRole.mutateAsync
+    roles.mockRejectedValueOnce(new Error('Vai trò đã thay đổi.')).mockResolvedValue(undefined)
+    render(<GroupPage />, { wrapper })
+    fireEvent.click(screen.getByRole('button', { name: 'Bổ nhiệm Thành viên một làm chủ nhóm' }))
+    expect(screen.getByRole('dialog')).toHaveTextContent('đầy đủ quyền quản lý')
+    fireEvent.click(screen.getByRole('button', { name: 'Hủy', exact: true }))
+    expect(roles).not.toHaveBeenCalled()
+    fireEvent.click(screen.getByRole('button', { name: 'Bổ nhiệm Thành viên một làm chủ nhóm' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Xác nhận', exact: true }))
+    expect(await screen.findByRole('alert')).toHaveTextContent('Vai trò đã thay đổi.')
+    expect(roles).toHaveBeenCalledWith({ tripId: trip.id, userId: 'member-1', name: 'Thành viên một', role: 'owner', expectedRole: 'editor' })
+    fireEvent.click(screen.getByRole('button', { name: 'Xác nhận', exact: true }))
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
+    cleanup()
+    mocks.useTripPeople.mockReturnValue({ data: people.map((person) => person.userId === 'member-1' ? { ...person, role: 'owner' } : person), isLoading: false, isError: false })
+    render(<GroupPage />, { wrapper })
+    fireEvent.click(screen.getByRole('button', { name: 'Thu hồi quyền chủ nhóm của Thành viên một' }))
+    expect(screen.getByRole('dialog')).toHaveTextContent('Dữ liệu, khoản chi và công việc được giữ nguyên')
+    fireEvent.click(screen.getByRole('button', { name: 'Xác nhận', exact: true }))
+    await waitFor(() => expect(roles).toHaveBeenLastCalledWith({ tripId: trip.id, userId: 'member-1', name: 'Thành viên một', role: 'editor', expectedRole: 'owner' }))
+    expect(screen.queryByRole('button', { name: 'Thu hồi quyền chủ nhóm của Chủ nhóm' })).not.toBeInTheDocument()
+  })
+
+  it('allows co-owner/admin promotion but keeps demotion with the creator', () => {
+    setup('owner')
+    mocks.useWorkspace.mockReturnValue({ data: { ...workspace('owner'), currentUserId: 'co-owner' }, isLoading: false, isError: false })
+    render(<GroupPage />, { wrapper })
+    expect(screen.getByRole('button', { name: 'Bổ nhiệm Thành viên một làm chủ nhóm' })).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /^Thu hồi quyền chủ nhóm/ })).not.toBeInTheDocument()
+    cleanup()
+    mocks.useWorkspace.mockReturnValue({ data: { ...workspace('owner'), currentUserId: 'site-admin', isSiteAdmin: true }, isLoading: false, isError: false })
+    render(<GroupPage />, { wrapper })
+    expect(screen.getByRole('button', { name: 'Bổ nhiệm Thành viên một làm chủ nhóm' })).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /^Thu hồi quyền chủ nhóm/ })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Bổ nhiệm invitee@example.com làm chủ nhóm' })).not.toBeInTheDocument()
+  })
   it('keeps settings compact, discards a cancelled draft and saves through the owner editor', async () => {
     setup('owner')
     const update = mocks.useWorkspaceMutations().updateTrip.mutateAsync

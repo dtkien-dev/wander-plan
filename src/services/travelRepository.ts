@@ -2,13 +2,15 @@ import { demoWorkspace } from '../data/demoData'
 import { calculateExpenseSettlement, involvesFormerMember, validateSplit } from '../lib/expenseSettlement'
 import { checkDemoPlanSnapshot, planVersions, previewTripPlan } from '../lib/tripPlan'
 import { supabase } from '../lib/supabase'
-import type { ArchivedTrip, ChecklistDraft, ChecklistItem, Expense, FormerPerson, SettlementPayment, SplitMethod, ExpenseDraft, ItineraryDraft, ItineraryItem, Trip, TripDraft, TripImportDraft, TripImportResult, TripPerson, TripInvitation, WorkspaceData, TrashedItineraryItem } from '../types'
+import type { ArchivedTrip, MemberRole, ChecklistDraft, ChecklistItem, Expense, FormerPerson, SettlementPayment, SplitMethod, ExpenseDraft, ItineraryDraft, ItineraryItem, Trip, TripDraft, TripImportDraft, TripImportResult, TripPerson, TripInvitation, WorkspaceData, TrashedItineraryItem } from '../types'
 
 const STORAGE_KEY = 'wander-plan-demo-workspace-v1'
 const PEOPLE_STORAGE_KEY = 'wander-plan-demo-people-v1'
 const demoPeople = demoWorkspace.people
 
 export interface TravelRepository {
+  isSiteAdmin(): Promise<boolean>
+  setMemberRole(tripId: string, userId: string, role: MemberRole, expectedRole: MemberRole): Promise<void>
   loadWorkspace(tripId?: string): Promise<WorkspaceData | null>
   saveDisplayName(name: string): Promise<void>
   saveChecklist(draft: ChecklistDraft, tripId: string, existing?: ChecklistItem): Promise<void>
@@ -46,10 +48,26 @@ interface DemoWorkspaceData extends WorkspaceData {
 }
 
 class DemoRepository implements TravelRepository {
+  async isSiteAdmin() { return false }
+
+  async setMemberRole(tripId: string, userId: string, role: MemberRole, expectedRole: MemberRole) {
+    const data = this.read(tripId)
+    if (data.currentRole !== 'owner') throw new Error('Chỉ chủ nhóm được thay đổi vai trò thành viên.')
+    const creator = data.trip.createdByUserId ?? 'demo-owner'
+    if (role === 'editor' && (data.currentUserId !== creator || userId === creator)) throw new Error('Chỉ người tạo chuyến được thu hồi quyền đồng chủ nhóm.')
+    const person = data.people.find((entry) => entry.userId === userId && entry.status === 'active')
+    if (!person) throw new Error('Chỉ bổ nhiệm thành viên đã tham gia chuyến đi.')
+    if (person.role !== expectedRole) throw new Error('Vai trò đã thay đổi. Hãy tải lại danh sách và thử lại.')
+    if (role === 'editor' && person.role === 'owner' && data.people.filter((entry) => entry.role === 'owner' && entry.status === 'active').length <= 1) throw new Error('Chuyến đi phải có ít nhất một chủ nhóm.')
+    person.role = role
+    if (userId === data.currentUserId) data.currentRole = role
+    this.write(data)
+  }
   private readAll(): DemoWorkspaceData[] {
     const all = localStorage.getItem('wander-plan-demo-trips-v2')
     if (all) return (JSON.parse(all) as DemoWorkspaceData[]).map((data) => ({
       ...data,
+      trip: { ...data.trip, createdByUserId: data.trip.createdByUserId ?? 'demo-owner' },
       checklist: data.checklist ?? [],
       itineraryTrash: (data.itineraryTrash ?? []).filter((item) => Date.parse(item.expiresAt) > Date.now()),
       settlementPayments: data.settlementPayments ?? [],
@@ -61,6 +79,7 @@ class DemoRepository implements TravelRepository {
     const data = saved ? (JSON.parse(saved) as WorkspaceData) : cloneDemo()
     const people = localStorage.getItem(PEOPLE_STORAGE_KEY)
     data.people = people ? JSON.parse(people) as TripPerson[] : data.people ?? [...demoPeople]
+    data.trip.createdByUserId ??= 'demo-owner'
     data.trip.maxMembers ??= 4
     data.itineraryTrash = (data.itineraryTrash ?? []).filter((item) => Date.parse(item.expiresAt) > Date.now())
     data.checklist ??= []
@@ -120,7 +139,7 @@ class DemoRepository implements TravelRepository {
     const previous = this.readAll().find((data) => data.trip.id === requestId)
     if (previous) return previous.trip.id
     const owner = { ...(this.readAll()[0]?.people.find((person) => person.userId === 'demo-owner') ?? demoPeople[0]), userId: 'demo-owner', role: 'owner' as const, status: 'active' as const }
-    this.write({ trip: { ...draft, id: requestId, timezone: 'Asia/Ho_Chi_Minh', version: 1 }, people: [owner], memberCount: 1, currentUserId: 'demo-owner', currentRole: 'owner', itinerary: [], expenses: [] })
+    this.write({ trip: { ...draft, id: requestId, createdByUserId: 'demo-owner', timezone: 'Asia/Ho_Chi_Minh', version: 1 }, people: [owner], memberCount: 1, currentUserId: 'demo-owner', currentRole: 'owner', itinerary: [], expenses: [] })
     return requestId
   }
 
@@ -292,7 +311,7 @@ class DemoRepository implements TravelRepository {
     const preview = previewTripPlan(data, startDate, false)
     const owner = data.people.find((person) => person.userId === data.currentUserId && person.status === 'active')
     if (!owner) throw new Error('Không tìm thấy chủ chuyến đi.')
-    this.write({ trip: { ...preview.trip, id: requestId, name: name.trim(), version: 1 },
+    this.write({ trip: { ...preview.trip, id: requestId, createdByUserId: data.currentUserId, name: name.trim(), version: 1 },
       itinerary: preview.itinerary.map((item) => ({ ...item, id: crypto.randomUUID(), tripId: requestId, version: 1 })),
       checklist: (data.checklist ?? []).map((item) => ({ ...item, id: crypto.randomUUID(), tripId: requestId, assignedTo: null, completed: false, version: 1 })),
       expenses: [], settlementPayments: [], settlementPaymentCount: 0, formerPeople: [], itineraryTrash: [],
@@ -396,6 +415,7 @@ const splitParams = (draft: ExpenseDraft) => {
 }
 
 const mapTrip = (row: any): Trip => ({
+  createdByUserId: row.created_by,
   id: row.id,
   name: row.name,
   destination: row.destination,
@@ -465,6 +485,18 @@ async function loadAllRows<T>(page: (from: number, to: number) => PromiseLike<{ 
 }
 
 class SupabaseRepository implements TravelRepository {
+  async isSiteAdmin() {
+    if (!supabase) return false
+    const { data, error } = await supabase.rpc('get_my_site_admin_status')
+    throwIfError(error)
+    return data === true
+  }
+
+  async setMemberRole(tripId: string, userId: string, role: MemberRole, expectedRole: MemberRole) {
+    if (!supabase) throw new Error('Supabase chưa được cấu hình.')
+    const { error } = await supabase.rpc('set_trip_member_role', { target_trip_id: tripId, target_user_id: userId, new_role: role, expected_role: expectedRole })
+    throwIfError(error)
+  }
   async listArchivedTrips(): Promise<ArchivedTrip[]> {
     if (!supabase) return []
     const data = await loadAllRows((from, to) => supabase!.rpc('get_my_archived_trips', {}, { count: 'exact' }).order('archived_at', { ascending: false }).order('id').range(from, to))
@@ -511,7 +543,7 @@ class SupabaseRepository implements TravelRepository {
   }
   async listTrips() {
     if (!supabase) return []
-    const data = await loadAllRows((from, to) => supabase!.from('trips').select('id,name,destination,start_date,end_date,timezone,budget_vnd,max_members,version', { count: 'exact' }).order('start_date').order('id').range(from, to))
+    const data = await loadAllRows((from, to) => supabase!.from('trips').select('id,created_by,name,destination,start_date,end_date,timezone,budget_vnd,max_members,version', { count: 'exact' }).order('start_date').order('id').range(from, to))
     return data.map(mapTrip)
   }
 
@@ -535,7 +567,7 @@ class SupabaseRepository implements TravelRepository {
 
   async loadWorkspace(tripId?: string) {
     if (!supabase || !tripId) return null
-    const { data: trips, error } = await supabase.from('trips').select('id,name,destination,start_date,end_date,timezone,budget_vnd,max_members,version').eq('id', tripId).limit(1)
+    const { data: trips, error } = await supabase.from('trips').select('id,created_by,name,destination,start_date,end_date,timezone,budget_vnd,max_members,version').eq('id', tripId).limit(1)
     throwIfError(error)
     if (!trips?.length) return null
     const trip = mapTrip(trips[0])
@@ -543,7 +575,7 @@ class SupabaseRepository implements TravelRepository {
     throwIfError(authError)
     if (!authData.session) throw new Error('Bạn cần đăng nhập.')
     const currentUserId = authData.session.user.id
-    const [itineraryRows, expenseRows, members, checklistRows, paymentRows, formerRows, profile, people, trashRows] = await Promise.all([
+    const [itineraryRows, expenseRows, members, checklistRows, paymentRows, formerRows, profile, people, trashRows, isSiteAdmin] = await Promise.all([
       loadAllRows((from, to) => supabase!.from('itinerary_items').select('id,trip_id,title,visit_date,end_date,start_time,end_time,estimated_cost_vnd,address,maps_url,notes,version', { count: 'exact' }).eq('trip_id', trip.id).order('visit_date').order('start_time').order('id').range(from, to)),
       loadAllRows((from, to) => supabase!.from('expenses').select('id,trip_id,title,category,expense_date,end_date,estimated_amount_vnd,actual_amount_vnd,paid_by,notes,version,split_method,expense_participants(user_id,share_units,share_amount_vnd)', { count: 'exact' }).eq('trip_id', trip.id).order('expense_date').order('id').range(from, to)),
       loadAllRows((from, to) => supabase!.from('trip_members').select('user_id,role', { count: 'exact' }).eq('trip_id', trip.id).order('user_id').range(from, to)),
@@ -554,9 +586,10 @@ class SupabaseRepository implements TravelRepository {
       supabase.from('profiles').select('display_name').eq('id', currentUserId).single(),
       this.loadTripPeople(trip.id),
       loadAllRows((from, to) => supabase!.from('itinerary_trash').select('id,trip_id,snapshot,deleted_at,expires_at', { count: 'exact' }).eq('trip_id', trip.id).order('deleted_at', { ascending: false }).order('id').range(from, to)),
+      this.isSiteAdmin(),
     ])
     const currentMembership = members.find((member) => member.user_id === currentUserId)
-    if (!currentMembership) throw new Error('Tài khoản chưa thuộc chuyến đi này.')
+    if (!currentMembership && !isSiteAdmin) throw new Error('Tài khoản chưa thuộc chuyến đi này.')
     throwIfError(profile.error)
     const rawName = profile.data?.display_name
     return {
@@ -572,7 +605,8 @@ class SupabaseRepository implements TravelRepository {
       people,
       memberCount: members.length,
       currentUserId,
-      currentRole: currentMembership.role as WorkspaceData['currentRole'],
+      currentRole: isSiteAdmin ? 'owner' : currentMembership!.role as WorkspaceData['currentRole'],
+      isSiteAdmin,
     }
   }
 

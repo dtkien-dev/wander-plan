@@ -1,5 +1,11 @@
 # Decisions
 
+## A062 — P33/0.15.0 go-live approval,29/10/2026
+Customer explicitly approves the concrete candidate: private backup, forward migrations20261029120247/20261029122209, bootstrap only the privately specified verified account, branch/PR/CI-gated main merge, Pages/public and approved-account read-only smoke. Implementation914a2a5 plus approval/delivery records; existing GitHub/Pages/Supabase targets only. No real trip/member/payment test writes, signup/config changes or new scope authorized.
+
+## A061 — P33 permission model, 29/10/2026
+Customer approves implementing separate website admin and multiple trip owners through the delivery workflow. Website admin can view/manage all trips even without membership. Owners may appoint accepted members as co-owner; only trip creator may demote co-owners. Retain creator and at least one owner. No consent/financial invariant override or new account lifecycle feature implied. Initial admin identity held outside public records. Local implementation/synthetic verification authorized; fresh production go-live approval required.
+
 ## A060 — P32 go-live approval, 29/10/2026
 Customer explicitly approves go-live in response to the concrete P32 request: push chore/workspace-refactor, create PR, merge main only after CI passes, verify Pages and live website. Scope is reviewed implementation 78f6d5a plus this approval and delivery records. Existing GitHub/Pages target only; no DB migration, business-data writes, permission/dependency changes or new feature scope. Version stays 0.14.0; identify deployment by commit.
 

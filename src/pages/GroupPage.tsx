@@ -13,7 +13,7 @@ import { useTripPeople, useWorkspace } from '../hooks/useWorkspace'
 import { useWorkspaceMutations } from '../hooks/useWorkspaceMutations'
 import { formatCurrency, formatDate } from '../lib/format'
 import { useNotify } from '../providers/NotificationProvider'
-import type { TripDraft } from '../types'
+import type { MemberRole, TripDraft } from '../types'
 import styles from './GroupPage.module.css'
 
 const tripSchema = z.object({
@@ -36,10 +36,13 @@ export function GroupPage() {
   const notify = useNotify()
   const [formError, setFormError] = useState('')
   const [revokingEmail, setRevokingEmail] = useState<string | null>(null)
+  const [roleChange, setRoleChange] = useState<{ tripId: string; userId: string; name: string; role: MemberRole; expectedRole: MemberRole } | null>(null)
+  const [roleError, setRoleError] = useState('')
   const [editingTrip, setEditingTrip] = useState<'general' | 'capacity' | null>(null)
   const capacityInput = useRef<HTMLInputElement | null>(null)
   const trip = workspace.data?.trip
   const isOwner = workspace.data?.currentRole === 'owner'
+  const isCreator = Boolean(trip?.createdByUserId && trip.createdByUserId === workspace.data?.currentUserId)
   const tripForm = useForm<TripDraft>({
     resolver: zodResolver(tripSchema),
     defaultValues: trip ? {
@@ -154,6 +157,8 @@ export function GroupPage() {
             <ul className={styles.peopleList}>
               {people.data?.map((person) => {
                 const canRemove = isOwner && person.status === 'active' && person.role !== 'owner' && Boolean(person.userId)
+                const canPromote = isOwner && person.status === 'active' && person.role === 'editor' && Boolean(person.userId)
+                const canDemote = isCreator && person.status === 'active' && person.role === 'owner' && Boolean(person.userId) && person.userId !== trip.createdByUserId
                 const isRemoving = mutations.removeMember.isPending && mutations.removeMember.variables?.userId === person.userId
                 return <li key={`${person.status}-${person.userId ?? person.email}`}>
                   <span className={styles.avatar}>{person.displayName.slice(0, 1).toUpperCase()}</span>
@@ -162,6 +167,7 @@ export function GroupPage() {
                     <span className={`${styles.status} ${person.status === 'invited' ? styles.pending : ''}`}>{person.role === 'owner' ? <Crown size={15} /> : person.status === 'invited' ? <Clock3 size={15} /> : <CheckCircle2 size={15} />}{person.role === 'owner' ? 'Chủ nhóm' : person.status === 'invited' ? 'Đã mời' : 'Thành viên'}</span>
                     {isOwner && person.status === 'invited' && <button className={styles.removeMember} type="button" disabled={mutations.revokeInvitation.isPending} onClick={() => setRevokingEmail(person.email)} aria-label={`Huỷ lời mời ${person.email}`}>Huỷ lời mời</button>}
                     {canRemove && <button className={styles.removeMember} type="button" disabled={mutations.removeMember.isPending} onClick={() => void removeMember(person.userId!, person.displayName)} aria-label={`Loại ${person.displayName} khỏi nhóm`}><UserMinus size={16} />{isRemoving ? 'Đang loại…' : 'Loại khỏi nhóm'}</button>}
+                    {(canPromote || canDemote) && <button className="text-link" type="button" disabled={mutations.setMemberRole.isPending} onClick={() => { setRoleError(''); setRoleChange({ tripId: trip.id, userId: person.userId!, name: person.displayName, role: canPromote ? 'owner' : 'editor', expectedRole: person.role }) }}>{canPromote ? `Bổ nhiệm ${person.displayName} làm chủ nhóm` : `Thu hồi quyền chủ nhóm của ${person.displayName}`}</button>}
                   </div>
                 </li>
               })}
@@ -188,6 +194,19 @@ export function GroupPage() {
       <Modal open={revokingEmail !== null} title="Huỷ lời mời" onClose={() => { if (!mutations.revokeInvitation.isPending) setRevokingEmail(null) }}>
         <p className={styles.invitationConfirm}>Huỷ lời mời gửi đến {revokingEmail}? Chỗ đang giữ sẽ được giải phóng.</p>
         <div className="form__actions"><button className="button button--ghost" type="button" disabled={mutations.revokeInvitation.isPending} onClick={() => setRevokingEmail(null)}>Giữ lời mời</button><button className="button button--primary" type="button" disabled={mutations.revokeInvitation.isPending} onClick={() => revokingEmail && void revokeInvitation(revokingEmail)}>{mutations.revokeInvitation.isPending ? 'Đang huỷ…' : 'Xác nhận huỷ'}</button></div>
+      </Modal>
+      <Modal open={roleChange !== null} title={roleChange?.role === 'owner' ? 'Bổ nhiệm chủ nhóm' : 'Thu hồi quyền chủ nhóm'} onClose={() => { if (!mutations.setMemberRole.isPending) setRoleChange(null) }}>
+        <p className={styles.invitationConfirm}>{roleChange?.role === 'owner' ? `${roleChange.name} sẽ có đầy đủ quyền quản lý chuyến đi như bạn. Chỉ người tạo chuyến được thu hồi quyền này.` : `${roleChange?.name} sẽ trở lại vai trò thành viên. Dữ liệu, khoản chi và công việc được giữ nguyên.`}</p>
+        {roleError && <p className="form-error-banner" role="alert">{roleError}</p>}
+        <div className="form__actions">
+          <button className="button button--ghost" type="button" disabled={mutations.setMemberRole.isPending} onClick={() => setRoleChange(null)}>Hủy</button>
+          <button className="button button--primary" type="button" disabled={mutations.setMemberRole.isPending} onClick={async () => {
+            if (!roleChange) return
+            setRoleError('')
+            try { await mutations.setMemberRole.mutateAsync(roleChange); notify.success(roleChange.role === 'owner' ? 'Đã bổ nhiệm chủ nhóm.' : 'Đã thu hồi quyền đồng chủ nhóm.'); setRoleChange(null) }
+            catch (error) { setRoleError(error instanceof Error ? error.message : 'Chưa thể thay đổi vai trò. Hãy thử lại.') }
+          }}>{mutations.setMemberRole.isPending ? 'Đang lưu…' : 'Xác nhận'}</button>
+        </div>
       </Modal>
     </div>
   )

@@ -1,5 +1,9 @@
 # Verification
 
+## P33 / A061–E057 — candidate0.15.0,29/10/2026
+PASS:175 app tests/29 suites, lint/TypeScript/demo build, audit zero,389 embedded and full-local SQL assertions/20 suites/29 migrations, security advisor no issues, diff whitespace. Actual synthetic owner/co-owner/admin browser sessions, two-browser promotion/demotion Realtime, creator-only demotion, confirmation/cancel,320/375px after admin label relocation, registry revocation clears privileged caches, concurrent API role changes; zero console errors. Bootstrap confirmed/idempotent/missing/unconfirmed cases PASS.
+Independent ITS remediated direct membership DELETE and queued archive/demotion race via forward20261029122209; catalog DELETE=false/UPDATE=false, two-session stale archive succeeded before and was denied after, independent delta checks clear. Earlier unchanged trash-provenance timing test failed once embedded then subsequent embedded/full-local passed; no fix claimed. No hosted/production checks, migration/admin grant/push/deploy. Synthetic sessions/admin privilege removed, credential fixtures/local UAT env removed, owned tabs/app stopped, shared stack and synthetic business fixtures retained. Candidate release note and P33 contain ITO/recovery; new-batch go-live approval pending.
+
 ## P32 approved deployment — E056/A060
 PASS: PR20 CI40866629066, merge fa59861, main CI40866751685 and Pages40866751533 for the merge SHA. Public HTML/entry script HTTP200/meta0.14.0 and actual-browser login after reload. No new console errors captured after reload; initial navigation had an old invalid refresh token before deployment. NOT RUN: signed-in dialogs, hosted writes/email/Realtime and full service concurrency. No migration/config change or real-data writes. Release outcome in docs/releases/2026-10-29-workspace-refactor.md; docs closeout publication and final receipt follows on docs/release-workspace-refactor.
 

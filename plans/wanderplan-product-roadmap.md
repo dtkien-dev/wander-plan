@@ -1,5 +1,7 @@
 # WanderPlan — bảng kế hoạch sản phẩm tổng hợp
 
+29/10/2026 — P33/A061/E057: admin website quản lý mọi chuyến và nhiều chủ nhóm; chỉ người tạo chuyến thu hồi quyền đồng chủ nhóm. Candidate0.15.0 local QA/UAT/ITS đạt; chờ duyệt go-live riêng cho hai migration, cấp admin tài khoản đã xác minh và phát hành. [Phạm vi](2026-10-14-no1-website-improvements/phases/P33-site-admin-trip-co-owners.md), [kết quả/ITO](../docs/releases/2026-10-29-0.15.0.md). Danh tính admin đầu tiên giữ ngoài Git; backlog hoãn không đổi.
+
 29/10/2026 — P32 đã go-live theo A060/E056: PR20/fa59861, main CI/Pages và public browser smoke đạt; giữ phiên bản0.14.0, không đổi DB/dữ liệu nghiệp vụ. Hồ sơ kết quả: docs/releases/2026-10-29-workspace-refactor.md. Kiểm tra sau đăng nhập/hosted chưa chạy lại; không chọn tính năng mới.
 
 Chủ sở hữu: PO. Cập nhật: 28/10/2026 sau phát hành 0.13.0 (Asia/Saigon). Tracker thực thi: `wp-20261014-01` (bundle `2026-10-14-no1-website-improvements`).

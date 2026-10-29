@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useEffect, useState, type PropsWithChildren } from 'react'
+import { createContext, useCallback, useContext, useEffect, useRef, useState, type PropsWithChildren } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '../lib/supabase'
 import { travelRepository } from '../services/travelRepository'
@@ -19,12 +19,25 @@ function useWorkspaceState() {
   const identity = session?.user.id ?? (isDemo ? 'demo' : 'anonymous')
   const enabled = isDemo || Boolean(session)
   const client = useQueryClient()
+  const siteAdmin = useQuery({ queryKey: ['site-admin', identity], queryFn: () => travelRepository.isSiteAdmin(), enabled, refetchInterval: 15_000 })
+  const isSiteAdmin = siteAdmin.data === true && !siteAdmin.isError
+  const previousAccess = useRef<{ identity: string; admin: boolean } | null>(null)
+  useEffect(() => {
+    if (siteAdmin.isPending) return
+    const previous = previousAccess.current
+    previousAccess.current = { identity, admin: isSiteAdmin }
+    if (previous?.identity === identity && previous.admin !== isSiteAdmin) {
+      void client.resetQueries({ queryKey: ['workspace', identity] })
+      void client.resetQueries({ queryKey: tripsKey(identity) })
+      void client.resetQueries({ queryKey: archivedTripsKey(identity) })
+    }
+  }, [client, identity, isSiteAdmin, siteAdmin.isPending])
   const storageKey = `wander-plan:active-trip:${identity}`
   const [selection, setSelection] = useState<{ identity: string; id: string | null }>(() => ({ identity, id: readSelection(storageKey) }))
-  const trips = useQuery({ queryKey: tripsKey(identity), queryFn: () => travelRepository.listTrips(), enabled })
+  const trips = useQuery({ queryKey: tripsKey(identity), queryFn: () => travelRepository.listTrips(), enabled, refetchInterval: isSiteAdmin ? 15_000 : false })
   // Hidden invitation rows cannot deliver archive events to pending recipients.
   const invitations = useQuery({ queryKey: invitationsKey(identity), queryFn: () => travelRepository.loadInvitations(), enabled, refetchInterval: 15_000 })
-  const archivedTrips = useQuery({ queryKey: archivedTripsKey(identity), queryFn: () => travelRepository.listArchivedTrips(), enabled })
+  const archivedTrips = useQuery({ queryKey: archivedTripsKey(identity), queryFn: () => travelRepository.listArchivedTrips(), enabled, refetchInterval: isSiteAdmin ? 15_000 : false })
   const requestedId = selection.identity === identity ? selection.id : readSelection(storageKey)
   const tripId = trips.data?.find((trip) => trip.id === requestedId)?.id ?? trips.data?.[0]?.id
   const workspace = useQuery({
@@ -80,7 +93,7 @@ function useWorkspaceState() {
     return () => { clearTimeout(timer); void supabase?.removeChannel(channel) }
   }, [client, identity, session?.user.id, tripId])
 
-  return { identity, tripId, selectTrip, trips, invitations, archivedTrips, workspace }
+  return { identity, tripId, selectTrip, trips, invitations, archivedTrips, workspace, isSiteAdmin }
 }
 
 const WorkspaceContext = createContext<ReturnType<typeof useWorkspaceState> | null>(null)
