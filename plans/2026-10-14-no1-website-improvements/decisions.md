@@ -105,3 +105,6 @@ Customer asked for a full UI review and upgrade through the standard workflow. I
 Customer decisions: address all four finding groups; stronger redesign that keeps only the WanderPlan name (palette, fonts, layout may change); add an expense trash. Release order: P34 expense trash first (0.16.0), then P35 redesign including every report finding (0.17.0). Each release needs its own go-live approval.
 Expense trash rules: deleted expenses stay 7 days, then hourly server cleanup like itinerary trash. The deleting member and active trip owners may view/restore (site admin has owner-equivalent access per A061). Restore is blocked, with a clear reason, when any payer/participant is no longer an active member. Trashed expenses do not count in balances, totals, exports or other trip operations. Member removal remains unchanged with an in-app confirmation dialog; no member undo.
 Product truth for PRODUCT.md: primary users are a trip organiser plus friends/family groups of up to 20; organiser plans on desktop, the group views plans and records spending on phones during the trip. Positioning: itinerary and shared spending in one place, transparent splitting, Vietnamese/VND/Excel.
+
+## A064 — 0.16.0 go-live approval, 29/10/2026
+Customer approved releasing P34 expense trash as 0.16.0 with the prepared ITO checklist. P35 needs its own approval.

@@ -299,3 +299,7 @@ QA: 178 app tests/30 files, lint, demo build, audit-high (0) PASS. 406 embedded 
 Cleanup: synthetic sessions revoked, magic-link files and .env.uat.local removed, owned servers stopped; synthetic trip/data and shared stack retained.
 ITS (same agent, not independent): RLS limits trash to deleter/owners on active trips; clients cannot write trash; restore authenticated-only, purge private; server-owned snapshot with forced id/trip_id and existing validation triggers; trip-then-row locking. Low, non-blocking: version/permission error ordering reveals trash presence to a member who knows the exact id and deletion time; Realtime DELETE payloads carry only UUID keys (same accepted P29 pattern). No secrets or real data in records.
 workflow-action:A063 status:completed
+
+## E060 / A064 — approved 0.16.0 go-live
+workflow-action:A064 status:open
+Customer explicitly approved the 0.16.0 candidate go-live on 29/10/2026 ("golive"). Scope: push feat/ui-upgrade and open a CI-gated PR; private ignored production schema/data backup; dry-run then apply only missing migration 20261029150000 once before frontend; verify grants/RLS/cron/Realtime; merge checked head to main; Pages/public/authenticated read-only smoke; closeout records. No production business-data test writes or email. Approval does not cover P35.
