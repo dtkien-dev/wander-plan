@@ -10,7 +10,7 @@ Execute mode: Active
 Resume instruction: Resolve plans/2026-10-14-no1-website-improvements from the current clone root (tracker wp-20261014-01). Read docs/agent/README.md and workflow.md, then this index and every manifest file. Keep this exact repository-relative bundle as the execution source of truth; update it until explicit exit. If the execute skill is installed, it may be used with this resolved path.
 Workspace: Current clone root; never reuse another device's absolute path.
 Repository: deployed main acc310a (app release 58b2906, version 0.13.0); final receipt shared on docs/release-0.13.0. Fetch and resolve latest branch head from Git log.
-Active action: A057/E053 — customer approved 0.14.0 go-live; ITO backup/migrations/CI/deployment verification in_progress.
+Active action: A058/E054 — 0.14.0 released; docs-only closeout publication and final CI/Pages checks in_progress.
 
 <!-- workflow-active-snapshot:start version:2 -->
 ## Active Snapshot
@@ -87,3 +87,5 @@ security-review-p29-p31-2026-10-29.md
 Latest checkpoint 29/10: A055/E051 complete; independent review High fixed by forward provenance migration and verified in 353 embedded/full-local SQL, 168 app tests, lint/build. Prior E050 browser/mobile/Realtime/concurrency UAT passed. Candidate local on feat/trip-reschedule-templates-trash; resolve final commit via Git log. No push or production changes. Await fresh go-live approval.
 
 A056/E052 complete: three dependency warnings fixed via Vitest4.1.12/fast-uri3.1.9. Zero npm audit findings; clean install/168 app tests/353 embedded SQL/lint/build pass; independent dependency metadata/integrity review found no issue. No push/prod change.
+
+E053/A057 complete: app PR18 b732461, main CI40794364399/Pages40794364198 PASS; HTTP200/version0.14.0 and authenticated move/clone/trash open/cancel smoke, zero console errors. Four production migrations, backup, private hourly cleanup and grants verified. No production business-data test writes. E054 docs publication follows; no new backlog feature approved.

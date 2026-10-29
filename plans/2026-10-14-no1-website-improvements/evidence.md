@@ -250,3 +250,13 @@ Independent Platform/Supply Chain reviewer: no issue; manifest/lock alignment, a
 ## E053 / A057 — approved 0.14.0 go-live
 workflow-action:A057 status:open
 Customer explicitly approves current 0.14.0 candidate including A056 dependency patches. Scope: publish feature branch/PR, CI, verified wander-plan production database backup and four missing forward migrations before frontend; merge exact checked head to main, Pages/live/authenticated read-only smoke and closeout records. No real business-data test writes, invitations or account-policy changes. Preserve primary checkout. Target verified GitHub dtkien-dev/wander-plan/main and Supabase wander-plan; production history ends 20261028163323; pg_cron available, realtime publication exists.
+
+E053 ITO: target/approval verified; private ignored schema and application-data backups captured and validated before migration (never committed). Dry-run listed exactly four missing versions; applied once in order, no seeds/vault/roles/history replay. Follow-up dry-run empty. Production verification: all four history entries, bound restore signature/legacy removal, snapshot identity constraint, trash Realtime, direct DELETE revoked, private purge, authenticated-only RPC grants and fixed search_path PASS. Hourly pg_cron job active with expected private command. PR18 head4defdea passed CI40794182415; merged b732461. Main CI40794364399 / Pages40794364198 running. No hosted business-data test writes.
+
+### E053 release verification
+workflow-action:A057 status:completed
+PR18 merged b732461 after CI40794182415 PASS. Main CI40794364399 and Pages40794364198 PASS. Public HTTP200/meta0.14.0 and actual authenticated browser badge0.14.0 verified. Owner Group move/clone dialogs open with correct expense-date option/excluded-data notice, canceled without saving. Itinerary trash opens empty with seven-day notice; closed without deletion/restore. Console errors zero. Production migration/grants/cron/Reatime checks PASS; no actual production expiry/write tests, backup restore not exercised. Backup artifacts remain ignored/private. Independent dependency metadata review clear; npm audit zero. Primary checkout changes untouched.
+
+## E054 / A058 — release records publication
+workflow-action:A058 status:open
+Publish and merge docs-only closeout under existing approved go-live, require CI and Pages verification. No new schema/application/business-data changes. Final receipt shared on docs/release-0.14.0, resolve latest commit from Git log.

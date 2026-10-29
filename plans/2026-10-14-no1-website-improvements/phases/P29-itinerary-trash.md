@@ -5,3 +5,5 @@ Rules: single member deletion and owner bulk deletion both retain snapshot 7 day
 Acceptance: delete/restore/expiry/multi-day, role/trip/archive/version boundaries, old clients cannot bypass recovery; no expense/member change; Realtime/caches after delete/restore; full SQL and browser UAT including mobile.
 
 Final verification: E050 integrated browser/local UAT and E051 independent ITS/remediation complete. 168 app tests, 353 embedded/full-local SQL, lint/build PASS. Four forward migrations must precede frontend; no production approval yet.
+
+Released 0.14.0 under A057/E053: production four migrations once, PR18 b732461, CI/Pages and authenticated read-only UI PASS. Customer go-live approval recorded; no business-data test writes.
