@@ -21,9 +21,11 @@ let cap: number
 let requests: URL[]
 let failure: string | undefined
 let changeCount: boolean
+let siteAdmin: boolean
 
 beforeEach(() => {
   cap = 1000
+  siteAdmin = false
   requests = []
   failure = undefined
   changeCount = false
@@ -36,6 +38,7 @@ beforeEach(() => {
     const url = new URL(input)
     requests.push(url)
     const name = url.pathname.split('/').at(-1)!
+    if (name === 'get_my_site_admin_status') return new Response(JSON.stringify(siteAdmin), { status: 200 })
     const rows = records[name] ?? []
     if (name === 'profiles') return new Response(JSON.stringify(rows[0]), { status: 200 })
     const offset = Number(url.searchParams.get('offset') ?? 0)
@@ -52,6 +55,25 @@ beforeEach(() => {
 })
 
 describe('Supabase repository pagination through the real SDK', () => {
+  it('loads an admin workspace without inventing membership and maps its creator', async () => {
+    siteAdmin = true
+    records.trip_members = [{ user_id: 'someone-else', role: 'owner' }]
+    records.trips = [{ ...trip, created_by: 'someone-else' }]
+    const workspace = await travelRepository.loadWorkspace('trip')
+    expect(workspace).toMatchObject({ isSiteAdmin: true, currentRole: 'owner', currentUserId: 'alice', memberCount: 1, trip: { createdByUserId: 'someone-else' } })
+    siteAdmin = false
+    await expect(travelRepository.loadWorkspace('trip')).rejects.toThrow('chưa thuộc chuyến')
+  })
+
+  it('sends role changes with the captured old role and propagates server denials', async () => {
+    transport.fetch.mockResolvedValueOnce(new Response(null, { status: 204 }))
+    await travelRepository.setMemberRole('trip', 'bob', 'owner', 'editor')
+    const [url, init] = transport.fetch.mock.calls.at(-1)!
+    expect(String(url)).toContain('/rpc/set_trip_member_role')
+    expect(JSON.parse(init.body)).toEqual({ target_trip_id: 'trip', target_user_id: 'bob', new_role: 'owner', expected_role: 'editor' })
+    transport.fetch.mockResolvedValueOnce(new Response(JSON.stringify({ message: 'Only creator' }), { status: 403 }))
+    await expect(travelRepository.setMemberRole('trip', 'bob', 'editor', 'owner')).rejects.toThrow('Only creator')
+  })
   it('loads all workspace rows and counts undone payments beyond the API cap', async () => {
     for (const name of ['itinerary_items', 'expenses', 'checklist_items', 'settlement_payments', 'get_trip_former_people']) {
       records[name] = Array.from({ length: 1001 }, (_, index) => ({

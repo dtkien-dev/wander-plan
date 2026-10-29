@@ -2,6 +2,7 @@ import type { WorkspaceData } from '../types'
 
 export const demoWorkspace: WorkspaceData = {
   trip: {
+    createdByUserId: 'demo-owner',
     id: 'demo-trip',
     name: 'Đà Lạt trong sương',
     destination: 'Đà Lạt, Lâm Đồng',

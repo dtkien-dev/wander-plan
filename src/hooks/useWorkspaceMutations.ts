@@ -3,7 +3,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { travelRepository } from '../services/travelRepository'
 import { singleFlight } from '../lib/singleFlight'
 import { archivedTripsKey, invitationsKey, tripsKey, useWorkspaceContext, workspaceKey } from '../providers/WorkspaceProvider'
-import type { ChecklistDraft, ChecklistItem, Expense, ExpenseDraft, ItineraryDraft, ItineraryItem, SettlementPayment, Trip, TripDraft, TripImportDraft, WorkspaceData, TrashedItineraryItem } from '../types'
+import type { ChecklistDraft, ChecklistItem, Expense, ExpenseDraft, ItineraryDraft, ItineraryItem, MemberRole, SettlementPayment, Trip, TripDraft, TripImportDraft, WorkspaceData, TrashedItineraryItem } from '../types'
 
 export function useWorkspaceMutations() {
   const client = useQueryClient()
@@ -24,6 +24,11 @@ export function useWorkspaceMutations() {
     ])
   }
   const capture = () => ({ identity, refresh, selectTrip })
+  const setMemberRole = useMutation({ onMutate: capture,
+    mutationFn: ({ tripId: id, userId, role, expectedRole }: { tripId: string; userId: string; role: MemberRole; expectedRole: MemberRole }) => write(`member-role:${id}:${userId}`, () => travelRepository.setMemberRole(id, userId, role, expectedRole)),
+    onSuccess: (_, variables, origin) => origin?.refresh(variables.tripId, true),
+    onError: (_, variables, origin) => origin?.refresh(variables.tripId, true),
+  })
   const itinerary = useMutation({
     onMutate: capture,
     mutationFn: ({ draft, tripId: id, existing }: { draft: ItineraryDraft; tripId: string; existing?: ItineraryItem }) => write(`itinerary:${id}:${existing?.id ?? 'new'}`, () => travelRepository.saveItinerary(draft, id, existing)),
@@ -104,5 +109,5 @@ export function useWorkspaceMutations() {
     },
     onError: (_, variables, origin) => origin?.refresh(variables.tripId, true),
   })
-  return { restoreItinerary, rescheduleTrip, cloneTrip, deleteItineraries, archiveTrip, checklist, recordPayment, undoPayment, deleteChecklist, displayName, itinerary, deleteItinerary, expense, deleteExpense, importTripData, createTrip, updateTrip, inviteMember, revokeInvitation, removeMember, respondInvitation }
+  return { setMemberRole, restoreItinerary, rescheduleTrip, cloneTrip, deleteItineraries, archiveTrip, checklist, recordPayment, undoPayment, deleteChecklist, displayName, itinerary, deleteItinerary, expense, deleteExpense, importTripData, createTrip, updateTrip, inviteMember, revokeInvitation, removeMember, respondInvitation }
 }

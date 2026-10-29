@@ -16,6 +16,24 @@ beforeEach(() => {
 })
 
 describe('demo travel repository', () => {
+  it('preserves demo data across promotion/demotion and rejects stale or unauthorized role changes', async () => {
+    const before = (await travelRepository.loadWorkspace('demo-trip'))!
+    await travelRepository.setMemberRole('demo-trip', 'demo-editor', 'owner', 'editor')
+    const promoted = (await travelRepository.loadWorkspace('demo-trip'))!
+    expect(promoted.people.find((person) => person.userId === 'demo-editor')?.role).toBe('owner')
+    expect(promoted.expenses).toEqual(before.expenses)
+    expect(promoted.memberCount).toBe(before.memberCount)
+    await expect(travelRepository.setMemberRole('demo-trip', 'demo-editor', 'owner', 'editor')).rejects.toThrow('đã thay đổi')
+    await expect(travelRepository.setMemberRole('demo-trip', 'demo-owner', 'editor', 'owner')).rejects.toThrow('người tạo chuyến')
+    await expect(travelRepository.setMemberRole('demo-trip', 'outsider', 'owner', 'editor')).rejects.toThrow('đã tham gia')
+    await travelRepository.setMemberRole('demo-trip', 'demo-editor', 'editor', 'owner')
+    expect((await travelRepository.loadTripPeople('demo-trip')).find((person) => person.userId === 'demo-editor')?.role).toBe('editor')
+    const saved = savedTrips()
+    saved[0].currentUserId = 'demo-editor'
+    saved[0].currentRole = 'editor'
+    localStorage.setItem('wander-plan-demo-trips-v2', JSON.stringify(saved))
+    await expect(travelRepository.setMemberRole('demo-trip', 'demo-editor', 'owner', 'editor')).rejects.toThrow('Chỉ chủ nhóm')
+  })
   it('keeps deleted demo activities for owner recovery and refuses stale or expired restore', async () => {
     const before = (await travelRepository.loadWorkspace('demo-trip'))!
     const item = before.itinerary[0]

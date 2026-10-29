@@ -28,6 +28,18 @@ The owner creates a trip and invites an email address. The system checks authori
 
 ICS export creates a calendar event; it does not provide background notifications or reminder emails.
 
+### Website admin and trip co-owners
+
+Website admins can view/manage every active trip and restore archived trips without joining or occupying a seat. The admin badge identifies this account capability separately from trip ownership. Admin status is checked in the database, never from editable profile metadata. Existing settlement-recipient, frozen-money, invitation-consent and member-removal rules still apply.
+
+An owner can promote an accepted member in Group after confirmation. Only the trip creator can demote a co-owner; the creator cannot be demoted. Demotion retains membership, assignments and financial history. Stale role changes are rejected; reload/close and reopen the dialog before retrying. Active views receive role updates through the existing workspace channel. Admin status and global trip lists refresh every 15 seconds while active; the database checks the registry on each new request, without waiting for JWT refresh after revocation. Already-authorized in-flight direct edits may finish.
+
+The initial admin is provisioned by a trusted operator after the current release's go-live approval. Apply both `20261029120247_site_admin_trip_co_owners.sql` and `20261029122209_harden_co_owner_revocation.sql` before the frontend; take the normal private backup first. The second migration retains settlement-aware RPC-only member removal and rechecks archive authority after its trip lock. There is no browser endpoint for granting website-admin rights.
+
+Use the approved account's verified login email through a private psql variable and the checked-in script, for example `psql $env:DATABASE_URL -v "site_admin_email=$env:SITE_ADMIN_EMAIL" -f scripts/bootstrap-site-admin.sql` in PowerShell. Supply these privately; never paste credentials into Git/chat or use the real email in migrations/fixtures. The script fails closed unless exactly one confirmed account matches and is idempotent for that account. It does not create a user or bypass the new-account switch. If the account is not registered/verified yet, complete the normal approved sign-in process first. Verify admin status through `get_my_site_admin_status()` in that account and all-trip access with read-only UI; do not print the registry or other users' records.
+
+Revoke website-admin rights with an operator-reviewed deletion of only the approved registry row; no membership or business data is deleted. A previous frontend can still use the additive database contract. Revert the frontend through CI/Pages or use a forward migration for database repairs; do not replay historical migrations or reset the database.
+
 ## Architecture and technology stack
 
 The frontend is a React/TypeScript SPA built by Vite and served as static assets on GitHub Pages. This repository has no separate application server. The browser calls Supabase Auth, Data API/RPC and Realtime; PostgreSQL enforces RLS, function permissions, triggers and business rules.

@@ -1,6 +1,6 @@
 # Proposed roadmap
 Current status: Implemented — A040/A041 synthetic local and browser UAT completed. Released baseline remains complete.
-Current executable batch: P32 released under A060/E056, PR20/fa59861, main CI/Pages and public smoke PASS; version remains 0.14.0. Docs-only closeout publication follows. See [P32](phases/P32-workspace-hook-boundary.md) for scope, acceptance and recovery; deferred product features unchanged.
+Current executable batch: [P33](phases/P33-site-admin-trip-co-owners.md) website admin and co-owners, A061/E057, candidate0.15.0 implemented locally with QA/UAT/independent ITS complete. Two forward migrations and private verified-account bootstrap require separate go-live approval. Baseline main3591711/P32 is released0.14.0; deferred product features unchanged.
 
 ## A041 — Browser Excel verification
 P26 follow-up after E036. Coordinator only; ignored local fixtures/browser plus canonical evidence. Acceptance: browser export captured, unchanged import preview skips, edited workbook applied once and multi-day fields retained after reload. No production access or permission expansion. Recovery: stop owned UAT process and revoke synthetic sessions, retain non-secret local evidence.

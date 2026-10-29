@@ -37,6 +37,7 @@
 .peopleList strong { font-size: 14px; }
 .peopleList small { color: var(--color-text-muted); font-size: 12px; }
 .memberActions { display: grid; justify-items: end; gap: 6px; }
+.memberActions > button { max-width: 210px; min-height: 44px; text-align: end; overflow-wrap: anywhere; }
 .status { display: inline-grid; grid-auto-flow: column; align-items: center; gap: 4px; padding: 6px 8px; color: var(--color-primary); background: var(--color-mint); border-radius: var(--radius-pill); font-size: 11px; font-weight: 700; }
 .pending { color: #75411f; background: #f8e6d2; }
 .removeMember { display: inline-grid; grid-auto-flow: column; align-items: center; gap: 5px; min-height: 44px; padding: 5px 8px; color: var(--color-danger); background: transparent; border: 0; border-radius: var(--radius-control); font: inherit; font-size: 11px; font-weight: 600; cursor: pointer; }
@@ -51,3 +52,4 @@
 @media (max-width: 560px) { .settings, .people { padding: 20px 16px; } .invite > div { grid-template-columns: 1fr; } .invite .button { width: 100%; } .peopleList li { grid-template-columns: 42px minmax(0, 1fr); } .memberActions { grid-column: 2; justify-items: start; } }
 
 .invitationConfirm { overflow-wrap: anywhere; }
+@media (max-width: 560px) { .memberActions > button { text-align: start; } }
