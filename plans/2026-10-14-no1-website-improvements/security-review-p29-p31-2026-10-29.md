@@ -7,3 +7,5 @@ Confirmed High: trash keyed only by item ID could replace the snapshot with anot
 Business/API independently reviewed the final hardening delta with no actionable issue and ran 26 repository tests. Access reviewer rerun failed at the tool service; no independent second Access proof claimed. Original independent proof and coordinator full-local regression provide before/after evidence. Other lenses found no additional security blocker. Platform identified accidental lockfile engine edits; restored without dependency changes.
 
 Final: 168 app tests, lint/build, 353 embedded/full-local SQL and audit-high pass. Three pre-existing moderate dependency warnings remain. Actual browser/mobile/Realtime/concurrency/scheduler evidence is E050; timestamp-only delta was verified by transport/demo/SQL, without another browser replay. No production tests or deployment.
+
+A056/E052 customer-authorized dependency follow-up resolves the three previously retained moderate warnings. Vitest/@vitest/mocker4.1.12 and fast-uri3.1.9; no overrides/new packages. npm ci/audit-low zero findings, 168 app and 353 embedded SQL/lint/build pass. Prior paragraphs describe the pre-patch checkpoint.

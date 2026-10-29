@@ -249,3 +249,6 @@ PASS: 167 app tests, lint/demo build, 345 embedded SQL assertions, audit-high/di
 
 ## P29/P30/P31 final candidate — 29/10/2026
 0.14.0: 168 app tests, lint/build, 353 embedded and full-local SQL assertions PASS. Hardening regression covers trip/payload/deletion-instance binding; updated real SDK transport and demo restore tests PASS. Independent delta reviewer found no actionable defect; original High resolved, eight new pgTAP assertions pass in both engines. Three existing moderate audit findings remain; high gate passes. Prior actual browser owner/member/mobile/Realtime/concurrent-write/scheduler QA under E050 passed. Browser was not replayed after timestamp-only RPC fix. Production unchanged at 0.13.0; fresh go-live approval required.
+
+## A056/E052 dependency remediation
+Vitest4.1.12 and fast-uri3.1.9: clean npm ci, 168 app tests, lint/TypeScript/build, 353 embedded SQL PASS. npm audit --audit-level=low: zero vulnerabilities. Package set unchanged, no override/dependency added. Prior full-local SQL/browser evidence retained; not repeated for dependency-only patch.
