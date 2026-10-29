@@ -1,5 +1,8 @@
 # Verification
 
+## P32 approved deployment — E056/A060
+PASS: PR20 CI40866629066, merge fa59861, main CI40866751685 and Pages40866751533 for the merge SHA. Public HTML/entry script HTTP200/meta0.14.0 and actual-browser login after reload. No new console errors captured after reload; initial navigation had an old invalid refresh token before deployment. NOT RUN: signed-in dialogs, hosted writes/email/Realtime and full service concurrency. No migration/config change or real-data writes. Release outcome in docs/releases/2026-10-29-workspace-refactor.md; docs closeout publication and final receipt follows on docs/release-workspace-refactor.
+
 ## P32 / A059–E055 — 29/10/2026
 Baseline fetched origin/main 9c7a872; local branch chore/workspace-refactor. PASS: 32 focused provider/page/component tests before/after; 168 total app tests/29 suites, lint, TypeScript/demo build, 353 embedded SQL assertions/19 suites, audit-high zero findings and final diff whitespace. Assert comparison: mutation/read function bodies and mutation imports unchanged (normalized line endings). Same-agent scoped ITS after QA: no blocker, no new security surface. Test-audit: existing assertions retained, only module/mock routing changed; no duplicate tests introduced. NOT RUN: actual browser UAT/full Supabase/hosted/concurrent-service tests. No performance gain or independent security review claimed. No publication/production effects. Next gate: current-batch publication/go-live approval, then remote CI/Pages verification; no migration.
 

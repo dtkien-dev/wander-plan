@@ -1,8 +1,10 @@
 # Evidence
 
 ## E056 / A060 — P32 approved go-live, 29/10/2026
-workflow-action:A060 status:open
+workflow-action:A060 status:completed
 Customer approved the concrete P32 publication/CI/merge/Pages verification request. Owner current agent, serial. Verified clean chore/workspace-refactor at 78f6d5a, fetched origin/main still 9c7a872; GitHub target dtkien-dev/wander-plan, base main, authenticated repository owner. Scope: approval/rollout records, reviewed hook/import-only refactor, branch publication, PR, CI-gated merge and Pages/public/browser read-only verification. No migration or production business-data writes. Prior local QA/ITS retained; no source changes since checks. Recovery: frontend revert through PR if necessary; no DB repair required. Current action remains open until deployment outcomes are verified.
+
+E056 result: approved head cf4c2d5 published, PR20 passed CI40866629066 and merged fa59861822f858eb81032b20ce7caaa270bee9bb. Main CI40866751685 and Pages40866751533 PASS for that SHA. Public HTML/entry asset HTTP200, meta0.14.0; actual browser reload renders login page. Signed-out browser initially encountered a stale refresh-token error before deployment; no new error captured after deployed reload. Authenticated controls/full-Supabase/hosted write or concurrency tests NOT RUN. No migrations, config changes, login emails or business-data writes. Docs release closeout on docs/release-workspace-refactor follows within this approved batch; final PR/CI/Pages receipt is discoverable from Git log and final branch checkpoint.
 
 ## E055 / A059 — workspace hook boundary, 29/10/2026
 workflow-action:A059 status:completed

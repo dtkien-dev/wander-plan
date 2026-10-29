@@ -1,5 +1,7 @@
 # WanderPlan — bảng kế hoạch sản phẩm tổng hợp
 
+29/10/2026 — P32 đã go-live theo A060/E056: PR20/fa59861, main CI/Pages và public browser smoke đạt; giữ phiên bản0.14.0, không đổi DB/dữ liệu nghiệp vụ. Hồ sơ kết quả: docs/releases/2026-10-29-workspace-refactor.md. Kiểm tra sau đăng nhập/hosted chưa chạy lại; không chọn tính năng mới.
+
 Chủ sở hữu: PO. Cập nhật: 28/10/2026 sau phát hành 0.13.0 (Asia/Saigon). Tracker thực thi: `wp-20261014-01` (bundle `2026-10-14-no1-website-improvements`).
 File này là bảng kế hoạch chung cho IT, QA, ITS, BA, ITO. Lịch theo ngày chi tiết: [daily-schedule-2026-10-15.md](daily-schedule-2026-10-15.md).
 
