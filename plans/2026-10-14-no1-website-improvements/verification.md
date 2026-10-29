@@ -255,3 +255,5 @@ Vitest4.1.12 and fast-uri3.1.9: clean npm ci, 168 app tests, lint/TypeScript/bui
 
 ## 0.14.0 go-live E053
 Customer approved; PR18 b732461, CI40794182415/mainCI40794364399/Pages40794364198 PASS. Four missing migrations applied once after private schema/data backup; subsequent dry-run empty. RPC grants/signatures/trash constraints/Realtime/hourly cron verified. Public HTTP200/meta0.14.0; authenticated UI0.14.0, move/clone/trash open/cancel, zero console errors. No production data writes for smoke or actual expiry/backup restore rehearsal.
+
+Final docs PR19 merged9c7a872 after CI40794748337; mainCI40794858200/Pages40794858246 PASS, final public HTTP200/meta0.14.0. E054 complete.

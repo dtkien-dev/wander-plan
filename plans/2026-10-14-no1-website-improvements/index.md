@@ -10,7 +10,7 @@ Execute mode: Active
 Resume instruction: Resolve plans/2026-10-14-no1-website-improvements from the current clone root (tracker wp-20261014-01). Read docs/agent/README.md and workflow.md, then this index and every manifest file. Keep this exact repository-relative bundle as the execution source of truth; update it until explicit exit. If the execute skill is installed, it may be used with this resolved path.
 Workspace: Current clone root; never reuse another device's absolute path.
 Repository: deployed main acc310a (app release 58b2906, version 0.13.0); final receipt shared on docs/release-0.13.0. Fetch and resolve latest branch head from Git log.
-Active action: A058/E054 — 0.14.0 released; docs-only closeout publication and final CI/Pages checks in_progress.
+Active action: none — 0.14.0 release and final verification completed under A057/E053 and A058/E054.
 
 <!-- workflow-active-snapshot:start version:2 -->
 ## Active Snapshot
@@ -20,7 +20,7 @@ Goal: Deliver verified daily improvements through plan, code, QA, security, go-l
 Current state: P29/P30/P31 implementation batch active on feat/trip-reschedule-templates-trash from 3d7403c (released app main acc310a). Customer authorizes all three features and optional expense-date shifting; P29 first. Production remains 0.13.0; no new go-live approval.
 Accepted decisions: D01–D06, A010, A019, A020, A023, A024, A026, A029 and A031–A051. A047 explicitly authorizes P27 0.12.1 push, PR, merge after CI and Pages verification; completed under E043. No production data writes.
 Open items: R07/R17/R18 deferred by customer (A043/A044). E040 items 1–3 fixed under A045/P27; workspace refresh optimization remains deferred. Customer reports successful sign-in and requests no further R15 proposals; hosted email/Realtime remain unverified.
-Next safe action: present verified 0.14.0 candidate for new-batch go-live approval. Only after approval: publish/CI, target/backup preflight, four missing forward migrations before frontend, Pages/live verification.
+Next safe action: release complete; await customer feedback or new scope. Fetch main and latest docs/release-0.14.0 receipt before starting new work.
 <!-- workflow-active-snapshot:end -->
 
 Shared workflow: [portable workflow](../../docs/agent/workflow.md). The references/*.md above belong to the optional installed execute skill; they are not missing repository files and are not required on a new device. Shared workflow contains the portable execution and evidence rules.
@@ -89,3 +89,5 @@ Latest checkpoint 29/10: A055/E051 complete; independent review High fixed by fo
 A056/E052 complete: three dependency warnings fixed via Vitest4.1.12/fast-uri3.1.9. Zero npm audit findings; clean install/168 app tests/353 embedded SQL/lint/build pass; independent dependency metadata/integrity review found no issue. No push/prod change.
 
 E053/A057 complete: app PR18 b732461, main CI40794364399/Pages40794364198 PASS; HTTP200/version0.14.0 and authenticated move/clone/trash open/cancel smoke, zero console errors. Four production migrations, backup, private hourly cleanup and grants verified. No production business-data test writes. E054 docs publication follows; no new backlog feature approved.
+
+Final 0.14.0 receipt: app PR18 b732461, docs PR19 main9c7a872. Final mainCI40794858200/Pages40794858246 PASS; HTTP200/meta0.14.0. No open action or new backlog approval. Receipt shared on docs/release-0.14.0; fetch/latest Git log for exact checkpoint.

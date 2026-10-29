@@ -1,5 +1,5 @@
 # P30 — Dời ngày chuyến và kế hoạch
-Owner: current agent. Depends: P29. Status: QA/ITS complete; awaiting current-batch go-live approval.
+Owner: current agent. Depends: P29. Status: released 0.14.0; final production verification complete.
 Owner chooses new start, same duration; preview shows old/new dates for all activities and expenses. Optional explicit checkbox also shifts expense dates (customer selected this rule). Amounts, split values, payers/participants and settlement payments unchanged, including former-member frozen money. Unchecked option preserves expense dates and blocks when outside new trip bounds. Snapshot versions detect added/edited/deleted activities/expenses; all changes atomic under trip-before-row locks. Empty/same/invalid dates rejected; trashed items remain unchanged. UI forms use captured preview and do not silently replace versions on Realtime.
 Acceptance: backward/forward/month/leap shifts, multi-day dates/times, money/payment preservation, stale/concurrent writes, invalid/no-role/archive rejection, cache/Reatime, demo and real local browser/mobile.
 

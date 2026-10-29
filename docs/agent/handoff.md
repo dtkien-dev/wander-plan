@@ -34,3 +34,5 @@ Dependency follow-up A056/E052 completed: Vitest4.1.12, fast-uri3.1.9; zero npm 
 
 ## Released 0.14.0 — 29/10/2026
 App PR18 merged b732461 after approved go-live. MainCI40794364399/Pages40794364198 PASS, public/authenticated0.14.0 and read-only move/clone/trash dialogs PASS. Four production migrations, private backup, grants/Realtime/hourly cron verified; no business-data test writes. A058/E054 docs closeout on docs/release-0.14.0; fetch and inspect latest Git log/tracker before resuming. No new backlog scope; primary checkout edits retained.
+
+Final 0.14.0 checkpoint: main9c7a872 (docs PR19), app PR18 b732461. Final mainCI40794858200/Pages40794858246 PASS; public0.14.0. A058/E054 complete; no active action/new backlog approval. Shared final receipt on docs/release-0.14.0; fetch/read latest Git log. No production business-data test writes; primary edits retained.
