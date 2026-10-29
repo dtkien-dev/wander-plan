@@ -78,7 +78,7 @@ export function DashboardPage() {
           <h2 id="ticket-title">Tiền của bạn</h2>
           {myBalance === undefined ? <p className={styles.ticketNote}>Bạn không có trong phần chia tiền của chuyến này.</p> : <>
             <p className={`${styles.ticketAmount} ${myBalance > 0 ? 'amount-receive' : myBalance < 0 ? 'amount-owe' : ''}`}>
-              {myBalance > 0 ? 'Bạn nhận lại ' : myBalance < 0 ? 'Bạn cần trả ' : 'Đã cân bằng'}{myBalance !== 0 && formatCurrency(Math.abs(myBalance))}
+              {myBalance > 0 ? 'Bạn nhận lại ' : myBalance < 0 ? 'Bạn cần trả ' : 'Đã cân bằng'}{myBalance !== 0 && <data value={Math.abs(myBalance)}>{formatCurrency(Math.abs(myBalance))}</data>}
             </p>
             {myTransfers.length > 0 && <ul className={styles.ticketTransfers}>{myTransfers.map((transfer) => <li key={`${transfer.fromUserId}-${transfer.toUserId}`}>
               {transfer.toUserId === currentUserId ? `${nameOf(transfer.fromUserId)} trả bạn` : `Bạn trả ${nameOf(transfer.toUserId)}`} <data value={transfer.amountVnd}>{formatCurrency(transfer.amountVnd)}</data>

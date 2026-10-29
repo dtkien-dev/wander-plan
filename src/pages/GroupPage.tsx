@@ -12,6 +12,7 @@ import { ArchiveTripControl } from '../components/ArchiveTripControl'
 import { useTripPeople, useWorkspace } from '../hooks/useWorkspace'
 import { useWorkspaceMutations } from '../hooks/useWorkspaceMutations'
 import { formatCurrency, formatDate } from '../lib/format'
+import { calculateExpenseSettlement } from '../lib/expenseSettlement'
 import { useNotify } from '../providers/NotificationProvider'
 import type { MemberRole, TripDraft } from '../types'
 import styles from './GroupPage.module.css'
@@ -124,6 +125,16 @@ export function GroupPage() {
     }
   }
 
+  // Mirrors remove_trip_member: zero actual balance and no estimate-only expense involving the member.
+  const removalBlock = (() => {
+    if (!removing) return ''
+    const balance = calculateExpenseSettlement(workspace.data.expenses, workspace.data.people, workspace.data.settlementPayments ?? [])
+      .balances.find((entry) => entry.userId === removing.userId)?.amountVnd ?? 0
+    if (balance !== 0) return `${removing.displayName} ${balance > 0 ? 'còn được nhận lại' : 'còn phải trả'} ${formatCurrency(Math.abs(balance))}. Hãy quyết toán xong trước khi loại khỏi nhóm.`
+    const pending = workspace.data.expenses.some((expense) => expense.actualAmountVnd === null && (expense.paidByUserId === removing.userId || expense.participantUserIds.includes(removing.userId)))
+    return pending ? `${removing.displayName} còn trong khoản chi dự kiến chưa có số thực tế. Cập nhật hoặc bỏ họ khỏi khoản đó trước.` : ''
+  })()
+
   return (
     <div className={styles.page} data-ai-id="group-page">
       <header className="section-header section-header--page">
@@ -195,9 +206,10 @@ export function GroupPage() {
           </form>
       </Modal>
       <Modal open={removing !== null} title="Loại thành viên khỏi nhóm?" onClose={() => { if (!mutations.removeMember.isPending) setRemoving(null) }}>
-        <p className={styles.invitationConfirm}>{removing?.displayName} sẽ mất quyền truy cập chuyến đi. Chỉ loại được khi số dư của người này đã về 0; khoản chi cũ giữ nguyên tên họ.</p>
+        <p className={styles.invitationConfirm}>{removing?.displayName} sẽ mất quyền truy cập chuyến đi. Khoản chi cũ giữ nguyên tên họ.</p>
+        {removalBlock && <p className="form-warning" role="status">{removalBlock}</p>}
         {removeError && <p className="form-error-banner" role="alert">{removeError}</p>}
-        <div className="form__actions"><button className="button button--ghost" type="button" disabled={mutations.removeMember.isPending} onClick={() => setRemoving(null)}>Giữ lại</button><button className="button button--danger" type="button" disabled={mutations.removeMember.isPending} onClick={() => removing && void removeMember(removing)}>{mutations.removeMember.isPending ? 'Đang loại…' : 'Loại khỏi nhóm'}</button></div>
+        <div className="form__actions"><button className="button button--ghost" type="button" disabled={mutations.removeMember.isPending} onClick={() => setRemoving(null)}>Giữ lại</button><button className="button button--danger" type="button" disabled={mutations.removeMember.isPending || Boolean(removalBlock)} onClick={() => removing && void removeMember(removing)}>{mutations.removeMember.isPending ? 'Đang loại…' : 'Loại khỏi nhóm'}</button></div>
       </Modal>
       <Modal open={revokingEmail !== null} title="Huỷ lời mời" onClose={() => { if (!mutations.revokeInvitation.isPending) setRevokingEmail(null) }}>
         <p className={styles.invitationConfirm}>Huỷ lời mời gửi đến {revokingEmail}? Chỗ đang giữ sẽ được giải phóng.</p>

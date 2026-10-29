@@ -13,6 +13,16 @@ export const boardStatus = (item: Pick<ItineraryItem, 'visitDate' | 'endDate' | 
   return nowStamp >= `${item.visitDate}T${item.startTime}` ? 'now' : 'next'
 }
 
+/** splitTotals per key, e.g. per category or per start date. */
+export const groupTotals = <K,>(expenses: Expense[], keyOf: (expense: Expense) => K) => {
+  const groups = new Map<K, Expense[]>()
+  expenses.forEach((expense) => {
+    const key = keyOf(expense)
+    groups.set(key, [...groups.get(key) ?? [], expense])
+  })
+  return new Map([...groups].map(([key, items]) => [key, splitTotals(items)]))
+}
+
 /** Actual money spent and the estimate-only remainder, never mixed. */
 export const splitTotals = (expenses: Expense[]) => expenses.reduce((totals, expense) => {
   if (expense.actualAmountVnd === null) totals.estimateOnly += expense.estimatedAmountVnd

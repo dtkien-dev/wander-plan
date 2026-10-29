@@ -1,11 +1,12 @@
 import { lazy, Suspense, useMemo, useRef, useState } from 'react'
-import { Download, FileUp, MoreHorizontal, Pencil, Plus, Trash2 } from 'lucide-react'
+import { Download, FileUp, Pencil, Plus, Trash2 } from 'lucide-react'
+import { ActionsMenu } from '../components/ActionsMenu'
 import { ExpenseForm } from '../components/ExpenseForm'
 import { Modal } from '../components/Modal'
 import { SettlementPanel } from '../components/SettlementPanel'
 import { StateView } from '../components/StateView'
 import { actualOrEstimated, describeExpenseDates, formatCurrency, formatDate, safePercent } from '../lib/format'
-import { splitTotals } from '../lib/tripDay'
+import { groupTotals, splitTotals } from '../lib/tripDay'
 import { calculateExpenseSettlement, involvesFormerMember, type SettlementTransfer } from '../lib/expenseSettlement'
 import { downloadTravelExcelReport } from '../lib/travelExcel'
 import { useNotify } from '../providers/NotificationProvider'
@@ -32,19 +33,13 @@ export function ExpensesPage() {
   const [trashError, setTrashError] = useState('')
   const [exporting, setExporting] = useState(false)
   const exportPending = useRef(false)
-  const menu = useRef<HTMLDetailsElement>(null)
   const [paymentAction, setPaymentAction] = useState<{ kind: 'confirm'; transfer: SettlementTransfer } | { kind: 'undo'; payment: SettlementPayment } | null>(null)
   const [paymentError, setPaymentError] = useState('')
-  const grouped = useMemo(() => {
-    const result = new Map<ExpenseCategory, number>()
-    workspace.data?.expenses.forEach((expense) => result.set(expense.category, (result.get(expense.category) ?? 0) + actualOrEstimated(expense)))
-    return [...result.entries()].sort((a, b) => b[1] - a[1])
-  }, [workspace.data])
-  const daily = useMemo(() => {
-    const result = new Map<string, number>()
-    workspace.data?.expenses.forEach((expense) => result.set(expense.expenseDate, (result.get(expense.expenseDate) ?? 0) + actualOrEstimated(expense)))
-    return [...result.entries()].sort(([a], [b]) => a.localeCompare(b))
-  }, [workspace.data])
+  // Aggregates keep actual and estimate-only money apart, like the totals.
+  const grouped = useMemo(() => [...groupTotals(workspace.data?.expenses ?? [], (expense) => expense.category).entries()]
+    .sort((a, b) => (b[1].actual + b[1].estimateOnly) - (a[1].actual + a[1].estimateOnly)), [workspace.data])
+  const daily = useMemo(() => [...groupTotals(workspace.data?.expenses ?? [], (expense) => expense.expenseDate).entries()]
+    .sort(([a], [b]) => a.localeCompare(b)), [workspace.data])
   if (workspace.isLoading) return <StateView state="loading" />
   if (workspace.isError) return <StateView state="error" onAction={() => void workspace.refetch()} />
   if (!workspace.data) return <StateView state="empty" title="Chưa có chuyến đang hoạt động" />
@@ -149,14 +144,11 @@ export function ExpensesPage() {
         <div><h1>Chi phí</h1><p>Ghi dự kiến trước, cập nhật thực tế khi đã chi; quyết toán chỉ dùng số thực tế.</p></div>
         <div className="section-header__actions">
           <button className="button button--primary" type="button" onClick={() => { setFormError(''); setEditing(null) }}><Plus size={18} aria-hidden="true" /> Thêm chi phí</button>
-          <details className="menu" ref={menu}>
-            <summary className="button button--ghost"><MoreHorizontal size={18} aria-hidden="true" /> Thêm</summary>
-            <div className="menu__panel">
-              <button type="button" onClick={() => { menu.current?.removeAttribute('open'); setImportOpen(true) }}><FileUp size={18} aria-hidden="true" /> Nhập Excel</button>
-              <button type="button" disabled={exporting} onClick={() => { menu.current?.removeAttribute('open'); void exportData() }}><Download size={18} aria-hidden="true" /> {exporting ? 'Đang xuất…' : 'Xuất Excel'}</button>
-              <button type="button" onClick={() => { menu.current?.removeAttribute('open'); setTrashError(''); setShowTrash(true) }}><Trash2 size={18} aria-hidden="true" /> Thùng rác ({trash.length})</button>
-            </div>
-          </details>
+          <ActionsMenu>
+              <button type="button" onClick={() => setImportOpen(true)}><FileUp size={18} aria-hidden="true" /> Nhập Excel</button>
+              <button type="button" disabled={exporting} onClick={() => void exportData()}><Download size={18} aria-hidden="true" /> {exporting ? 'Đang xuất…' : 'Xuất Excel'}</button>
+              <button type="button" onClick={() => { setTrashError(''); setShowTrash(true) }}><Trash2 size={18} aria-hidden="true" /> Thùng rác ({trash.length})</button>
+          </ActionsMenu>
         </div>
       </header>
       <section className={styles.summary} data-ai-id="expense-summary">
@@ -166,9 +158,9 @@ export function ExpensesPage() {
           <div><dt>{trip.budgetVnd >= total ? 'Còn trong ngân sách' : 'Vượt ngân sách'}</dt><dd className={trip.budgetVnd >= total ? '' : 'amount-owe'}>{formatCurrency(Math.abs(trip.budgetVnd - total))}</dd></div>
           <p>Ngân sách {formatCurrency(trip.budgetVnd)} · đã dự trù {Math.round(safePercent(total, trip.budgetVnd))}%</p>
         </dl>
-        <div className={styles.categories}>{grouped.length ? grouped.map(([category, amount]) => <div key={category}><span>{labels[category]}</span><strong>{formatCurrency(amount)}</strong><div><i style={{ width: `${Math.max(safePercent(amount, total), amount > 0 ? 4 : 0)}%` }} /></div></div>) : <p>Chưa có phân bổ chi phí.</p>}</div>
+        <div className={styles.categories}>{grouped.length ? grouped.map(([category, amount]) => <div key={category}><span>{labels[category]}</span><strong>{formatCurrency(amount.actual)}{amount.estimateOnly > 0 && <small> + dự kiến {formatCurrency(amount.estimateOnly)}</small>}</strong><div><i style={{ width: `${safePercent(amount.actual, total)}%` }} /><i className={styles.estimateBar} style={{ width: `${safePercent(amount.estimateOnly, total)}%` }} /></div></div>) : <p>Chưa có phân bổ chi phí.</p>}</div>
       </section>
-      {daily.length > 0 && <section className={styles.daily} aria-labelledby="daily-title"><header><h2 id="daily-title">Chi theo ngày</h2><p>Lưu trú và khứ hồi tính vào ngày bắt đầu.</p></header><div>{daily.map(([date, amount]) => <article key={date}><time dateTime={date}>{formatDate(date)}</time><strong>{formatCurrency(amount)}</strong></article>)}</div></section>}
+      {daily.length > 0 && <section className={styles.daily} aria-labelledby="daily-title"><header><h2 id="daily-title">Chi theo ngày</h2><p>Lưu trú và khứ hồi tính vào ngày bắt đầu.</p></header><ol>{daily.map(([date, amount]) => <li key={date}><time dateTime={date}>{formatDate(date)}</time><strong>{formatCurrency(amount.actual)}</strong>{amount.estimateOnly > 0 && <small>+ dự kiến {formatCurrency(amount.estimateOnly)}</small>}</li>)}</ol></section>}
       <SettlementPanel balances={settlement.balances} transfers={settlement.transfers} payments={payments} currentUserId={currentUserId} pending={mutations.recordPayment.isPending || mutations.undoPayment.isPending} personName={personName} isFormer={(userId) => !activeUserIds.has(userId)} onConfirm={(transfer) => { setPaymentError(''); setPaymentAction({ kind: 'confirm', transfer }) }} onUndo={(payment) => { setPaymentError(''); setPaymentAction({ kind: 'undo', payment }) }} />
       {expenses.length === 0 ? <StateView state="empty" title="Chưa có khoản chi nào" message="Thêm khoản chi đầu tiên để theo dõi ngân sách và chia tiền cùng nhóm." actionLabel="Thêm khoản chi đầu tiên" onAction={() => { setFormError(''); setEditing(null) }} /> : (
         <section className={styles.list} aria-label="Danh sách chi phí">

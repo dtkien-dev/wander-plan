@@ -1,5 +1,6 @@
 import { lazy, Suspense, useRef, useState } from 'react'
-import { CheckSquare, Download, ExternalLink, FileUp, MapPin, MoreHorizontal, Pencil, Plus, Trash2, X } from 'lucide-react'
+import { CheckSquare, Download, ExternalLink, FileUp, MapPin, Pencil, Plus, Trash2, X } from 'lucide-react'
+import { ActionsMenu } from '../components/ActionsMenu'
 import { ItineraryForm } from '../components/ItineraryForm'
 import { Modal } from '../components/Modal'
 import { StateView } from '../components/StateView'
@@ -32,7 +33,6 @@ export function ItineraryPage() {
   const [importOpen, setImportOpen] = useState(false)
   const [exporting, setExporting] = useState(false)
   const exportPending = useRef(false)
-  const menu = useRef<HTMLDetailsElement>(null)
   const changed = useSeenItinerary(workspace.data)
   if (workspace.isLoading) return <StateView state="loading" />
   if (workspace.isError) return <StateView state="error" onAction={() => void workspace.refetch()} />
@@ -44,7 +44,6 @@ export function ItineraryPage() {
   const selectedItems = selected.filter((item) => item.tripId === trip.id && itinerary.some((current) => current.id === item.id))
   const bulkPending = mutations.deleteItineraries.isPending
   const showSelection = isOwner && selecting && itinerary.length > 0
-  const closeMenu = () => menu.current?.removeAttribute('open')
   const toggleItem = (item: ItineraryItem) => setSelected((current) => current.some((entry) => entry.id === item.id)
     ? current.filter((entry) => entry.id !== item.id) : [...current, item])
   const removeSelected = async () => {
@@ -123,14 +122,11 @@ export function ItineraryPage() {
           {isOwner && itinerary.length > 0 && <button className="button button--ghost" type="button" aria-pressed={selecting} onClick={() => { setSelecting(!selecting); setSelected([]) }}>
             {selecting ? <><X size={18} aria-hidden="true" /> Xong chọn</> : <><CheckSquare size={18} aria-hidden="true" /> Chọn</>}
           </button>}
-          <details className="menu" ref={menu}>
-            <summary className="button button--ghost"><MoreHorizontal size={18} aria-hidden="true" /> Thêm</summary>
-            <div className="menu__panel">
-              <button type="button" onClick={() => { closeMenu(); setImportOpen(true) }}><FileUp size={18} aria-hidden="true" /> Nhập Excel</button>
-              <button type="button" disabled={exporting} onClick={() => { closeMenu(); void exportData() }}><Download size={18} aria-hidden="true" /> {exporting ? 'Đang xuất…' : 'Xuất Excel'}</button>
-              {isOwner && <button type="button" onClick={() => { closeMenu(); setTrashError(''); setShowTrash(true) }}><Trash2 size={18} aria-hidden="true" /> Thùng rác ({trash.length})</button>}
-            </div>
-          </details>
+          <ActionsMenu>
+              <button type="button" onClick={() => setImportOpen(true)}><FileUp size={18} aria-hidden="true" /> Nhập Excel</button>
+              <button type="button" disabled={exporting} onClick={() => void exportData()}><Download size={18} aria-hidden="true" /> {exporting ? 'Đang xuất…' : 'Xuất Excel'}</button>
+              {isOwner && <button type="button" onClick={() => { setTrashError(''); setShowTrash(true) }}><Trash2 size={18} aria-hidden="true" /> Thùng rác ({trash.length})</button>}
+          </ActionsMenu>
         </div>
       </header>
       {showSelection && <div className={styles.selection}>
@@ -164,7 +160,7 @@ export function ItineraryPage() {
                       {item.notes && <p className={styles.note}>{item.notes}</p>}
                     </div>
                     <div className={styles.actions}>
-                      {item.mapsUrl && <a className="button button--soft" href={item.mapsUrl} target="_blank" rel="noreferrer"><ExternalLink size={16} aria-hidden="true" /> Chỉ đường</a>}
+                      {item.mapsUrl && <a className={`button button--soft ${styles.directions}`} href={item.mapsUrl} target="_blank" rel="noreferrer" aria-label={`Chỉ đường đến ${item.title}`}><ExternalLink size={16} aria-hidden="true" /><span>Chỉ đường</span></a>}
                       <button className="icon-button" type="button" onClick={() => { setFormError(''); setEditing(item) }} aria-label={`Sửa ${item.title}`}><Pencil size={18} /></button>
                       <button className="icon-button icon-button--danger" type="button" disabled={mutations.deleteItinerary.isPending || bulkPending} onClick={() => { setRemoveError(''); setRemoving(item) }} aria-label={`Xóa ${item.title}`}><Trash2 size={18} /></button>
                     </div>

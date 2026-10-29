@@ -19,17 +19,19 @@
 .boardEmpty a { color: var(--color-primary); font-weight: 600; }
 .boardFoot { display: flex; flex-wrap: wrap; gap: 4px 16px; padding: 10px 14px 12px; }
 .boardLink { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 6px; color: var(--color-board-ink); background: transparent; border: 0; font-size: 14px; font-weight: 600; text-decoration: none; cursor: pointer; }
+.boardFoot :focus-visible { outline-color: var(--color-board-ink); }
 .boardLink:hover { text-decoration: underline; text-underline-offset: 3px; }
 .ticket { display: grid; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-surface); }
 .ticketMain { display: grid; gap: 8px; padding: 18px 20px; border-bottom: 2px dashed var(--color-border-strong); }
 .ticketMain h2 { margin: 0; color: var(--color-text-muted); font-size: 14px; font-weight: 600; }
 .ticketAmount { margin: 0; font-size: 26px; font-weight: 700; line-height: 1.2; }
+.ticketAmount data, .ticketTransfers data { white-space: nowrap; }
 .ticketTransfers { display: grid; gap: 4px; margin: 0; padding: 0; list-style: none; font-size: 14px; }
 .ticketTransfers data { font-weight: 700; }
 .ticketNote { margin: 0; color: var(--color-text-muted); font-size: 13px; }
 .ticketStub { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px 12px; margin: 0; padding: 16px 20px 18px; }
 .ticketStub dt { color: var(--color-text-muted); font-size: 12px; }
-.ticketStub dd { margin: 2px 0 0; font-size: 15px; font-weight: 700; overflow-wrap: anywhere; }
+.ticketStub dd { margin: 2px 0 0; font-size: 15px; font-weight: 700; white-space: nowrap; }
 .budgetBar { grid-column: 1 / -1; display: flex; height: 8px; overflow: hidden; background: var(--color-surface-muted); border-radius: var(--radius-pill); }
 .budgetBar span:first-child { background: var(--color-primary); }
 .budgetBar span:last-child { background: var(--color-secondary); opacity: .4; }
@@ -37,10 +39,12 @@
 @media (max-width: 900px) {
   .dashboard { grid-template-columns: 1fr; gap: 14px; }
   .board { margin: 0 -16px; border-radius: 0; }
-  .boardHead { grid-template-columns: 1fr; padding: 16px 16px 12px; }
+  .boardHead { grid-template-columns: 1fr; padding: 14px 16px 10px; }
+  .boardHead h1 { font-size: 20px; }
   .boardHead .boardDay { justify-items: start; text-align: left; }
   .rows { padding: 0 8px; }
   .row { grid-template-columns: 52px minmax(0, 1fr); padding: 10px 12px; }
   .time { font-size: 17px; }
   .status { grid-column: 2; grid-auto-flow: column; justify-content: start; }
 }
+@media (max-width: 400px) { .ticketStub { grid-template-columns: 1fr 1fr; } }

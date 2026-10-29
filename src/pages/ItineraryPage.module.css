@@ -42,3 +42,4 @@
   .itemSelecting .actions { grid-column: 3; }
   .selection { top: 8px; }
 }
+@media (max-width: 360px) { .directions { width: 44px; padding: 0; } .directions span { display: none; } }

@@ -211,3 +211,25 @@ describe('GroupPage invitations', () => {
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
   })
 })
+
+describe('GroupPage member removal', () => {
+  it('confirms removal in-app and blocks it while the member still has an open balance', async () => {
+    const confirm = vi.spyOn(window, 'confirm')
+    setup('owner')
+    const data = workspace('owner')
+    data.expenses = [{ id: 'e1', tripId: trip.id, title: 'Bữa tối', category: 'food', expenseDate: trip.startDate, endDate: null, estimatedAmountVnd: 0, actualAmountVnd: 200_000,
+      paidByUserId: 'owner-id', participantUserIds: ['owner-id', 'member-1'], notes: '', version: 1 }]
+    mocks.useWorkspace.mockReturnValue({ data, isLoading: false, isError: false, refetch: vi.fn() })
+    render(<GroupPage />, { wrapper })
+    fireEvent.click(screen.getByRole('button', { name: 'Loại Thành viên một khỏi nhóm' }))
+    expect(screen.getByRole('dialog')).toHaveTextContent('còn phải trả 100.000')
+    expect(screen.getByRole('button', { name: 'Loại khỏi nhóm' })).toBeDisabled()
+    fireEvent.click(screen.getByRole('button', { name: 'Giữ lại' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Loại Thành viên hai khỏi nhóm' }))
+    const remove = screen.getByRole('button', { name: 'Loại khỏi nhóm' })
+    expect(remove).toBeEnabled()
+    fireEvent.click(remove)
+    await waitFor(() => expect(mocks.useWorkspaceMutations().removeMember.mutateAsync).toHaveBeenCalledWith({ tripId: trip.id, userId: 'member-2' }))
+    expect(confirm).not.toHaveBeenCalled()
+  })
+})

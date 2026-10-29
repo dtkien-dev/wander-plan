@@ -108,3 +108,7 @@ Product truth for PRODUCT.md: primary users are a trip organiser plus friends/fa
 
 ## A064 — 0.16.0 go-live approval, 29/10/2026
 Customer approved releasing P34 expense trash as 0.16.0 with the prepared ITO checklist. P35 needs its own approval.
+
+## A065 — P35 direction and conditional go-live, 29/10/2026
+Customer started P35, answered the Operate questions (first screen = today's plan + own balance; avoid gaudy/game-like, accounting-dry and text-heavy; dark mode follows the device) and chose the "Bảng giờ tàu" (station departure board) direction on the impeccable decision page. Telemetry to impeccable.style was disabled for the round.
+A066: customer approved the 0.17.0 go-live on condition that QA, ITS, documentation and release steps complete, and instructed that any failed step be fixed per QA/ITS before continuing. No migration is involved.

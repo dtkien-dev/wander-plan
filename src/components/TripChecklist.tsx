@@ -19,7 +19,7 @@ export function TripChecklist({ items, people, busy, onSave, onDelete }: {
     catch (error) { setError(error instanceof Error ? error.message : 'Chưa thể cập nhật. Hãy thử lại.') }
   }
   return <section className={styles.section} aria-labelledby="checklist-title">
-    <header className={styles.header}><div><h2 id="checklist-title">Checklist chuyến đi</h2><p>{items.filter((item) => item.completed).length}/{items.length} việc hoàn tất · Mọi thành viên đều có thể chỉnh sửa.</p></div><button type="button" className="button button--primary" disabled={busy} onClick={() => { setError(''); setEditing('new') }}>Thêm việc</button></header>
+    <header className={styles.header}><div><h2 id="checklist-title">Checklist chuyến đi</h2>{items.length > 0 && <p>{items.filter((item) => item.completed).length}/{items.length} việc hoàn tất · Mọi thành viên đều có thể chỉnh sửa.</p>}</div><button type="button" className="button button--primary" disabled={busy} onClick={() => { setError(''); setEditing('new') }}>Thêm việc</button></header>
     {error && !editing && !removing && <p className="form-error-banner" role="alert">{error}</p>}
     {!items.length && <p className={styles.empty}>Chưa có việc chuẩn bị. Thêm đồ cần mang hoặc việc cần làm cho cả nhóm.</p>}
     <ul className={styles.list}>{items.map((item) => {
