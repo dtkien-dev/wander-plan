@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, type PropsWithChildren } from 'react'
+import { createContext, useCallback, useContext, useEffect, useState, type PropsWithChildren } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '../lib/supabase'
 import { travelRepository } from '../services/travelRepository'
@@ -33,11 +33,16 @@ function useWorkspaceState() {
     enabled: enabled && Boolean(tripId),
   })
 
-  const selectTrip = (id: string) => {
+  const selectTrip = useCallback((id: string) => {
     try { localStorage.setItem(storageKey, id) }
     catch { /* Selection still works for this session if storage is blocked. */ }
     setSelection({ identity, id })
-  }
+  }, [identity, storageKey])
+
+  // Pin the initial/fallback trip before metadata updates can reorder the list.
+  useEffect(() => {
+    if (tripId && tripId !== requestedId) selectTrip(tripId)
+  }, [tripId, requestedId, selectTrip])
 
   useEffect(() => {
     if (!supabase || !session) return
@@ -66,7 +71,7 @@ function useWorkspaceState() {
       })
     if (tripId) {
       channel.on('postgres_changes', { event: '*', schema: 'public', table: 'trips', filter: `id=eq.${tripId}` }, () => refresh())
-      for (const table of ['trip_members', 'itinerary_items', 'expenses', 'checklist_items', 'settlement_payments']) {
+      for (const table of ['trip_members', 'itinerary_items', 'itinerary_trash', 'expenses', 'checklist_items', 'settlement_payments']) {
         channel.on('postgres_changes', { event: '*', schema: 'public', table, filter: `trip_id=eq.${tripId}` }, () => refresh(table === 'trip_members'))
       }
       channel.on('postgres_changes', { event: '*', schema: 'public', table: 'expense_participants' }, () => refresh(false))

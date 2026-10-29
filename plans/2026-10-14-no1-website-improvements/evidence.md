@@ -192,3 +192,61 @@ Candidate de5feb2 published via PR #16 after history privacy scan. PR CI 4073059
 ## E047 / A051 — release documentation closeout
 workflow-action:A051 status:open
 Current-batch approval covers publishing release outcomes in docs/release-0.13.0 via docs-only PR/CI/main and verifying resulting Pages. Scope only release/tracker/roadmap/handoff; no application/schema/config changes. Initial app release at 58b2906 verified; final receipts follow after docs publication.
+
+### E047 final receipt — 29/10/2026 (Asia/Saigon)
+workflow-action:A051 status:completed
+Docs PR #17 at reviewed head 0cd47ce passed CI 40731357042 and merged as acc310a0e15a4fd695dd2f54c493312e0c116af5. Final main CI 40731549138 PASS; Pages 40731548893 verify/build/deploy PASS; public HTTP 200/meta 0.13.0 rechecked after final deployment. Application behavior remains the approved PR #16 release. Existing authenticated read-only smoke was performed on app release and is unchanged by docs-only follow-up. No hosted destructive test or production business-data writes.
+Final receipt is committed/pushed only on sharing branch docs/release-0.13.0, without another main deployment. Resolve final receipt SHA from Git log. Release complete, no next feature selected. Primary checkout edits retained.
+Separate non-release automation: Dependabot run 40730842281 failed security_update_not_possible for existing fast-uri (latest resolvable 3.1.8, required non-vulnerable 3.1.9). This was not CI/Pages and did not change dependencies; high-severity audit gate passed. Dependency maintenance remains a separate follow-up, not silently fixed under P28.
+
+## E048 / A052 — intake and phase plan
+workflow-action:A052 status:completed
+Customer authorized the three-feature batch and answered expense-date rule. Source branch feat/trip-reschedule-templates-trash from shared docs checkpoint 3d7403c (app main acc310a); fetched/reconciled remote, primary checkout dirty work retained. Read portable workflow, active record/manifest and relevant itinerary/trip/import/consent/checklist/frozen-money paths. Planned P29/P30/P31 and scopes/acceptance; no go-live approval or production mutation.
+
+## E049 / A053 — P29 implementation
+workflow-action:A053 status:open
+Owner current agent, serial. Scope per P29, plus shared types/repositories/cache and forward migration tests. Use existing single channel and household Modal/toast patterns. Local synthetic verification only, no production writes/publishing.
+
+A053 scope refinement: coupled forward contracts for P29/P30/P31 are implemented and tested together before demo/UI work; shared date/snapshot/locking rules require coordinated integration. No external publication/production effects.
+
+### E049 / A053 implementation checkpoint
+workflow-action:A053 status:completed
+Implemented all three coupled database/demo/cloud/UI contracts. SQL trash snapshots keep active exports/date validation unchanged; application direct DELETE revoked, member single delete now uses trip-locked RPC, owner bulk signature retained; one statement-level trip notification. Restore retains ID/increments version and respects active date constraints. Hourly private purge scheduled when pg_cron is available; no public purge execution. Trip shift validates trip/child preview versions and explicitly optional expense dates without financial edits. Clone uses the existing request-key lock/creation mechanism with provenance to reject mixed retries; copies active activities and reset checklist only, current owner membership only.
+New targeted tests protect date boundaries/money/source immutability, recovery/version/expiry, clone scope/retry, preview stale data/confirmation/cancel and real SDK RPC bodies; distinct UI/demo/transport/database contracts, no test-only production seams. 167 app tests (29 files), lint/demo build, 345 embedded SQL assertions (18 suites), audit-high and diff whitespace PASS. Three existing moderate dependency findings unchanged. Full-local/UAT/ITS still pending; no production writes/push.
+
+## E050 / A054 — integrated local UAT
+workflow-action:A054 status:open
+Owner current agent. Scope: apply only three missing forward migrations once on localhost; synthetic accounts/trips, actual browser owner/member/clone/trash/reschedule/mobile, SDK concurrent write/retry, scheduler expiry proof and credential/session cleanup. Shared local stack retained, no hosted or production mutation. After QA, run scoped ITS independently where skill requires and return defects to QA.
+
+E050 UAT found and fixed default trip selection changing after reschedule reordered metadata. WorkspaceProvider now pins the initial/fallback selection per account with stable selectTrip; regression test waits for reordered metadata and proves the selected trip stays. Pre-fix control failed with trip-b replacing trip-a; fixed focused 9 provider tests PASS. Actual default-selected API trip remained selected when SDK moved it after another trip in ordering. No new subscription/key changes.
+E050 local UAT: owner bulk delete, 7-day trash/restore and member Realtime passed; member could not view trash. A member edit during preview caused atomic stale rejection. Explicit expense-date shift succeeded, old trash dates stayed and out-of-range restore rejected. Clone UI created selected owner-only copy, reset checklist assignment/completion. Readback verified exact unchanged money/splits/participants and settlement rows, no copied expenses/payments/invitations/trash/member access. Actual concurrent edited-row transaction rejected stale move without changing trip bounds; simultaneous moves one success/one stale; concurrent clone key returned one trip/content. Member single-delete RPC generated snapshot. Actual pg_cron job purged an expired synthetic snapshot with test schedule, then hourly schedule restored; authenticated has no cron schema usage. 320/375px preview tested without page overflow; screenshots ignored/local. Native date fill required keyboard commit in CUA, not a product defect. No production writes.
+
+### E050 QA result
+workflow-action:A054 status:completed
+Final source cbec9dd: 168 app tests, lint/build, 345 embedded and full-local SQL PASS. Three local forward migrations recorded once; dry run now empty. Actual 320/375px move/clone/trash modal UI checked; delete/restore/member Realtime, stale preview rejection, explicit date shift/financial readback, clone isolation/reset, concurrent move/clone and actual scheduled expiry PASS. Selection-reorder UAT defect fixed at provider and verified by pre-fix failing regression/fixed tests/actual API reorder. Tool date-fill required real key commit; Brave native interaction used when CDP locator calls timed out. No product fix inferred from tool behavior. QA complete; no production writes or go-live approval.
+
+## E051 / A055 — independent scoped ITS
+workflow-action:A055 status:open
+After QA, Security Audit skill requires parallel reviewer lenses for this broad three-feature diff. Review exact source cbec9dd vs baseline 3d7403c using read-only sub-agents for Access Control, Unsafe Sinks, Business Logic/API and Platform/Supply Chain. No code edits, external production proofs or secret-store reads; coordinator alone writes records and adjudicates findings. Return confirmed defects to implementation/QA before completing this gate.
+
+E051 verified High: trash keyed only by activity ID allowed cross-trip snapshot replacement and unauthorized restore after membership removal. Returning to IT/QA within A055: forward migration binds trip, payload and deletion timestamp; update SDK/demo/tests and correct unrelated lockfile engine metadata. No production mutation or publication.
+
+### E051 remediation and final gate
+workflow-action:A055 status:completed
+Verified High resolved with forward migration 20261028235649: composite trip/item key, checked snapshot identity, explicit restore payload identity, mandatory original deletion timestamp, removed old RPC signature. SDK passes exact timestamp; demo checks it. Added eight SQL regression assertions covering cross-trip reuse/revoked membership and same-ID/version deletion replacement; demo/SDK coverage updated. Corrected three accidentally changed third-party Node engine strings in lockfile; dependency versions unchanged.
+Independent Business Logic/API reviewer rechecked the hardening delta and reported no actionable issue; independently ran 26 repository tests. Access reviewer retry failed at tool service moderation, so no second Access rerun is claimed. Original Access proof was verified before fixing; coordinator's new regression passed in embedded and full Supabase. Unsafe Sinks and Platform reviews found no additional security blocker.
+Final checks: 168 app tests / 29 files, lint, demo build, 353 embedded SQL / 19 suites and 353 full-local SQL PASS. Only the one missing hardening migration applied once locally; earlier three not replayed. Audit-high PASS with three existing moderate warnings. Prior integrated browser/mobile/Realtime/concurrency/scheduler UAT remains evidence for unchanged UI paths; no new browser replay after timestamp-only contract fix. No production mutation, feature branch push or go-live approval. Primary checkout pre-existing edits preserved.
+
+## E052 / A056 — dependency security patches
+workflow-action:A056 status:open
+Customer authorizes fixing all three moderate audit package findings before returning to production delivery. Scope: exact Vitest patch 4.1.12 and compatible fast-uri 3.1.9 lock update, package manifests, regression verification and release records. No production mutation or new feature. Preserve primary checkout edits.
+
+E052 implementation: exact Vitest patch 4.1.12 updates its seven companion packages, fast-uri 3.1.9 resolves within existing AJV ^3.0.1 range. No override, new dependency, app/schema/config change. Parsed lock comparison confirms unchanged package set and only ten expected entries changed (root, Vitest family, fast-uri).
+QA: clean npm ci, 168 tests/29 files on Vitest 4.1.12, lint, TypeScript/demo build, 353 embedded SQL and audit at low threshold PASS; zero reported vulnerabilities. Full-local SQL already passed on identical application/schema; not repeated for package-only patch. Existing global Node20.17 npm launcher emitted pre-existing ESLint engine warning; lint/TypeScript/build/embedded SQL explicitly verified using bundled supported Node24.22.1 per README. No new tests needed for upstream package-only fixes. Runtime bundle chunk hashes unchanged. No production mutation.
+
+workflow-action:A056 status:completed
+Independent Platform/Supply Chain reviewer: no issue; manifest/lock alignment, all nine changed package integrity hashes match npm registry, upstream optional peer range confirmed, fast-uri satisfies existing requirement, no unrelated config changes. Did not independently rerun tests/audit. Candidate ready to return to go-live approval; no production action authorized or performed under this maintenance action.
+
+## E053 / A057 — approved 0.14.0 go-live
+workflow-action:A057 status:open
+Customer explicitly approves current 0.14.0 candidate including A056 dependency patches. Scope: publish feature branch/PR, CI, verified wander-plan production database backup and four missing forward migrations before frontend; merge exact checked head to main, Pages/live/authenticated read-only smoke and closeout records. No real business-data test writes, invitations or account-policy changes. Preserve primary checkout. Target verified GitHub dtkien-dev/wander-plan/main and Supabase wander-plan; production history ends 20261028163323; pg_cron available, realtime publication exists.

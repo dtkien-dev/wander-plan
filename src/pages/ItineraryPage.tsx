@@ -20,6 +20,8 @@ export function ItineraryPage() {
   const notify = useNotify()
   const [selected, setSelected] = useState<ItineraryItem[]>([])
   const [confirming, setConfirming] = useState<ItineraryItem[] | null>(null)
+  const [showTrash, setShowTrash] = useState(false)
+  const [trashError, setTrashError] = useState('')
   const [deleteError, setDeleteError] = useState('')
   const [formError, setFormError] = useState('')
   const [importOpen, setImportOpen] = useState(false)
@@ -30,6 +32,7 @@ export function ItineraryPage() {
   if (!workspace.data) return <StateView state="empty" title="Chưa có chuyến đang hoạt động" />
   const data = workspace.data
   const { trip, itinerary } = data
+  const trash = (data.itineraryTrash ?? []).filter((item) => Date.parse(item.expiresAt) > Date.now())
   const isOwner = data.currentRole === 'owner'
   const selectedItems = selected.filter((item) => item.tripId === trip.id && itinerary.some((current) => current.id === item.id))
   const bulkPending = mutations.deleteItineraries.isPending
@@ -74,7 +77,7 @@ export function ItineraryPage() {
     if (!window.confirm(`Xóa “${item.title}”?`)) return
     try {
       await mutations.deleteItinerary.mutateAsync(item)
-      notify.success('Đã xóa địa điểm khỏi lịch trình.')
+      notify.success('Đã chuyển địa điểm vào thùng rác trong 7 ngày.')
     } catch (error) {
       notify.error(error instanceof Error ? error.message : 'Không thể xóa địa điểm.')
     }
@@ -103,7 +106,7 @@ export function ItineraryPage() {
 
   return (
     <div className={styles.page} data-ai-id="itinerary-page">
-      <header className="section-header section-header--page"><div><p className="eyebrow">Từng ngày một</p><h1>Lịch trình chuyến đi</h1><p>Sắp xếp theo giờ để cả nhóm không bỏ lỡ điều hay.</p></div><div className="section-header__actions"><button className="button button--ghost" type="button" onClick={() => setImportOpen(true)}><FileUp size={19} /> Nhập Excel</button><button className="button button--soft" type="button" disabled={exporting} onClick={() => void exportData()}><Download size={19} /> {exporting ? 'Đang xuất…' : 'Xuất Excel'}</button><button className="button button--primary" type="button" onClick={() => { setFormError(''); setEditing(null) }}><Plus size={19} /> Thêm địa điểm</button></div></header>
+      <header className="section-header section-header--page"><div><p className="eyebrow">Từng ngày một</p><h1>Lịch trình chuyến đi</h1><p>Sắp xếp theo giờ để cả nhóm không bỏ lỡ điều hay.</p></div><div className="section-header__actions"><button className="button button--ghost" type="button" onClick={() => setImportOpen(true)}><FileUp size={19} /> Nhập Excel</button><button className="button button--soft" type="button" disabled={exporting} onClick={() => void exportData()}><Download size={19} /> {exporting ? 'Đang xuất…' : 'Xuất Excel'}</button>{isOwner && <button className="button button--ghost" type="button" onClick={() => { setTrashError(''); setShowTrash(true) }}><Trash2 size={18} /> Thùng rác ({trash.length})</button>}<button className="button button--primary" type="button" onClick={() => { setFormError(''); setEditing(null) }}><Plus size={19} /> Thêm địa điểm</button></div></header>
       {isOwner && itinerary.length > 0 && <div className={styles.selection}>
         <label><input type="checkbox" checked={selectedItems.length === itinerary.length} disabled={bulkPending} onChange={(event) => setSelected(event.target.checked ? [...itinerary] : [])} /> Chọn tất cả ({itinerary.length})</label>
         <button className="button button--soft" type="button" disabled={!selectedItems.length || bulkPending || mutations.deleteItinerary.isPending} onClick={() => { setDeleteError(''); setConfirming([...selectedItems]) }}><Trash2 size={18} /> Xóa mục đã chọn ({selectedItems.length})</button>
@@ -130,11 +133,23 @@ export function ItineraryPage() {
         <ItineraryForm item={editing ?? undefined} tripStart={trip.startDate} tripEnd={trip.endDate} itinerary={itinerary} pending={mutations.itinerary.isPending} onSubmit={save} onCancel={() => setEditing(undefined)} />
       </Modal>
       <Modal open={confirming !== null} title="Xóa lịch trình đã chọn?" onClose={() => { if (!bulkPending) setConfirming(null) }}>
-        <p>Bạn sắp xóa {confirming?.length ?? 0} mục lịch trình. Không thể hoàn tác. Chi phí và thành viên được giữ nguyên.</p>
+        <p>Bạn sắp xóa {confirming?.length ?? 0} mục lịch trình. Chủ chuyến có thể khôi phục trong 7 ngày. Chi phí và thành viên được giữ nguyên.</p>
         <p>Nếu chi phí vẫn nằm ngoài khoảng ngày mới, bạn vẫn chưa thể đổi ngày chuyến đi.</p>
         {deleteError && <p className="form-error-banner" role="alert">{deleteError}</p>}
         <div className="form__actions"><button className="button button--ghost" type="button" disabled={bulkPending} onClick={() => setConfirming(null)}>Hủy</button><button className="button button--primary" type="button" disabled={bulkPending} onClick={() => void removeSelected()}>{bulkPending ? 'Đang xóa…' : `Xác nhận xóa ${confirming?.length ?? 0} mục`}</button></div>
       </Modal>
+      {showTrash && isOwner && <Modal open title="Thùng rác lịch trình" onClose={() => { if (!mutations.restoreItinerary.isPending) setShowTrash(false) }}>
+        <p>Khôi phục trong 7 ngày kể từ lúc xóa. Ngày hoạt động phải nằm trong chuyến hiện tại; sau 7 ngày mục sẽ hết hạn và được dọn tự động.</p>
+        {trashError && <p className="form-error-banner" role="alert">{trashError}</p>}
+        {trash.length === 0 ? <p>Thùng rác đang trống.</p> : <ul className={styles.trash}>{trash.map((item) => <li key={item.id}>
+          <div><strong>{item.title}</strong><p>{formatDate(item.visitDate)}{item.endDate && ` — ${formatDate(item.endDate)}`}</p><small>Khôi phục trước {new Date(item.expiresAt).toLocaleString('vi-VN')}</small></div>
+          <button className="button button--soft" type="button" disabled={mutations.restoreItinerary.isPending} aria-label={`Khôi phục ${item.title}`} onClick={async () => {
+            setTrashError('')
+            try { await mutations.restoreItinerary.mutateAsync(item); notify.success('Đã khôi phục lịch trình.') }
+            catch (error) { setTrashError(error instanceof Error ? error.message : 'Chưa thể khôi phục lịch trình.') }
+          }}>Khôi phục</button>
+        </li>)}</ul>}
+      </Modal>}
       {importOpen && <Suspense fallback={<StateView state="loading" />}><ExcelImportModal open={importOpen} trip={trip} itinerary={itinerary} expenses={data.expenses} people={data.people} pending={mutations.importTripData.isPending} onClose={() => setImportOpen(false)} onSubmit={importData} /></Suspense>}
     </div>
   )

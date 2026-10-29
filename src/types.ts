@@ -57,6 +57,11 @@ export interface ItineraryItem {
   version: number
 }
 
+export interface TrashedItineraryItem extends ItineraryItem {
+  deletedAt: string
+  expiresAt: string
+}
+
 export interface Expense {
   id: string
   tripId: string
@@ -92,6 +97,7 @@ export interface FormerPerson {
 }
 
 export interface WorkspaceData {
+  itineraryTrash?: TrashedItineraryItem[]
   checklist?: ChecklistItem[]
   formerPeople?: FormerPerson[]
   settlementPayments?: SettlementPayment[]

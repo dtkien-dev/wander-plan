@@ -239,3 +239,16 @@ NOT RUN: full Supabase upgrade/services/concurrent sessions/actual Realtime deli
 
 ## P28 / E046 — production release, 28/10/2026
 PASS: production migration 20261028163323 applied once with canonical history and tested definition/grants. PR #16 CI 40730599697; merge 58b2906; main CI 40730811586; Pages 40730811820 verify/build/deploy. Public HTTP 200/version 0.13.0. Existing authenticated read-only browser: itinerary route, selection controls and initially disabled bulk-delete button present. No production data deletion/smoke writes. Screenshot capture timed out; no screenshot claim. Local console/advisor limitations remain; hosted destructive/concurrency UAT not run.
+
+## P28 / E047 — final docs publication, 29/10/2026
+PASS: docs PR #17 CI 40731357042; merge acc310a; main CI 40731549138; Pages 40731548893 (verify/build/deploy); final public HTTP 200/meta 0.13.0. Docs-only follow-up, unchanged application behavior. No additional production data-write tests.
+Separate Dependabot update run 40730842281 FAILED: existing fast-uri update not possible under current dependency constraints. CI/audit-high/Pages PASS; dependency maintenance deferred outside this release.
+
+## P29/P30/P31 initial automated QA — A053/E049
+PASS: 167 app tests, lint/demo build, 345 embedded SQL assertions, audit-high/diff whitespace. Existing 3 moderate dependency warnings unchanged. Full-local/browser/concurrency/scheduler/ITS pending under A054.
+
+## P29/P30/P31 final candidate — 29/10/2026
+0.14.0: 168 app tests, lint/build, 353 embedded and full-local SQL assertions PASS. Hardening regression covers trip/payload/deletion-instance binding; updated real SDK transport and demo restore tests PASS. Independent delta reviewer found no actionable defect; original High resolved, eight new pgTAP assertions pass in both engines. Three existing moderate audit findings remain; high gate passes. Prior actual browser owner/member/mobile/Realtime/concurrent-write/scheduler QA under E050 passed. Browser was not replayed after timestamp-only RPC fix. Production unchanged at 0.13.0; fresh go-live approval required.
+
+## A056/E052 dependency remediation
+Vitest4.1.12 and fast-uri3.1.9: clean npm ci, 168 app tests, lint/TypeScript/build, 353 embedded SQL PASS. npm audit --audit-level=low: zero vulnerabilities. Package set unchanged, no override/dependency added. Prior full-local SQL/browser evidence retained; not repeated for dependency-only patch.

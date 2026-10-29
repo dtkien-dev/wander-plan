@@ -24,3 +24,9 @@
 .selection label, .selectItem { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; cursor: pointer; }
 .selectItem { margin-bottom: 8px; }
 .selection input, .selectItem input { width: 20px; height: 20px; accent-color: var(--color-primary); }
+
+.trash { display: grid; gap: 16px; list-style: none; padding: 0; margin: 18px 0; }
+.trash li { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 0; border-bottom: 1px solid var(--color-border); }
+.trash li > div { min-width: 0; overflow-wrap: anywhere; }
+.trash p { margin: 6px 0; }
+.trash small { color: var(--color-text-muted); }

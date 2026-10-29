@@ -25,3 +25,9 @@ Released after current-batch customer go-live approval. Only missing forward mig
 [PR #16](https://github.com/dtkien-dev/wander-plan/pull/16) CI [40730599697](https://github.com/dtkien-dev/wander-plan/actions/runs/40730599697) PASS; merged app commit 58b29061e1f2af92e6bdd25a6f4c0eb3cd88441e. [Main CI](https://github.com/dtkien-dev/wander-plan/actions/runs/40730811586) and [Pages verify/build/deploy](https://github.com/dtkien-dev/wander-plan/actions/runs/40730811820) PASS. Public HTTP 200/meta 0.13.0; existing authenticated browser confirms itinerary selection controls and disabled delete button before selection.
 
 No real production itinerary deletion or business-data smoke writes. Hosted destructive/concurrency UAT not performed; full-local UAT covered deletion/concurrency/Realtime. Same-agent scoped ITS; console/advisor collection and production screenshot capture not verified. Three existing moderate dependency findings remain. Docs-only publication records the release and requires its own CI/Pages confirmation; see latest tracker checkpoint.
+
+## Final documentation receipt — 29/10/2026
+
+[Docs PR #17](https://github.com/dtkien-dev/wander-plan/pull/17) passed [CI](https://github.com/dtkien-dev/wander-plan/actions/runs/40731357042), merged acc310a, then [main CI](https://github.com/dtkien-dev/wander-plan/actions/runs/40731549138) and [Pages verify/build/deploy](https://github.com/dtkien-dev/wander-plan/actions/runs/40731548893) passed. Final public HTTP 200/version 0.13.0 confirmed. Release complete; final receipt shared on docs/release-0.13.0 without another main deployment.
+
+Separate [Dependabot update](https://github.com/dtkien-dev/wander-plan/actions/runs/40730842281) failed because existing fast-uri 3.1.9 could not be resolved under current constraints. No dependency change made; CI/audit-high/Pages remain passing. Track dependency maintenance separately.

@@ -81,3 +81,7 @@ After the concrete 0.13.0 go-live request (production forward migration, branch/
 
 ## A051 — release closeout
 Publish verified 0.13.0 release outcomes and checkpoint under the current approved batch; no new feature approval or hosted destructive-test authorization.
+
+## A052 — Three-feature implementation batch, 29/10/2026
+Customer requests all three proposed features through the existing automatic delivery workflow: date-shift preview, template cloning and 7-day itinerary trash. Authorizes implementation/verification and local synthetic UAT; current-batch production go-live approval remains required at the final gate. Follow the existing tracker, not a new bundle.
+Customer explicitly selected optional shifting of expense dates along with the trip; all amounts/splits/payments must remain unchanged. Administrative shift/clone/restore actions default to active trip owner. Clone does not add former members automatically: new trip owner uses existing invitations/recipient consent. Retain trip duration when moving/cloning. Trash restoration window is 7 days, followed by hourly server cleanup; deployment must verify scheduler availability. No paid infrastructure/background automation/thread creation authorized or required.

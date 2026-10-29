@@ -6,6 +6,7 @@ import { z } from 'zod'
 import { StateView } from '../components/StateView'
 import { Modal } from '../components/Modal'
 import { DisplayNameForm } from '../components/DisplayNameForm'
+import { TripPlanActions } from '../components/TripPlanActions'
 import { TripChecklist } from '../components/TripChecklist'
 import { ArchiveTripControl } from '../components/ArchiveTripControl'
 import { useTripPeople, useWorkspace, useWorkspaceMutations } from '../hooks/useWorkspace'
@@ -169,6 +170,7 @@ export function GroupPage() {
         <TripChecklist items={workspace.data.checklist ?? []} people={people.data ?? []} busy={mutations.checklist.isPending || mutations.deleteChecklist.isPending} onSave={(draft, existing) => mutations.checklist.mutateAsync({ draft, tripId: trip.id, existing })} onDelete={(item) => mutations.deleteChecklist.mutateAsync(item)} />
       </div>
 
+      <TripPlanActions data={workspace.data} />
       {isOwner && <details className={styles.archive}><summary>Quản lý lưu trữ chuyến</summary><ArchiveTripControl name={trip.name} busy={mutations.archiveTrip.isPending} onArchive={() => mutations.archiveTrip.mutateAsync({ tripId: trip.id, archived: true, version: trip.version })} /></details>}
       <Modal open={editingTrip !== null && isOwner} title="Chỉnh sửa chuyến đi" onClose={() => { if (!mutations.updateTrip.isPending) setEditingTrip(null) }}>
           {formError && <div className="form-error-banner" role="alert">{formError}</div>}

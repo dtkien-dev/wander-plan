@@ -13,7 +13,7 @@ beforeEach(() => {
   data.itinerary = [{ ...data.itinerary[0], title: 'Camping', visitDate: data.trip.startDate, endDate: data.trip.endDate }, { ...data.itinerary[1], title: 'Cafe' }]
   remove = vi.fn().mockResolvedValue(undefined)
   mocks.workspace.mockImplementation(() => ({ data }))
-  mocks.mutations.mockReturnValue({ deleteItineraries: { mutateAsync: remove, isPending: false }, deleteItinerary: { isPending: false }, itinerary: { isPending: false }, importTripData: { isPending: false } })
+  mocks.mutations.mockReturnValue({ restoreItinerary: { mutateAsync: vi.fn().mockResolvedValue(undefined), isPending: false }, deleteItineraries: { mutateAsync: remove, isPending: false }, deleteItinerary: { isPending: false }, itinerary: { isPending: false }, importTripData: { isPending: false } })
 })
 afterEach(() => { cleanup(); vi.clearAllMocks() })
 
@@ -53,4 +53,15 @@ it('hides bulk controls from editors', () => {
   render(<ItineraryPage />)
   expect(screen.queryByRole('checkbox')).not.toBeInTheDocument()
   expect(screen.queryByRole('button', { name: /Xóa mục đã chọn/ })).not.toBeInTheDocument()
+})
+
+it('lists recoverable activities for the owner and reports restore errors inline', async () => {
+  data.itineraryTrash = [{ ...data.itinerary[0], deletedAt: new Date().toISOString(), expiresAt: new Date(Date.now() + 86400000).toISOString() }]
+  const restore = mocks.mutations().restoreItinerary.mutateAsync
+  restore.mockRejectedValue(new Error('Ngày nằm ngoài chuyến đi.'))
+  render(<ItineraryPage />)
+  fireEvent.click(screen.getByRole('button', { name: 'Thùng rác (1)' }))
+  fireEvent.click(screen.getByRole('button', { name: 'Khôi phục Camping', exact: true }))
+  expect(await screen.findByRole('alert')).toHaveTextContent('Ngày nằm ngoài chuyến đi.')
+  expect(restore).toHaveBeenCalledWith(data.itineraryTrash[0])
 })

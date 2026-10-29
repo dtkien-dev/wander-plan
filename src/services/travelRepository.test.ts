@@ -16,6 +16,69 @@ beforeEach(() => {
 })
 
 describe('demo travel repository', () => {
+  it('keeps deleted demo activities for owner recovery and refuses stale or expired restore', async () => {
+    const before = (await travelRepository.loadWorkspace('demo-trip'))!
+    const item = before.itinerary[0]
+    await travelRepository.deleteItinerary(item)
+    let current = (await travelRepository.loadWorkspace('demo-trip'))!
+    expect(current.itineraryTrash![0]).toMatchObject(item)
+    await expect(travelRepository.restoreItinerary({ ...current.itineraryTrash![0], deletedAt: '2000-01-01T00:00:00.000Z' })).rejects.toThrow('đã thay đổi')
+    await travelRepository.restoreItinerary(current.itineraryTrash![0])
+    current = (await travelRepository.loadWorkspace('demo-trip'))!
+    expect(current.itinerary.find((entry) => entry.id === item.id)).toEqual({ ...item, version: item.version + 1 })
+    expect(current.itineraryTrash).toEqual([])
+    await expect(travelRepository.deleteItinerary(item)).rejects.toThrow('đã thay đổi')
+    await travelRepository.deleteItinerary(current.itinerary.find((entry) => entry.id === item.id)!)
+    const saved = savedTrips()
+    saved[0].itineraryTrash![0].expiresAt = new Date(Date.now() - 1).toISOString()
+    localStorage.setItem('wander-plan-demo-trips-v2', JSON.stringify(saved))
+    await expect(travelRepository.restoreItinerary(saved[0].itineraryTrash![0])).rejects.toThrow('hết 7 ngày')
+    expect((await travelRepository.loadWorkspace('demo-trip'))!.itineraryTrash).toEqual([])
+    expect(current.expenses).toEqual(before.expenses)
+  })
+
+  it('reschedules demo date ranges only with explicit expense choice and preserves finances', async () => {
+    const source = (await travelRepository.loadWorkspace('demo-trip'))!
+    await expect(travelRepository.rescheduleTrip(source, '2026-12-04', false)).rejects.toThrow('ngoài khoảng')
+    await travelRepository.rescheduleTrip(source, '2026-12-04', true)
+    const current = (await travelRepository.loadWorkspace('demo-trip'))!
+    expect(current.trip).toMatchObject({ startDate: '2026-12-04', endDate: '2026-12-07' })
+    expect(current.expenses[0]).toMatchObject({ actualAmountVnd: source.expenses[0].actualAmountVnd, estimatedAmountVnd: source.expenses[0].estimatedAmountVnd, paidByUserId: source.expenses[0].paidByUserId, participantUserIds: source.expenses[0].participantUserIds })
+    expect(current.people).toEqual(source.people)
+    expect(current.settlementPayments).toEqual(source.settlementPayments)
+    await expect(travelRepository.rescheduleTrip(source, '2026-12-11', true)).rejects.toThrow('đã thay đổi')
+  })
+
+  it('copies only the demo plan, resets tasks, and makes retries idempotent', async () => {
+    await travelRepository.saveChecklist({ title: 'Pack', assignedTo: 'demo-editor', completed: true }, 'demo-trip')
+    const source = (await travelRepository.loadWorkspace('demo-trip'))!
+    const first = await travelRepository.cloneTrip(source, 'Copy', '2027-01-01', 'copy-trip')
+    expect(await travelRepository.cloneTrip(source, 'Copy', '2027-01-01', 'copy-trip')).toBe(first)
+    const copy = (await travelRepository.loadWorkspace(first))!
+    expect(copy.trip).toMatchObject({ name: 'Copy', startDate: '2027-01-01', endDate: '2027-01-04' })
+    expect(copy.itinerary).toHaveLength(source.itinerary.length)
+    expect(copy.itinerary.every((item) => !source.itinerary.some((old) => old.id === item.id))).toBe(true)
+    expect(copy.checklist).toEqual([expect.objectContaining({ title: 'Pack', completed: false, assignedTo: null })])
+    expect(copy.people).toEqual([expect.objectContaining({ userId: 'demo-owner', role: 'owner', status: 'active' })])
+    expect(copy.expenses).toEqual([])
+    expect(copy.settlementPayments).toEqual([])
+    expect(copy.itineraryTrash).toEqual([])
+    await expect(travelRepository.cloneTrip(source, 'Other', '2027-01-02', 'copy-trip')).rejects.toThrow('Mã yêu cầu')
+  })
+
+  it('rejects stale child snapshots and editor planning actions without creating trips', async () => {
+    const source = (await travelRepository.loadWorkspace('demo-trip'))!
+    await travelRepository.saveItinerary({ ...source.itinerary[0], title: 'Edited' }, source.trip.id, source.itinerary[0])
+    await expect(travelRepository.cloneTrip(source, 'Stale copy', '2027-01-01', 'stale-copy')).rejects.toThrow('đã thay đổi')
+    await expect(travelRepository.rescheduleTrip(source, '2027-01-01', true)).rejects.toThrow('đã thay đổi')
+    const current = (await travelRepository.loadWorkspace('demo-trip'))!
+    current.currentRole = 'editor'
+    localStorage.setItem('wander-plan-demo-trips-v2', JSON.stringify([current]))
+    await expect(travelRepository.cloneTrip(current, 'Editor copy', '2027-01-01', 'editor-copy')).rejects.toThrow('Chỉ chủ nhóm')
+    await expect(travelRepository.rescheduleTrip(current, '2027-01-01', true)).rejects.toThrow('Chỉ chủ nhóm')
+    expect(await travelRepository.listTrips()).toHaveLength(1)
+  })
+
   it('bulk deletes only selected rows atomically and retains expenses and people', async () => {
     const before = (await travelRepository.loadWorkspace('demo-trip'))!
     const items = before.itinerary.slice(0, 2)
