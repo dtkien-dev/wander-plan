@@ -1,5 +1,7 @@
 # Điểm bàn giao
 
+Released 0.17.0 checkpoint 30/10/2026: P35/A066/E062 Bảng giờ tàu redesign, PR26 7393752 (head 180dec5), PR CI PASS, main CI 40981612990/Pages 40981612923 PASS; no migration; public meta 0.17.0, signed-out console 0. Authenticated smoke not run. DESIGN.md is the visual source of truth. No feature queued. Docs closeout on docs/release-0.17.0.
+
 Released 0.16.0 checkpoint 29/10/2026: P34/A064/E060 expense trash, PR24/96c419e, main CI40886069902/Pages40886070224 PASS; production migration 20261029150000 once after private backup, contracts verified; public meta 0.16.0. Authenticated smoke not run. Next: P35 full redesign (A063, PRODUCT.md written; impeccable skill installed locally under .claude/skills, not in Git). Docs closeout on docs/release-0.16.0.
 
 Released0.15.0 checkpoint29/10/2026: P33/A062/E058, app PR22/7b647fa, main CI40875101095/Pages40875101197 PASS. Both canonical production migrations once after private backup; exact approved verified-account admin bootstrap and registry/RLS/grants checks PASS. Public HTTP200/meta0.15.0 and actual Google sign-in/admin/Group/promotion dialog open+cancel smoke PASS, app console0. No real trip/member/payment test writes or email. Docs closeout continues on docs/release-0.15.0; fetch/latest Git log/tracker before resuming. No new feature scope; primary checkout changes preserved. Never publish admin identity or private backup.
