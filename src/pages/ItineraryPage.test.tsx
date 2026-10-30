@@ -20,6 +20,7 @@ afterEach(() => { cleanup(); vi.clearAllMocks() })
 
 it('shares selection across multi-day copies, cancels safely, and confirms unique selected rows', async () => {
   render(<ItineraryPage />)
+  fireEvent.click(screen.getByRole('button', { name: 'Chọn' }))
   const copies = screen.getAllByRole('checkbox', { name: /^Chọn Camping ngày/ })
   fireEvent.click(copies[0])
   for (const copy of copies) expect(copy).toBeChecked()
@@ -39,6 +40,7 @@ it('keeps a failed confirmation visible and preserves selected versions after a 
   remove.mockRejectedValue(new Error('Lịch trình đã thay đổi.'))
   const original = structuredClone(data.itinerary[0])
   const view = render(<ItineraryPage />)
+  fireEvent.click(screen.getByRole('button', { name: 'Chọn' }))
   fireEvent.click(screen.getAllByRole('checkbox', { name: /^Chọn Camping ngày/ })[0])
   data = { ...data, itinerary: data.itinerary.map((item) => ({ ...item, version: item.version + 1 })) }
   view.rerender(<ItineraryPage />)
@@ -54,6 +56,7 @@ it('hides bulk controls from editors', () => {
   render(<ItineraryPage />)
   expect(screen.queryByRole('checkbox')).not.toBeInTheDocument()
   expect(screen.queryByRole('button', { name: /Xóa mục đã chọn/ })).not.toBeInTheDocument()
+  expect(screen.queryByRole('button', { name: 'Chọn' })).not.toBeInTheDocument()
 })
 
 it('lists recoverable activities for the owner and reports restore errors inline', async () => {

@@ -18,7 +18,7 @@ export function Modal({ title, open, onClose, children }: ModalProps) {
     const previousFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null
     const previousOverflow = document.body.style.overflow
     document.body.style.overflow = 'hidden'
-    const focusableSelector = 'button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), a[href]'
+    const focusableSelector = 'button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), a[href], summary, [tabindex]:not([tabindex="-1"])'
     const focusFirst = window.requestAnimationFrame(() => {
       dialogRef.current?.querySelector<HTMLElement>(focusableSelector)?.focus()
     })

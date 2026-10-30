@@ -274,3 +274,6 @@ Customer approved; PR18 b732461, CI40794182415/mainCI40794364399/Pages4079436419
 
 ## 0.16.0 go-live E060
 Customer approved (A064). Migration 20261029150000 applied once after private backup; grants/RLS/trigger/cron/Realtime verified. PR24 96c419e; main CI 40886069902/Pages 40886070224 PASS; public HTTP 200/meta 0.16.0. Authenticated read-only smoke NOT RUN (signed-out browser).
+
+## A065/E061 P35 redesign (candidate 0.17.0)
+184 app tests, lint, demo build, audit-high 0, 406 embedded SQL PASS. Detector clean. Reviewers: technical 16/20 (from 13), design 28/40 (from 26), final disposition ship after verified fix round. No migration.

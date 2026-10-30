@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, screen } from '@testing-library/react'
+import { cleanup, fireEvent, render, screen, within } from '@testing-library/react'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import { ExpensesPage } from './ExpensesPage'
 import { demoWorkspace } from '../data/demoData'
@@ -47,4 +47,20 @@ it('lists recoverable expenses with who deleted them and reports restore errors 
   expect(await screen.findByRole('alert')).toHaveTextContent('đã rời nhóm')
   expect(restore).toHaveBeenCalledWith(data.expenseTrash[0])
   expect(screen.getByText(/Xóa bởi/)).toBeInTheDocument()
+})
+
+it('confirms a received payment in an in-app dialog that names payer and amount', async () => {
+  const confirm = vi.spyOn(window, 'confirm')
+  const record = vi.fn().mockRejectedValueOnce(new Error('Đã có người ghi nhận trước.')).mockResolvedValue(undefined)
+  mocks.mutations.mockReturnValue({ ...mocks.mutations(), recordPayment: { mutateAsync: record, isPending: false } })
+  render(<ExpensesPage />)
+  fireEvent.click(screen.getByRole('button', { name: /Đã nhận tiền/ }))
+  const dialog = screen.getByRole('dialog')
+  expect(dialog).toHaveTextContent('đã trả bạn')
+  fireEvent.click(within(dialog).getByRole('button', { name: 'Đã nhận tiền' }))
+  expect(await within(dialog).findByRole('alert')).toHaveTextContent('Đã có người ghi nhận trước.')
+  fireEvent.click(within(dialog).getByRole('button', { name: 'Đã nhận tiền' }))
+  await vi.waitFor(() => expect(mocks.success).toHaveBeenCalledWith('Đã ghi nhận thanh toán.'))
+  expect(record).toHaveBeenCalledWith(expect.objectContaining({ tripId: data.trip.id, expectedCount: data.settlementPaymentCount ?? 0 }))
+  expect(confirm).not.toHaveBeenCalled()
 })

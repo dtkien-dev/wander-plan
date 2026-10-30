@@ -12,6 +12,7 @@ import { ArchiveTripControl } from '../components/ArchiveTripControl'
 import { useTripPeople, useWorkspace } from '../hooks/useWorkspace'
 import { useWorkspaceMutations } from '../hooks/useWorkspaceMutations'
 import { formatCurrency, formatDate } from '../lib/format'
+import { calculateExpenseSettlement } from '../lib/expenseSettlement'
 import { useNotify } from '../providers/NotificationProvider'
 import type { MemberRole, TripDraft } from '../types'
 import styles from './GroupPage.module.css'
@@ -35,6 +36,8 @@ export function GroupPage() {
   const mutations = useWorkspaceMutations()
   const notify = useNotify()
   const [formError, setFormError] = useState('')
+  const [removing, setRemoving] = useState<{ userId: string; displayName: string } | null>(null)
+  const [removeError, setRemoveError] = useState('')
   const [revokingEmail, setRevokingEmail] = useState<string | null>(null)
   const [roleChange, setRoleChange] = useState<{ tripId: string; userId: string; name: string; role: MemberRole; expectedRole: MemberRole } | null>(null)
   const [roleError, setRoleError] = useState('')
@@ -111,24 +114,35 @@ export function GroupPage() {
     }
   }
 
-  const removeMember = async (userId: string, displayName: string) => {
-    if (!window.confirm(`Loại ${displayName} khỏi nhóm? Người này sẽ mất quyền truy cập chuyến đi.`)) return
+  const removeMember = async ({ userId, displayName }: { userId: string; displayName: string }) => {
     try {
+      setRemoveError('')
       await mutations.removeMember.mutateAsync({ tripId: trip.id, userId })
+      setRemoving(null)
       notify.success(`Đã loại ${displayName} khỏi nhóm.`)
     } catch (error) {
-      notify.error(error instanceof Error ? error.message : 'Không thể loại thành viên khỏi nhóm.')
+      setRemoveError(error instanceof Error ? error.message : 'Không thể loại thành viên khỏi nhóm.')
     }
   }
+
+  // Mirrors remove_trip_member: zero actual balance and no estimate-only expense involving the member.
+  const removalBlock = (() => {
+    if (!removing) return ''
+    const balance = calculateExpenseSettlement(workspace.data.expenses, workspace.data.people, workspace.data.settlementPayments ?? [])
+      .balances.find((entry) => entry.userId === removing.userId)?.amountVnd ?? 0
+    if (balance !== 0) return `${removing.displayName} ${balance > 0 ? 'còn được nhận lại' : 'còn phải trả'} ${formatCurrency(Math.abs(balance))}. Hãy quyết toán xong trước khi loại khỏi nhóm.`
+    const pending = workspace.data.expenses.some((expense) => expense.actualAmountVnd === null && (expense.paidByUserId === removing.userId || expense.participantUserIds.includes(removing.userId)))
+    return pending ? `${removing.displayName} còn trong khoản chi dự kiến chưa có số thực tế. Cập nhật hoặc bỏ họ khỏi khoản đó trước.` : ''
+  })()
 
   return (
     <div className={styles.page} data-ai-id="group-page">
       <header className="section-header section-header--page">
-        <div><p className="eyebrow">Cùng nhau chuẩn bị</p><h1>Nhóm của bạn</h1><p>Thành viên, thông tin chuyến và những việc cần làm trước ngày đi.</p></div>
+        <div><h1>Nhóm</h1><p>Thành viên, thông tin chuyến và những việc cần làm trước ngày đi.</p></div>
       </header>
       <div className={styles.grid}>
         <section className={styles.settings} aria-labelledby="trip-settings-title">
-          <header><div><span className={styles.sectionIcon}><CalendarRange size={24} /></span><p className="eyebrow">Thông tin chung</p><h2 id="trip-settings-title">{trip.name}</h2></div>{isOwner ? <button className="button button--soft" type="button" onClick={() => { resetTripForm(); setFormError(''); setEditingTrip('general') }}>Chỉnh sửa chuyến</button> : <span className={styles.readonly}>Chỉ chủ chuyến đi được sửa</span>}</header>
+          <header><div><h2 id="trip-settings-title">{trip.name}</h2></div>{isOwner ? <button className="button button--soft" type="button" onClick={() => { resetTripForm(); setFormError(''); setEditingTrip('general') }}>Chỉnh sửa chuyến</button> : <span className={styles.readonly}>Chỉ chủ chuyến đi được sửa</span>}</header>
           <div className={styles.tripFacts} aria-label="Tóm tắt chuyến đi">
             <span><CalendarRange size={18} />{formatDate(trip.startDate)} — {formatDate(trip.endDate)}</span>
             <span><MapPin size={18} />{trip.destination}</span>
@@ -139,7 +153,7 @@ export function GroupPage() {
         </section>
 
         <aside className={styles.people} aria-labelledby="people-title">
-          <header><span className={styles.sectionIcon}><UsersRound size={24} /></span><p className="eyebrow">Quyền truy cập</p><h2 id="people-title">Thành viên</h2><p>{activeMembers}/{trip.maxMembers} người đã tham gia{pendingInvitations > 0 ? ` · ${pendingInvitations} chỗ đang giữ cho lời mời` : ''}</p></header>
+          <header><h2 id="people-title">Thành viên</h2><p>{activeMembers}/{trip.maxMembers} người đã tham gia{pendingInvitations > 0 ? ` · ${pendingInvitations} chỗ đang giữ cho lời mời` : ''}</p></header>
           {self && <details className={styles.profile}><summary>Tên hiển thị của bạn<span>Chỉnh sửa hồ sơ</span></summary><DisplayNameForm key={workspace.data.currentUserId} initialName={workspace.data.ownDisplayName ?? (self.displayName === self.email || self.displayName === self.email.split('@')[0] ? '' : self.displayName)} fallback={self.email.split('@')[0]} saving={mutations.displayName.isPending} onSave={(name) => mutations.displayName.mutateAsync(name)} /></details>}
           {isOwner && <form className={styles.invite} onSubmit={inviteForm.handleSubmit(invite)}>
             <label htmlFor="invite-email">Mời bằng email</label>
@@ -166,8 +180,8 @@ export function GroupPage() {
                   <div className={styles.memberActions}>
                     <span className={`${styles.status} ${person.status === 'invited' ? styles.pending : ''}`}>{person.role === 'owner' ? <Crown size={15} /> : person.status === 'invited' ? <Clock3 size={15} /> : <CheckCircle2 size={15} />}{person.role === 'owner' ? 'Chủ nhóm' : person.status === 'invited' ? 'Đã mời' : 'Thành viên'}</span>
                     {isOwner && person.status === 'invited' && <button className={styles.removeMember} type="button" disabled={mutations.revokeInvitation.isPending} onClick={() => setRevokingEmail(person.email)} aria-label={`Huỷ lời mời ${person.email}`}>Huỷ lời mời</button>}
-                    {canRemove && <button className={styles.removeMember} type="button" disabled={mutations.removeMember.isPending} onClick={() => void removeMember(person.userId!, person.displayName)} aria-label={`Loại ${person.displayName} khỏi nhóm`}><UserMinus size={16} />{isRemoving ? 'Đang loại…' : 'Loại khỏi nhóm'}</button>}
-                    {(canPromote || canDemote) && <button className="text-link" type="button" disabled={mutations.setMemberRole.isPending} onClick={() => { setRoleError(''); setRoleChange({ tripId: trip.id, userId: person.userId!, name: person.displayName, role: canPromote ? 'owner' : 'editor', expectedRole: person.role }) }}>{canPromote ? `Bổ nhiệm ${person.displayName} làm chủ nhóm` : `Thu hồi quyền chủ nhóm của ${person.displayName}`}</button>}
+                    {(canPromote || canDemote) && <button className={styles.memberButton} type="button" disabled={mutations.setMemberRole.isPending} aria-label={canPromote ? `Bổ nhiệm ${person.displayName} làm chủ nhóm` : `Thu hồi quyền chủ nhóm của ${person.displayName}`} onClick={() => { setRoleError(''); setRoleChange({ tripId: trip.id, userId: person.userId!, name: person.displayName, role: canPromote ? 'owner' : 'editor', expectedRole: person.role }) }}>{canPromote ? <><Crown size={15} aria-hidden="true" /> Làm chủ nhóm</> : 'Thu hồi chủ nhóm'}</button>}
+                    {canRemove && <button className={`${styles.memberButton} ${styles.removeMember}`} type="button" disabled={mutations.removeMember.isPending} onClick={() => { setRemoveError(''); setRemoving({ userId: person.userId!, displayName: person.displayName }) }} aria-label={`Loại ${person.displayName} khỏi nhóm`}><UserMinus size={15} aria-hidden="true" />{isRemoving ? 'Đang loại…' : 'Loại'}</button>}
                   </div>
                 </li>
               })}
@@ -190,6 +204,12 @@ export function GroupPage() {
             <label className="field">Số người tối đa<input type="number" min={occupiedSeats} max="20" step="1" inputMode="numeric" disabled={!isOwner} {...capacityField} ref={(input) => { capacityField.ref(input); capacityInput.current = input }} aria-invalid={Boolean(tripForm.formState.errors.maxMembers)} />{tripForm.formState.errors.maxMembers && <span>{tripForm.formState.errors.maxMembers.message}</span>}</label>
             {isOwner && <div className="form__actions field--wide"><button className="button button--primary" type="submit" disabled={mutations.updateTrip.isPending || !tripForm.formState.isDirty}>{mutations.updateTrip.isPending ? 'Đang lưu…' : 'Lưu thông tin'}</button><button className="button button--ghost" type="button" disabled={mutations.updateTrip.isPending} onClick={() => setEditingTrip(null)}>Hủy chỉnh sửa</button></div>}
           </form>
+      </Modal>
+      <Modal open={removing !== null} title="Loại thành viên khỏi nhóm?" onClose={() => { if (!mutations.removeMember.isPending) setRemoving(null) }}>
+        <p className={styles.invitationConfirm}>{removing?.displayName} sẽ mất quyền truy cập chuyến đi. Khoản chi cũ giữ nguyên tên họ.</p>
+        {removalBlock && <p className="form-warning" role="status">{removalBlock}</p>}
+        {removeError && <p className="form-error-banner" role="alert">{removeError}</p>}
+        <div className="form__actions"><button className="button button--ghost" type="button" disabled={mutations.removeMember.isPending} onClick={() => setRemoving(null)}>Giữ lại</button><button className="button button--danger" type="button" disabled={mutations.removeMember.isPending || Boolean(removalBlock)} onClick={() => removing && void removeMember(removing)}>{mutations.removeMember.isPending ? 'Đang loại…' : 'Loại khỏi nhóm'}</button></div>
       </Modal>
       <Modal open={revokingEmail !== null} title="Huỷ lời mời" onClose={() => { if (!mutations.revokeInvitation.isPending) setRevokingEmail(null) }}>
         <p className={styles.invitationConfirm}>Huỷ lời mời gửi đến {revokingEmail}? Chỗ đang giữ sẽ được giải phóng.</p>

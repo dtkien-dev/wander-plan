@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
-import { formatDayMonth, isGoogleMapsUrl } from '../lib/format'
+import { formatCurrency, formatDayMonth, isGoogleMapsUrl } from '../lib/format'
 import { findOverlaps } from '../lib/itineraryOverlap'
 import type { ItineraryDraft, ItineraryItem } from '../types'
 
@@ -39,20 +39,20 @@ export function ItineraryForm({ item, tripStart, tripEnd, itinerary, pending, on
       address: '', mapsUrl: '', notes: '',
     },
   })
-  const [visitDate, endDate, startTime, endTime] = watch(['visitDate', 'endDate', 'startTime', 'endTime'])
+  const [visitDate, endDate, startTime, endTime, estimatedCost] = watch(['visitDate', 'endDate', 'startTime', 'endTime', 'estimatedCostVnd'])
   const clashes = findOverlaps({ id: item?.id, visitDate, endDate, startTime, endTime }, itinerary)
   return (
     <form className="form" onSubmit={handleSubmit(onSubmit)}>
-      <label className="field field--wide">Tên địa điểm<input {...register('title')} aria-invalid={Boolean(errors.title)} />{errors.title && <span>{errors.title.message}</span>}</label>
+      <label className="field field--wide">Tên địa điểm<input aria-required="true" {...register('title')} aria-invalid={Boolean(errors.title)} />{errors.title && <span>{errors.title.message}</span>}</label>
       <label className="field">Ngày đến<input type="date" min={tripStart} max={tripEnd} {...register('visitDate')} aria-invalid={Boolean(errors.visitDate)} />{errors.visitDate && <span>{errors.visitDate.message}</span>}</label>
       <label className="field">Đến ngày (nếu nhiều ngày)<input type="date" min={visitDate || tripStart} max={tripEnd} {...register('endDate', { setValueAs: (value) => value === '' || value == null ? null : value })} aria-invalid={Boolean(errors.endDate)} />{errors.endDate && <span>{errors.endDate.message}</span>}</label>
       <label className="field">Bắt đầu<input type="time" {...register('startTime')} aria-invalid={Boolean(errors.startTime)} />{errors.startTime && <span>{errors.startTime.message}</span>}</label>
       <label className="field">Kết thúc<input type="time" {...register('endTime')} aria-invalid={Boolean(errors.endTime)} />{errors.endTime && <span>{errors.endTime.message}</span>}</label>
-      <label className="field">Chi phí dự kiến<input type="number" inputMode="numeric" min="0" step="1" {...register('estimatedCostVnd', { valueAsNumber: true })} aria-invalid={Boolean(errors.estimatedCostVnd)} />{errors.estimatedCostVnd && <span>{errors.estimatedCostVnd.message}</span>}</label>
+      <label className="field">Chi phí dự kiến<span className="money-input"><input type="number" inputMode="numeric" min="0" step="1" {...register('estimatedCostVnd', { valueAsNumber: true })} aria-invalid={Boolean(errors.estimatedCostVnd)} /></span>{Number(estimatedCost) >= 1000 && <small className="field-preview" aria-hidden="true">{formatCurrency(Number(estimatedCost))}</small>}{errors.estimatedCostVnd && <span>{errors.estimatedCostVnd.message}</span>}</label>
       {clashes.length > 0 && <p className="form-warning field--wide" role="status">Trùng giờ với {clashes.map((clash) => `“${clash.title}” (${clash.endDate ? `${formatDayMonth(clash.visitDate)} ${clash.startTime} → ${formatDayMonth(clash.endDate)} ${clash.endTime}` : `${clash.startTime}–${clash.endTime}`})`).join(', ')}. Bạn vẫn có thể lưu.</p>}
-      <label className="field field--wide">Địa chỉ<input {...register('address')} aria-invalid={Boolean(errors.address)} />{errors.address && <span>{errors.address.message}</span>}</label>
-      <label className="field field--wide">Google Maps URL<input type="url" placeholder="https://maps.app.goo.gl/..." {...register('mapsUrl')} aria-invalid={Boolean(errors.mapsUrl)} />{errors.mapsUrl && <span>{errors.mapsUrl.message}</span>}</label>
-      <label className="field field--wide">Ghi chú<textarea rows={3} {...register('notes')} aria-invalid={Boolean(errors.notes)} />{errors.notes && <span>{errors.notes.message}</span>}</label>
+      <label className="field field--wide">Địa chỉ<input aria-required="true" {...register('address')} aria-invalid={Boolean(errors.address)} />{errors.address && <span>{errors.address.message}</span>}</label>
+      <label className="field field--wide">Google Maps URL<small className="field-optional"> (không bắt buộc)</small><input type="url" placeholder="https://maps.app.goo.gl/..." {...register('mapsUrl')} aria-invalid={Boolean(errors.mapsUrl)} />{errors.mapsUrl && <span>{errors.mapsUrl.message}</span>}</label>
+      <label className="field field--wide">Ghi chú<small className="field-optional"> (không bắt buộc)</small><textarea rows={3} {...register('notes')} aria-invalid={Boolean(errors.notes)} />{errors.notes && <span>{errors.notes.message}</span>}</label>
       <div className="form__actions field--wide">
         <button className="button button--ghost" type="button" onClick={onCancel}>Hủy</button>
         <button className="button button--primary" type="submit" disabled={pending}>{pending ? 'Đang lưu…' : item ? 'Lưu thay đổi' : 'Thêm địa điểm'}</button>

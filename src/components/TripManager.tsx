@@ -1,3 +1,4 @@
+import { Plus } from 'lucide-react'
 import { useRef, useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
@@ -64,7 +65,7 @@ export function TripManager() {
   return <section className={styles.manager} aria-label="Chọn chuyến đi và lời mời">
     <div className={styles.toolbar}>
       {trips.data?.length ? <TripSelect label="Chuyến đang xem" trips={trips.data} value={tripId} disabled={respondInvitation.isPending} onChange={selectTrip} /> : <p>{trips.isLoading ? 'Đang tải chuyến đi…' : trips.isError ? 'Chưa thể tải chuyến đi.' : 'Tạo chuyến đi hoặc nhận lời mời để bắt đầu.'}</p>}
-      <div className={styles.actions}><button className="button button--soft" type="button" onClick={() => setCreating(true)}>Tạo chuyến mới</button>
+      <div className={styles.actions}><button className={`button button--soft ${styles.create}`} type="button" aria-label="Tạo chuyến mới" onClick={() => setCreating(true)}><Plus size={18} aria-hidden="true" /><span>Tạo chuyến mới</span></button>
         {(Boolean(archivedTrips.data?.length) || archivedTrips.isError) && <button type="button" className="button button--ghost" onClick={() => { setArchiveError(''); setShowArchived(true) }}>Đã lưu trữ{archivedTrips.data?.length ? ` (${archivedTrips.data.length})` : ''}</button>}
       </div>
     </div>

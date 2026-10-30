@@ -6,10 +6,7 @@ export function Brand() {
         <path d="m12 33 9-15 5 8 4-6 7 13H12Z" fill="currentColor" />
         <path d="M24 9v8" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
       </svg>
-      <span>
-        <strong>WanderPlan</strong>
-        <small>Plan together. Explore together.</small>
-      </span>
+      <span><strong>WanderPlan</strong></span>
     </div>
   )
 }

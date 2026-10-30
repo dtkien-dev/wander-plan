@@ -1,7 +1,7 @@
 # P35 — Làm mới giao diện toàn website
 
 Date: 29/10/2026 Asia/Saigon. Owner: current agent. Depends: P34. Candidate 0.17.0.
-Status: scoped (A063); starts after P34 go-live decision.
+Status: candidate 0.17.0 complete (E061); go-live approved conditionally (A066).
 
 ## Scope / PO and BA (A063)
 - Stronger redesign keeping only the WanderPlan name; PRODUCT.md records product truth, new DESIGN.md records the new visual world (impeccable new-work).
