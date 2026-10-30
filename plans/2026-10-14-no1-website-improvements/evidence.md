@@ -320,3 +320,9 @@ workflow-action:A066 status:open
 Customer pre-approved go-live conditional on completed QA/ITS/records (A066). Scope: push feat/ui-redesign, CI-gated PR, merge checked head to main, Pages/public version and read-only smoke, closeout records. No migration or production data change.
 ITO: PR26 7393752 (head 180dec5), PR CI PASS, main CI 40981612990/Pages 40981612923 PASS; public HTTP 200, meta app-version 0.17.0 and theme-color #123e6b; signed-out Login page renders the sample board with zero console errors. Authenticated smoke NOT RUN (signed-out browser; agent does not sign in for the customer). No production data change.
 workflow-action:A066 status:completed
+
+## E063 / A067 — vite 6.4.5 security patch
+workflow-action:A067 status:open
+IT: branch fix/vite-6-4-5 from origin/main; `npm install -D vite@^6.4.5`. Parsed lock comparison: only root devDependencies and node_modules/vite 6.4.4 -> 6.4.5 changed. Dependabot PR27 to be closed as superseded.
+QA: clean npm ci, npm audit 0 vulnerabilities, lint 0, 184 app tests/32 files, build PASS. Embedded SQL not rerun (no migration or SQL change).
+ITS (same agent): advisory affects only the vite dev server, not the static Pages build; patch release from the same registry package, integrity in lock; no new dependency or override. No finding.

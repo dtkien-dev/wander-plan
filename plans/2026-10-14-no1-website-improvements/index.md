@@ -10,7 +10,7 @@ Execute mode: Active
 Resume instruction: Resolve plans/2026-10-14-no1-website-improvements from the current clone root (tracker wp-20261014-01). Read docs/agent/README.md and workflow.md, then this index and every manifest file. Keep this exact repository-relative bundle as the execution source of truth; update it until explicit exit. If the execute skill is installed, it may be used with this resolved path.
 Workspace: Current clone root; never reuse another device's absolute path.
 Repository: deployed app main 7393752 (PR26, 0.17.0). Docs closeout on docs/release-0.17.0; resolve final receipt via Git log.
-Active action: None — 0.17.0 released; docs closeout on docs/release-0.17.0.
+Active action: A067/E063 open — vite 6.4.5 dev-dependency security patch (fix/vite-6-4-5); merge awaits go-live approval.
 
 <!-- workflow-active-snapshot:start version:2 -->
 ## Active Snapshot
