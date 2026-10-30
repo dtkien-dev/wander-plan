@@ -326,3 +326,5 @@ workflow-action:A067 status:open
 IT: branch fix/vite-6-4-5 from origin/main; `npm install -D vite@^6.4.5`. Parsed lock comparison: only root devDependencies and node_modules/vite 6.4.4 -> 6.4.5 changed. Dependabot PR27 to be closed as superseded.
 QA: clean npm ci, npm audit 0 vulnerabilities, lint 0, 184 app tests/32 files, build PASS. Embedded SQL not rerun (no migration or SQL change).
 ITS (same agent): advisory affects only the vite dev server, not the static Pages build; patch release from the same registry package, integrity in lock; no new dependency or override. No finding.
+ITO: customer approved go-live ("golive", 30/10). PR29 9b8f231, PR CI PASS, main CI 40983007374/Pages 40983007605 PASS; Dependabot PR27 closed as superseded, alert 7 state fixed; public HTTP 200/meta 0.17.0, Login renders, console 0. No production data change.
+workflow-action:A067 status:completed

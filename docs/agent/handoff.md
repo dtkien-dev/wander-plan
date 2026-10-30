@@ -1,5 +1,7 @@
 # Điểm bàn giao
 
+vite 6.4.5 patch 30/10/2026 (A067/E063): PR29 9b8f231, PR CI PASS, main CI 40983007374/Pages 40983007605 PASS; Dependabot alert 7 fixed, PR27 closed as superseded; app still 0.17.0.
+
 Released 0.17.0 checkpoint 30/10/2026: P35/A066/E062 Bảng giờ tàu redesign, PR26 7393752 (head 180dec5), PR CI PASS, main CI 40981612990/Pages 40981612923 PASS; no migration; public meta 0.17.0, signed-out console 0. Authenticated smoke not run. DESIGN.md is the visual source of truth. No feature queued. Docs closeout on docs/release-0.17.0.
 
 Released 0.16.0 checkpoint 29/10/2026: P34/A064/E060 expense trash, PR24/96c419e, main CI40886069902/Pages40886070224 PASS; production migration 20261029150000 once after private backup, contracts verified; public meta 0.16.0. Authenticated smoke not run. Next: P35 full redesign (A063, PRODUCT.md written; impeccable skill installed locally under .claude/skills, not in Git). Docs closeout on docs/release-0.16.0.
