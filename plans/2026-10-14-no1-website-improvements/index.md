@@ -10,7 +10,7 @@ Execute mode: Active
 Resume instruction: Resolve plans/2026-10-14-no1-website-improvements from the current clone root (tracker wp-20261014-01). Read docs/agent/README.md and workflow.md, then this index and every manifest file. Keep this exact repository-relative bundle as the execution source of truth; update it until explicit exit. If the execute skill is installed, it may be used with this resolved path.
 Workspace: Current clone root; never reuse another device's absolute path.
 Repository: deployed app main 7393752 (PR26, 0.17.0). Docs closeout on docs/release-0.17.0; resolve final receipt via Git log.
-Active action: A067/E063 open — vite 6.4.5 dev-dependency security patch (fix/vite-6-4-5); merge awaits go-live approval.
+Active action: None — 0.17.0 live with vite 6.4.5 patch (A067).
 
 <!-- workflow-active-snapshot:start version:2 -->
 ## Active Snapshot
@@ -26,6 +26,7 @@ Next safe action: publish docs/release-0.15.0 outcomes through CI-gated PR, veri
 Shared workflow: [portable workflow](../../docs/agent/workflow.md). The references/*.md above belong to the optional installed execute skill; they are not missing repository files and are not required on a new device. Shared workflow contains the portable execution and evidence rules.
 
 ## Resume Checkpoint
+- E063/A067 (30/10): vite 6.4.5 security patch (GHSA-8g5g-mxqh-grgj, dev scope). PR29 9b8f231, PR CI PASS, main CI 40983007374/Pages 40983007605 PASS; alert 7 fixed; app version unchanged 0.17.0. No feature queued.
 - E062/A066/P35 (30/10): 0.17.0 released. PR26 7393752 (head 180dec5), PR CI PASS, main CI 40981612990/Pages 40981612923 PASS; no migration; public HTTP 200/meta 0.17.0, signed-out console 0. Authenticated smoke not run. No feature queued.
 - E060/A064/P34 (29/10): 0.16.0 released. PR24 96c419e, main CI 40886069902/Pages 40886070224 PASS; production migration 20261029150000 once after private backup, contracts verified; public meta 0.16.0. Authenticated smoke not run (signed out). Next: P35 redesign (A063).
 - E059/A063/P34 (29/10): impeccable review (26/40, 13/20) and customer decisions recorded; expense trash candidate 0.16.0 at f733fdb on feat/ui-upgrade. 178 app tests, 406 embedded/full-local SQL, two-account Realtime UAT and same-agent ITS PASS. Migration 20261029150000 applied only locally. No push/production change; await go-live approval, then P35 redesign.

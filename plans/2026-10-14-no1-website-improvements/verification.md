@@ -280,3 +280,6 @@ Customer approved (A064). Migration 20261029150000 applied once after private ba
 
 ## 0.17.0 go-live E062
 Customer approved conditionally (A066), conditions met. PR26 7393752 (head 180dec5), PR CI PASS, main CI 40981612990/Pages 40981612923 PASS; public HTTP 200/meta 0.17.0; signed-out console 0. Authenticated read-only smoke NOT RUN.
+
+## vite 6.4.5 patch E063
+Clean npm ci, audit 0, lint, 184 tests, build PASS; lock changes only vite. PR29 9b8f231, PR CI PASS, main CI 40983007374/Pages 40983007605 PASS; public meta 0.17.0, console 0.
