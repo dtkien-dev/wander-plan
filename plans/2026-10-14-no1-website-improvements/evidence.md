@@ -318,3 +318,5 @@ workflow-action:A065 status:completed
 ## E062 / A066 — approved 0.17.0 go-live
 workflow-action:A066 status:open
 Customer pre-approved go-live conditional on completed QA/ITS/records (A066). Scope: push feat/ui-redesign, CI-gated PR, merge checked head to main, Pages/public version and read-only smoke, closeout records. No migration or production data change.
+ITO: PR26 7393752 (head 180dec5), PR CI PASS, main CI 40981612990/Pages 40981612923 PASS; public HTTP 200, meta app-version 0.17.0 and theme-color #123e6b; signed-out Login page renders the sample board with zero console errors. Authenticated smoke NOT RUN (signed-out browser; agent does not sign in for the customer). No production data change.
+workflow-action:A066 status:completed

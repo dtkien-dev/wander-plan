@@ -277,3 +277,6 @@ Customer approved (A064). Migration 20261029150000 applied once after private ba
 
 ## A065/E061 P35 redesign (candidate 0.17.0)
 184 app tests, lint, demo build, audit-high 0, 406 embedded SQL PASS. Detector clean. Reviewers: technical 16/20 (from 13), design 28/40 (from 26), final disposition ship after verified fix round. No migration.
+
+## 0.17.0 go-live E062
+Customer approved conditionally (A066), conditions met. PR26 7393752 (head 180dec5), PR CI PASS, main CI 40981612990/Pages 40981612923 PASS; public HTTP 200/meta 0.17.0; signed-out console 0. Authenticated read-only smoke NOT RUN.

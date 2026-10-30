@@ -1,6 +1,6 @@
 # WanderPlan — bảng kế hoạch sản phẩm tổng hợp
 
-29/10/2026 — A063/A064: rà soát giao diện bằng impeccable (26/40, 13/20). P34 thùng rác chi phí 7 ngày đã phát hành 0.16.0 (PR24/96c419e, migration production, CI/Pages/public đạt). Tiếp theo P35 làm mới toàn bộ giao diện, chỉ giữ tên WanderPlan; cần duyệt go-live riêng.
+29/10/2026 — A063/A064: rà soát giao diện bằng impeccable (26/40, 13/20). P34 thùng rác chi phí 7 ngày đã phát hành 0.16.0 (PR24/96c419e, migration production, CI/Pages/public đạt). P35 giao diện "Bảng giờ tàu" đã phát hành 0.17.0 ngày 30/10 (PR26/7393752, không migration, CI/Pages/public đạt). Chưa chọn tính năng tiếp theo.
 
 29/10/2026 — P33 đã phát hành0.15.0 theo A062/E058: PR22/7b647fa, hai migration production, cấp admin tài khoản đã xác minh, CI/Pages/public và smoke có đăng nhập đạt. Không thử ghi dữ liệu chuyến/thành viên/thanh toán thật. Hồ sơ đóng đợt trên docs/release-0.15.0; không chọn tính năng mới.
 
@@ -54,6 +54,7 @@ UAT hiện tại: Supabase stack đầy đủ chạy local (Auth, Realtime, Post
 | 0.12.0 | 18/10 | Thông báo trôi tự tắt 3 giây (lỗi giữ đến khi đóng), lịch sử 50 thông báo trên thiết bị theo tài khoản qua chuông; Excel tự giãn cột/dòng. |
 | 0.12.1 | 18/10 | Sửa metadata khoản chi chỉ còn người tham gia đã rời, nhập tiền nguyên đồng; test/lint loại worktree và artifact. |
 | 0.16.0 | 29/10 | Thùng rác chi phí 7 ngày: người xóa và chủ nhóm khôi phục; chặn khi có người đã rời nhóm; hộp thoại xóa trong app. |
+| 0.17.0 | 30/10 | Làm mới giao diện "Bảng giờ tàu": màn Hôm nay, tách Thực tế/Dự kiến mọi nơi, hộp thoại trong app, chế độ Chọn và menu Thêm, ô tiền ₫, sáng/tối theo máy. |
 | 0.13.0 | 28/10 | Chủ chuyến đi chọn/xóa nhiều hoặc toàn bộ lịch trình, xác nhận, kiểm tra phiên bản và giao dịch nguyên tử; giữ chi phí/thành viên, Realtime. |
 
 
