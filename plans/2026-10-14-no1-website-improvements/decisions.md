@@ -118,3 +118,6 @@ Customer asked to fix Dependabot alert 7 (GHSA-8g5g-mxqh-grgj, medium, vite 6.4.
 
 ## A071 — consistent mobile forms, 01/11/2026
 Customer requests all forms refined consistently on phones and selects this scope explicitly; retain board-blue identity. Implement and verify locally under P37. No new production go-live approval.
+
+## A074 — pre-release preparation, 01/11/2026
+Customer asks to continue the project workflow. Prepare P37 locally as0.17.2 on the preserved approved P36/0.17.1 baseline, complete QA/ITS and concrete release/rollback records. P36 PR31 remains separate; do not infer fresh P37 go-live permission or silently expand PR31. Approval gate and exact release sequence are in docs/releases/2026-11-01-0.17.2.md.

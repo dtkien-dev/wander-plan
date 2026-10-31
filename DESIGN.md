@@ -113,7 +113,7 @@ components:
     textColor: "{colors.text}"
     rounded: "{rounded.control}"
     padding: "11px 12px"
-    height: "46px"
+    height: "48px"
 ---
 
 # Design System: WanderPlan

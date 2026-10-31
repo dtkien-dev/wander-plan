@@ -381,3 +381,8 @@ workflow-action:A073 status:completed
 ## E070 / A074 — P37 pre-release reconciliation, 01/11/2026
 workflow-action:A074 status:open
 Customer authorizes continuing project delivery; scope local pre-release preparation only. Verified GitHub dtkien-dev/wander-plan/main daead9b. P36 PR31 is open at b48f0a7, CI41220417353 PASS; A070 approval applies only to P36. Prepare P37 as0.17.2 after P36/0.17.1, locally integrate its existing branch and preserve both sets of tracker evidence; no PR31/main mutation, push or deploy. Current agent owns reconciliation, final QA and same-agent ITS, release notes/version metadata/rollback. Existing primary checkout remains untouched.
+
+E070 reconciliation: local merge6c99509 retains P36 branch b48f0a7 and both record histories; only documentation conflicts, no application conflict. Prepared P37 metadata0.17.2 (root package/lock/HTML); actual dependency graph unchanged. PR31 remains untouched/open and its CI PASS; no main/remote mutation.
+E070 QA/ITS result: supported Node24.22.1 clean install,184 app/406 embedded SQL/lint/demo build/audit-high PASS, production audit0. Final compiled-browser0.17.2 edit/cancel checks PASS. Same-agent scoped correctness/ITS report clear, limitations explicit. Release notes and sequential P36→P37 ITO/rollback checklist ready. No production approval inferred from current continue instruction.
+workflow-action:A074 status:completed
+Next gate: customer approval of concrete P37/0.17.2 scope and sequential rollout. Resolve final candidate head via Git log; primary checkout unchanged.
