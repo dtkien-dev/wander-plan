@@ -2,7 +2,7 @@
 <!-- workflow-record version:4 kind:plan tracker-id:wp-20261014-01 -->
 Tracker ID: wp-20261014-01
 Created: 2026-10-14 Asia/Saigon
-Last updated: 2026-10-30 Asia/Saigon
+Last updated: 2026-10-31 Asia/Saigon
 Status: Released 0.17.0 (P35 Bảng giờ tàu redesign)
 Plan mode: Exited
 Execution readiness: Ready
@@ -10,7 +10,7 @@ Execute mode: Active
 Resume instruction: Resolve plans/2026-10-14-no1-website-improvements from the current clone root (tracker wp-20261014-01). Read docs/agent/README.md and workflow.md, then this index and every manifest file. Keep this exact repository-relative bundle as the execution source of truth; update it until explicit exit. If the execute skill is installed, it may be used with this resolved path.
 Workspace: Current clone root; never reuse another device's absolute path.
 Repository: deployed app main 7393752 (PR26, 0.17.0). Docs closeout on docs/release-0.17.0; resolve final receipt via Git log.
-Active action: None — 0.17.0 live with vite 6.4.5 patch (A067).
+Active action: A070/E066 — customer-approved0.17.1 go-live; PR CI then merge/Pages/live checks, no DB change.
 
 <!-- workflow-active-snapshot:start version:2 -->
 ## Active Snapshot
@@ -95,6 +95,8 @@ phases/P34-expense-trash.md
 phases/P35-ui-redesign.md
 security-review-p33-2026-10-29.md
 phases/P32-workspace-hook-boundary.md
+phases/P36-mobile-readability.md
+security-review-p36-2026-10-31.md
 <!-- workflow-manifest:end -->
 
 Latest checkpoint 29/10: A055/E051 complete; independent review High fixed by forward provenance migration and verified in 353 embedded/full-local SQL, 168 app tests, lint/build. Prior E050 browser/mobile/Realtime/concurrency UAT passed. Candidate local on feat/trip-reschedule-templates-trash; resolve final commit via Git log. No push or production changes. Await fresh go-live approval.
