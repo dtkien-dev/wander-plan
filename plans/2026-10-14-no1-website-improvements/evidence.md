@@ -338,3 +338,11 @@ IT: shared fields minimum48px, wrapping optional-label spans, mint selected choi
 QA/ITS: see E067 in verification.md; full184 tests/lint/demo build PASS, browser form widths320–1280 and short viewport PASS. Same-agent scoped security review clear. Existing11 moderate dev-tool audit findings retained; zero high/critical. No physical-device/Safari/hosted validation or browser data saves.
 workflow-action:A071 status:completed
 Local candidate ready for review; production approval pending. P36/A070 remains separate on fix/ui-polish and must be reconciled before any eventual release. No main/push/deploy performed.
+
+## E068 / A072 — P37 browser verification follow-up, 01/11/2026
+workflow-action:A072 status:open
+Customer requests verification of the local form candidate254139d. Fetched remote unchanged; branch fix/mobile-forms clean. Scope: browser demo synthetic trip/create/expense/itinerary/checklist save-reload, error/cancel/focus and responsive checks; review-only unless a defect is found. No production access/push/deploy. Current agent owns verification and record updates.
+
+
+E068 result: browser synthetic create/expense/exact-split validation/multi-day itinerary/checklist save-reload, checklist responsive320–1280 and keyboard/cancel checks PASS; no console errors/warnings. No source defect found. QA trip retained only in browser demo. Existing candidate tests remain valid; remaining physical-device/hosted gaps recorded in verification.
+workflow-action:A072 status:completed

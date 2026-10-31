@@ -8,3 +8,5 @@ Scope: shared field/dialog/selection/action CSS; optional label markup in expens
 
 Acceptance: no horizontal overflow at 320/375/600/768/1280px; readable optional labels, 16px input text, 44px touch targets; single-column phone and usable tablet columns; safe-area-aware sheet actions, keyboard focus/validation/cancel/save preserved; existing light/dark tokens.
 Verification: focused form tests, full tests/lint/demo build, browser layout and save/validation/cancel checks, scoped same-agent ITS. Physical phones, Safari keyboard and hosted Supabase must be reported separately. No push/main/deploy without fresh go-live approval.
+
+Follow-up A072/E068: actual Chromium demo save/reload for trip, expense (including exact-split validation), multi-day itinerary and assigned checklist PASS. Checklist widths320–1280, Tab trap, Escape/cancel preservation and console PASS. Browser save gap closed for these flows; physical-device/Safari/light/hosted gaps remain.

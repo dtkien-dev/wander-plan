@@ -10,7 +10,7 @@ Execute mode: Active
 Resume instruction: Resolve plans/2026-10-14-no1-website-improvements from the current clone root (tracker wp-20261014-01). Read docs/agent/README.md and workflow.md, then this index and every manifest file. Keep this exact repository-relative bundle as the execution source of truth; update it until explicit exit. If the execute skill is installed, it may be used with this resolved path.
 Workspace: Current clone root; never reuse another device's absolute path.
 Repository: deployed app main 7393752 (PR26, 0.17.0). Docs closeout on docs/release-0.17.0; resolve final receipt via Git log.
-Active action: None — A071/E067/P37 locally complete on fix/mobile-forms; QA/scoped ITS passed, fresh go-live approval pending. Separate P36/A070 branch retained.
+Active action: None — A072/E068 browser verification complete for P37; local candidate remains awaiting go-live approval.
 
 <!-- workflow-active-snapshot:start version:2 -->
 ## Active Snapshot
@@ -26,6 +26,8 @@ Next safe action: publish docs/release-0.15.0 outcomes through CI-gated PR, veri
 Shared workflow: [portable workflow](../../docs/agent/workflow.md). The references/*.md above belong to the optional installed execute skill; they are not missing repository files and are not required on a new device. Shared workflow contains the portable execution and evidence rules.
 
 ## Resume Checkpoint
+- E068/A072 (01/11): candidate254139d browser create/expense/exact-split validation/multi-day/checklist save-reload, responsive320–1280, keyboard/cancel PASS; no console issues. No source fix needed. QA trip retained in browser demo; no production change.
+
 - E067/A071/P37 (01/11): responsive forms locally verified on fix/mobile-forms from daead9b. 184 tests/lint/demo build, browser widths320–1280 and short viewport PASS; same-agent ITS clear. No deploy. Reconcile separate unmerged P36/A070 before release; read P37 and verification gaps. Resolve candidate SHA via Git log.
 
 - E063/A067 (30/10): vite 6.4.5 security patch (GHSA-8g5g-mxqh-grgj, dev scope). PR29 9b8f231, PR CI PASS, main CI 40983007374/Pages 40983007605 PASS; alert 7 fixed; app version unchanged 0.17.0. No feature queued.
