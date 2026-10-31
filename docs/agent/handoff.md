@@ -51,3 +51,6 @@ App PR18 merged b732461 after approved go-live. MainCI40794364399/Pages407943641
 
 ## Local UI refinement — 31/10/2026
 P36/A068/E064 completed locally on fix/ui-polish from fetched origin/main daead9b. Itinerary title/amount stack below900px and row layout matches app shell. 184 tests/lint/demo build PASS; demo mobile/tablet/desktop and selection verified, console errors0. Same-agent CSS security review clear. No push/merge/deploy. Primary checkout remains untouched at d877371 with pre-existing dirty records; do not replace latest records with that old snapshot. Read P36 and index; next review local candidate, broader UAT if required, fresh go-live approval before main publication.
+
+## Pre-go-live candidate — 31/10/2026
+P36/A069/E065 candidate0.17.1 on fix/ui-polish. QA184 app/406 embedded SQL/lint/build/audit-high PASS, prod-dependency audit0 findings, independent scoped ITS clear. Light-token and dark demo/long-title/large-amount/selection+Escape QA completed. Full hosted/service/real-device UAT not run; see release checklist docs/releases/2026-10-31-0.17.1.md. No push/PR/main merge/production changes. Current-batch go-live approval pending. Primary old dirty checkout preserved; continue isolated branch and resolve head from Git log.

@@ -10,7 +10,7 @@ Execute mode: Active
 Resume instruction: Resolve plans/2026-10-14-no1-website-improvements from the current clone root (tracker wp-20261014-01). Read docs/agent/README.md and workflow.md, then this index and every manifest file. Keep this exact repository-relative bundle as the execution source of truth; update it until explicit exit. If the execute skill is installed, it may be used with this resolved path.
 Workspace: Current clone root; never reuse another device's absolute path.
 Repository: deployed app main 7393752 (PR26, 0.17.0). Docs closeout on docs/release-0.17.0; resolve final receipt via Git log.
-Active action: None — A068/P36 local UI refinement complete on fix/ui-polish from daead9b; 184 tests/lint/build PASS. No push or go-live approval. Next: review candidate; see P36/E064.
+Active action: None — A069/E065 complete; P36 candidate0.17.1 QA/ITS passed locally, awaiting current-batch go-live approval. See release checklist docs/releases/2026-10-31-0.17.1.md.
 
 <!-- workflow-active-snapshot:start version:2 -->
 ## Active Snapshot
@@ -96,6 +96,7 @@ phases/P35-ui-redesign.md
 security-review-p33-2026-10-29.md
 phases/P32-workspace-hook-boundary.md
 phases/P36-mobile-readability.md
+security-review-p36-2026-10-31.md
 <!-- workflow-manifest:end -->
 
 Latest checkpoint 29/10: A055/E051 complete; independent review High fixed by forward provenance migration and verified in 353 embedded/full-local SQL, 168 app tests, lint/build. Prior E050 browser/mobile/Realtime/concurrency UAT passed. Candidate local on feat/trip-reschedule-templates-trash; resolve final commit via Git log. No push or production changes. Await fresh go-live approval.
