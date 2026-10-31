@@ -346,3 +346,11 @@ Customer requests verification of the local form candidate254139d. Fetched remot
 
 E068 result: browser synthetic create/expense/exact-split validation/multi-day itinerary/checklist save-reload, checklist responsive320–1280 and keyboard/cancel checks PASS; no console errors/warnings. No source defect found. QA trip retained only in browser demo. Existing candidate tests remain valid; remaining physical-device/hosted gaps recorded in verification.
 workflow-action:A072 status:completed
+
+## E069 / A073 — mobile viewport matrix, 01/11/2026
+workflow-action:A073 status:open
+Customer explicitly requests mobile emulation. Scope: local candidate254139d on fix/mobile-forms; phone portrait/landscape and reduced-height viewport matrix for forms, scroll/focus and console inspection. Chromium viewport emulation only; no claim of native Safari, touch injection or device hardware. No production/external writes, source edits or deployment expected.
+
+
+E069 result:30 settled viewport/form cases PASS across10 portrait/landscape/reduced-height sizes. No persistent source defect; focused notes clear of sticky bars; console clean. One initial trip320 measurement during dialog animation rechecked after settled screenshot and passed. Viewport-only emulation limits recorded explicitly; no mobile touch/Safari/hardware claim. No source or saved-data change; viewport reset.
+workflow-action:A073 status:completed
