@@ -347,3 +347,7 @@ Browser demo: prior dark320/375/768/1280; light tokens375/320/768/900/901/1280 w
 ITS: independent UI boundary/control review and release/privacy/supply-chain review found no reachable vulnerabilities in scoped CSS/doc diff; no auth/SQL/API/dependency/config changes. Same-agent coordinator verified final scope and no migration. Dependency warnings are dev-only and unchanged; fixes deferred to separate maintenance batch.
 NOT RUN: real device, screen reader, hosted auth/Realtime/concurrency, full Supabase service UAT, production smoke. CSS-only scope does not modify those contracts; embedded tests are not claimed as hosted coverage.
 Approval: pending current-batch go-live. No push/PR/merge/deploy or production writes. Candidate0.17.1 on fix/ui-polish; resolve final head by Git log. Next: customer review, then approved ITO path with PR CI and Pages/live checks.
+
+## E066/A070 — approved 0.17.1 release (31/10/2026)
+workflow-action:A070 status:open
+Customer approved execution of presented0.17.1 candidate906d695. Clarifying dependency question reviewed before release:11moderate records propagate from minimatch advisory GHSA-g3hv-75wg-m249 in ESLint dev tool chain; production dependency audit0; defer breaking tool migration, no audit-force. Scope approved UI+metadata+records only. Publish fix/ui-polish, PR to main, merge exact checked head after CI PASS, Pages/live read-only verification; no DB changes. Remote fetched unchanged daead9b; primary dirty checkout preserved.
