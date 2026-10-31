@@ -283,3 +283,7 @@ Customer approved conditionally (A066), conditions met. PR26 7393752 (head 180de
 
 ## vite 6.4.5 patch E063
 Clean npm ci, audit 0, lint, 184 tests, build PASS; lock changes only vite. PR29 9b8f231, PR CI PASS, main CI 40983007374/Pages 40983007605 PASS; public meta 0.17.0, console 0.
+
+## P36 / A068 / E064 — 31 October2026
+
+QA: PASS 184 app tests, lint, demo build. Browser demo dark theme 320/375/768/1280px, selection toggle, no horizontal document overflow at 320/768; console errors 0. Final breakpoint change verified visually; no JS changes. Detector: four advisories on unchanged pre-existing font/radius declarations, outside this CSS diff. Same-agent scoped ITS: CSS only, no auth/data/dependency changes, no security blocker. NOT RUN: light-theme/real-device/full Supabase/hosted/SQL regression (no database change). npm ci reported 11 moderate advisories, dependency remediation deferred. Install used system Node20.17 with engine warning; verification used bundled Node24.22.1. No push/merge/deploy or production writes. Next: review local candidate, optional broader UAT, obtain fresh go-live approval before publication to main.

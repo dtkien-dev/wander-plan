@@ -48,3 +48,6 @@ Dependency follow-up A056/E052 completed: Vitest4.1.12, fast-uri3.1.9; zero npm 
 
 ## Released 0.14.0 — 29/10/2026
 App PR18 merged b732461 after approved go-live. MainCI40794364399/Pages40794364198 PASS, public/authenticated0.14.0 and read-only move/clone/trash dialogs PASS. Four production migrations, private backup, grants/Realtime/hourly cron verified; no business-data test writes. A058/E054 docs closeout on docs/release-0.14.0; fetch and inspect latest Git log/tracker before resuming. No new backlog scope; primary checkout edits retained.
+
+## Local UI refinement — 31/10/2026
+P36/A068/E064 completed locally on fix/ui-polish from fetched origin/main daead9b. Itinerary title/amount stack below900px and row layout matches app shell. 184 tests/lint/demo build PASS; demo mobile/tablet/desktop and selection verified, console errors0. Same-agent CSS security review clear. No push/merge/deploy. Primary checkout remains untouched at d877371 with pre-existing dirty records; do not replace latest records with that old snapshot. Read P36 and index; next review local candidate, broader UAT if required, fresh go-live approval before main publication.

@@ -1,0 +1,6 @@
+# P36 — Mobile itinerary readability
+Status: Complete locally (A068/E064), no release approval.
+Authorization: UI optimization requested 31/10/2026; preserve existing work and no production. Base daead9b, branch fix/ui-polish.
+Scope: src/pages/ItineraryPage.module.css. Names and money on separate lines below900px; mobile row layout matches shell breakpoint instead of760px. No shared form edit needed (already16px). Preserve all data, behavior and desktop layout.
+
+QA: PASS 184 app tests, lint, demo build. Browser demo dark theme 320/375/768/1280px, selection toggle, no horizontal document overflow at 320/768; console errors 0. Final breakpoint change verified visually; no JS changes. Detector: four advisories on unchanged pre-existing font/radius declarations, outside this CSS diff. Same-agent scoped ITS: CSS only, no auth/data/dependency changes, no security blocker. NOT RUN: light-theme/real-device/full Supabase/hosted/SQL regression (no database change). npm ci reported 11 moderate advisories, dependency remediation deferred. Install used system Node20.17 with engine warning; verification used bundled Node24.22.1. No push/merge/deploy or production writes. Next: review local candidate, optional broader UAT, obtain fresh go-live approval before publication to main.

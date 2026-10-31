@@ -328,3 +328,12 @@ QA: clean npm ci, npm audit 0 vulnerabilities, lint 0, 184 app tests/32 files, b
 ITS (same agent): advisory affects only the vite dev server, not the static Pages build; patch release from the same registry package, integrity in lock; no new dependency or override. No finding.
 ITO: customer approved go-live ("golive", 30/10). PR29 9b8f231, PR CI PASS, main CI 40983007374/Pages 40983007605 PASS; Dependabot PR27 closed as superseded, alert 7 state fixed; public HTTP 200/meta 0.17.0, Login renders, console 0. No production data change.
 workflow-action:A067 status:completed
+
+## E064 / A068 — mobile readability refinement (2026-10-31)
+workflow-action:A068 status:completed
+Authorization: customer requested UI review and optimization; no publication or production. Owner: current agent (review not independent). Base origin/main daead9b; branch fix/ui-polish, isolated worktree. Primary checkout dirty records preserved; 37 commits behind remote, no stash/reset/pull. Read all manifest files and P35, PRODUCT.md/DESIGN.md. Scope: itinerary mobile CSS, shared mobile form CSS, P36 and tracker records. No logic/data/API/Excel/demo/dependency changes. Acceptance: mobile title and amount have separate lines; form controls use 16px; desktop and behavior preserved. Browser demo baseline: dashboard desktop and expenses/itinerary/group/form at 375px, dark scheme.
+
+
+Final scope: itinerary CSS only. Shared fields already use 16px; duplicate override removed. Stack title/amount and align responsive layout to shell breakpoint900.
+
+QA: PASS 184 app tests, lint, demo build. Browser demo dark theme 320/375/768/1280px, selection toggle, no horizontal document overflow at 320/768; console errors 0. Final breakpoint change verified visually; no JS changes. Detector: four advisories on unchanged pre-existing font/radius declarations, outside this CSS diff. Same-agent scoped ITS: CSS only, no auth/data/dependency changes, no security blocker. NOT RUN: light-theme/real-device/full Supabase/hosted/SQL regression (no database change). npm ci reported 11 moderate advisories, dependency remediation deferred. Install used system Node20.17 with engine warning; verification used bundled Node24.22.1. No push/merge/deploy or production writes. Next: review local candidate, optional broader UAT, obtain fresh go-live approval before publication to main.
