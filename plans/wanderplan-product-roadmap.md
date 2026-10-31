@@ -156,3 +156,6 @@ P28 A050/E046: released 0.13.0, production migration verified, PR #16/main CI/Pa
 29/10 — P28 documentation closeout complete: docs PR #17 merged acc310a, final main CI/Pages/public 0.13.0 PASS. Final receipt shared on docs/release-0.13.0; no next feature selected. Dependency maintenance remains separate.
 
 29/10 — A052: customer authorizes P29 (7-day itinerary trash), P30 (atomic trip/activity/optional expense-date shift with preview), P31 (owner template cloning without finances/members). Implementation/local UAT active; production go-live pending separate approval.
+
+## P37 — responsive forms, 01/11/2026
+Customer selected consistent mobile form refinement; local candidate on fix/mobile-forms, A071/E067. Shared layout and selection polish, optional labels and trip numeric keyboard hints;184 tests/lint/demo build and demo browser checks PASS. Physical-device/Safari/hosted gaps in verification. Fresh go-live approval pending; no publication or production change. Separate P36/A070 remains on fix/ui-polish.

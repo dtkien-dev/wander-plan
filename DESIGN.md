@@ -191,7 +191,9 @@ Status tags: Đang diễn ra (green on pale green), Xong/Sắp tới (muted on g
 White surface, 1px border, 12px radius, 18–20px padding. Money summaries are tickets: amounts above, dashed rule, budget or note below.
 
 ### Inputs / Fields
-46px, field background, strong border, primary focus ring plus mint halo. VND inputs are right-aligned with a ₫ suffix and a grouped preview; optional fields say "(không bắt buộc)" beside the label.
+48px with 16px input text, field background, strong border, primary focus ring plus mint halo. VND inputs are right-aligned with a ₫ suffix and a grouped preview; optional fields say "(không bắt buộc)" beside the label and wrap together. Selected participant/split choices use mint and a primary border, retaining native checkboxes/radios.
+
+Forms use one column up to 600px and two above it. Below 900px, dialogs are bottom sheets capped at 640px, with safe-area padding and sticky actions; a single action fills the row. Scroll padding keeps keyboard-focused fields clear of the sticky header and actions.
 
 ### Navigation
 Desktop: board-blue top bar with white active pill. Phone: white bottom bar, active item on mint. A "Thêm" menu groups secondary page actions (Excel, trash) and closes on Escape or outside press.

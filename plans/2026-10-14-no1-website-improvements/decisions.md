@@ -115,3 +115,6 @@ A066: customer approved the 0.17.0 go-live on condition that QA, ITS, documentat
 
 ## A067 — vite dev-server advisory, 30/10/2026
 Customer asked to fix Dependabot alert 7 (GHSA-8g5g-mxqh-grgj, medium, vite 6.4.4 `server.fs.deny` bypass with queries; development scope). Scope: vite 6.4.5 only, regenerated with the project's npm instead of Dependabot PR27 (whose newer npm also dropped the optional ajv peer tree and added bundled wasm entries). No app, schema or version change. Merge to main needs go-live approval.
+
+## A071 — consistent mobile forms, 01/11/2026
+Customer requests all forms refined consistently on phones and selects this scope explicitly; retain board-blue identity. Implement and verify locally under P37. No new production go-live approval.

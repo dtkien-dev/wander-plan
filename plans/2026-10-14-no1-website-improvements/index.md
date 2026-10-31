@@ -2,7 +2,7 @@
 <!-- workflow-record version:4 kind:plan tracker-id:wp-20261014-01 -->
 Tracker ID: wp-20261014-01
 Created: 2026-10-14 Asia/Saigon
-Last updated: 2026-10-30 Asia/Saigon
+Last updated: 2026-11-01 Asia/Saigon
 Status: Released 0.17.0 (P35 Bảng giờ tàu redesign)
 Plan mode: Exited
 Execution readiness: Ready
@@ -10,7 +10,7 @@ Execute mode: Active
 Resume instruction: Resolve plans/2026-10-14-no1-website-improvements from the current clone root (tracker wp-20261014-01). Read docs/agent/README.md and workflow.md, then this index and every manifest file. Keep this exact repository-relative bundle as the execution source of truth; update it until explicit exit. If the execute skill is installed, it may be used with this resolved path.
 Workspace: Current clone root; never reuse another device's absolute path.
 Repository: deployed app main 7393752 (PR26, 0.17.0). Docs closeout on docs/release-0.17.0; resolve final receipt via Git log.
-Active action: None — 0.17.0 live with vite 6.4.5 patch (A067).
+Active action: None — A071/E067/P37 locally complete on fix/mobile-forms; QA/scoped ITS passed, fresh go-live approval pending. Separate P36/A070 branch retained.
 
 <!-- workflow-active-snapshot:start version:2 -->
 ## Active Snapshot
@@ -26,6 +26,8 @@ Next safe action: publish docs/release-0.15.0 outcomes through CI-gated PR, veri
 Shared workflow: [portable workflow](../../docs/agent/workflow.md). The references/*.md above belong to the optional installed execute skill; they are not missing repository files and are not required on a new device. Shared workflow contains the portable execution and evidence rules.
 
 ## Resume Checkpoint
+- E067/A071/P37 (01/11): responsive forms locally verified on fix/mobile-forms from daead9b. 184 tests/lint/demo build, browser widths320–1280 and short viewport PASS; same-agent ITS clear. No deploy. Reconcile separate unmerged P36/A070 before release; read P37 and verification gaps. Resolve candidate SHA via Git log.
+
 - E063/A067 (30/10): vite 6.4.5 security patch (GHSA-8g5g-mxqh-grgj, dev scope). PR29 9b8f231, PR CI PASS, main CI 40983007374/Pages 40983007605 PASS; alert 7 fixed; app version unchanged 0.17.0. No feature queued.
 - E062/A066/P35 (30/10): 0.17.0 released. PR26 7393752 (head 180dec5), PR CI PASS, main CI 40981612990/Pages 40981612923 PASS; no migration; public HTTP 200/meta 0.17.0, signed-out console 0. Authenticated smoke not run. No feature queued.
 - E060/A064/P34 (29/10): 0.16.0 released. PR24 96c419e, main CI 40886069902/Pages 40886070224 PASS; production migration 20261029150000 once after private backup, contracts verified; public meta 0.16.0. Authenticated smoke not run (signed out). Next: P35 redesign (A063).
@@ -95,6 +97,7 @@ phases/P34-expense-trash.md
 phases/P35-ui-redesign.md
 security-review-p33-2026-10-29.md
 phases/P32-workspace-hook-boundary.md
+phases/P37-responsive-forms.md
 <!-- workflow-manifest:end -->
 
 Latest checkpoint 29/10: A055/E051 complete; independent review High fixed by forward provenance migration and verified in 353 embedded/full-local SQL, 168 app tests, lint/build. Prior E050 browser/mobile/Realtime/concurrency UAT passed. Candidate local on feat/trip-reschedule-templates-trash; resolve final commit via Git log. No push or production changes. Await fresh go-live approval.

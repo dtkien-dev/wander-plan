@@ -48,3 +48,6 @@ Dependency follow-up A056/E052 completed: Vitest4.1.12, fast-uri3.1.9; zero npm 
 
 ## Released 0.14.0 — 29/10/2026
 App PR18 merged b732461 after approved go-live. MainCI40794364399/Pages40794364198 PASS, public/authenticated0.14.0 and read-only move/clone/trash dialogs PASS. Four production migrations, private backup, grants/Realtime/hourly cron verified; no business-data test writes. A058/E054 docs closeout on docs/release-0.14.0; fetch and inspect latest Git log/tracker before resuming. No new backlog scope; primary checkout edits retained.
+
+## P37 responsive forms — 01/11/2026
+Local candidate on fix/mobile-forms from fetched main daead9b; resolve commit via Git log. E067/A071/P37: shared field/dialog/selection polish, optional-label markup and numeric keyboard hints.184 tests/lint/demo build and Chromium demo widths320–1280/short viewport PASS; same-agent ITS clear. No DB/dependency change, push or deploy. Physical phones/Safari/hosted and browser save/reload not tested;11 moderate dev-tool audit findings unchanged. Separate fix/ui-polish P36/A070 remains unmerged and must be reconciled before release; its approval does not cover P37. Primary checkout edits retained.

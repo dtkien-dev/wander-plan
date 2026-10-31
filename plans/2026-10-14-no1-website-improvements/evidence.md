@@ -328,3 +328,13 @@ QA: clean npm ci, npm audit 0 vulnerabilities, lint 0, 184 app tests/32 files, b
 ITS (same agent): advisory affects only the vite dev server, not the static Pages build; patch release from the same registry package, integrity in lock; no new dependency or override. No finding.
 ITO: customer approved go-live ("golive", 30/10). PR29 9b8f231, PR CI PASS, main CI 40983007374/Pages 40983007605 PASS; Dependabot PR27 closed as superseded, alert 7 state fixed; public HTTP 200/meta 0.17.0, Login renders, console 0. No production data change.
 workflow-action:A067 status:completed
+
+## E067 / A071 — responsive forms, 01/11/2026
+workflow-action:A071 status:open
+Customer authorizes consistent mobile form refinement. Branch fix/mobile-forms from fetched origin/main daead9b; current agent owns P37 shared CSS, form markup and records. No external effects, push or deploy. Primary checkout and separate P36/A070 worktree retained. Read form/Modal consumers and tests before edits; preserve validation, financial and authentication contracts.
+
+
+IT: shared fields minimum48px, wrapping optional-label spans, mint selected choices/native controls, correct checkbox/radio sizing, phone20px form gaps, tablet two columns, max640px safe-area bottom sheets, focus scroll padding, single-action full width, numeric keyboard hints on trip creation. DESIGN.md updated. No behavior/schema/dependency change.
+QA/ITS: see E067 in verification.md; full184 tests/lint/demo build PASS, browser form widths320–1280 and short viewport PASS. Same-agent scoped security review clear. Existing11 moderate dev-tool audit findings retained; zero high/critical. No physical-device/Safari/hosted validation or browser data saves.
+workflow-action:A071 status:completed
+Local candidate ready for review; production approval pending. P36/A070 remains separate on fix/ui-polish and must be reconciled before any eventual release. No main/push/deploy performed.

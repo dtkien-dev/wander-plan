@@ -36,8 +36,8 @@ function CreateTripForm({ onDone }: { onDone: () => void }) {
     <label className="field field--wide">Điểm đến<input {...register('destination')} aria-invalid={Boolean(errors.destination)} />{errors.destination && <span>{errors.destination.message}</span>}</label>
     <label className="field">Ngày bắt đầu<input type="date" {...register('startDate')} aria-invalid={Boolean(errors.startDate)} />{errors.startDate && <span>{errors.startDate.message}</span>}</label>
     <label className="field">Ngày kết thúc<input type="date" {...register('endDate')} aria-invalid={Boolean(errors.endDate)} />{errors.endDate && <span>{errors.endDate.message}</span>}</label>
-    <label className="field">Ngân sách (VND)<input type="number" min="0" step="1" {...register('budgetVnd', { valueAsNumber: true })} aria-invalid={Boolean(errors.budgetVnd)} />{errors.budgetVnd && <span>Nhập ngân sách nguyên, không âm.</span>}</label>
-    <label className="field">Số người tối đa<input type="number" min="1" max="20" {...register('maxMembers', { valueAsNumber: true })} aria-invalid={Boolean(errors.maxMembers)} />{errors.maxMembers && <span>Chọn từ 1 đến 20 người.</span>}</label>
+    <label className="field">Ngân sách (VND)<input type="number" inputMode="numeric" min="0" step="1" {...register('budgetVnd', { valueAsNumber: true })} aria-invalid={Boolean(errors.budgetVnd)} />{errors.budgetVnd && <span>Nhập ngân sách nguyên, không âm.</span>}</label>
+    <label className="field">Số người tối đa<input type="number" inputMode="numeric" min="1" max="20" {...register('maxMembers', { valueAsNumber: true })} aria-invalid={Boolean(errors.maxMembers)} />{errors.maxMembers && <span>Chọn từ 1 đến 20 người.</span>}</label>
     {error && <p className="form-error-banner field--wide" role="alert">{error}</p>}
     <div className="form__actions field--wide"><button className="button button--primary" disabled={createTrip.isPending} type="submit">{createTrip.isPending ? 'Đang tạo…' : 'Tạo chuyến đi'}</button></div>
   </form>
