@@ -111,5 +111,8 @@ Execute P29 trash/recovery first, P30 atomic reschedule preview second, P31 temp
 ## A063 — P34 expense trash, then P35 redesign
 Customer reviewed impeccable findings and approved: P34 expense trash (0.16.0) first, then P35 full redesign keeping only the WanderPlan name (0.17.0). Rules and acceptance in stable phase files. Each release needs separate go-live approval.
 
+## P36 — Mobile readability
+See phases/P36-mobile-readability.md. A068/E064, customer-authorized local UI refinement, no production approval.
+
 ## A071 — P37 responsive forms
 See phases/P37-responsive-forms.md. Shared layout/controls first, then browser QA and scoped ITS; production remains gated separately.

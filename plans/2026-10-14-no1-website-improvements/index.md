@@ -99,6 +99,9 @@ phases/P34-expense-trash.md
 phases/P35-ui-redesign.md
 security-review-p33-2026-10-29.md
 phases/P32-workspace-hook-boundary.md
+phases/P36-mobile-readability.md
+security-review-p36-2026-10-31.md
+
 phases/P37-responsive-forms.md
 <!-- workflow-manifest:end -->
 
