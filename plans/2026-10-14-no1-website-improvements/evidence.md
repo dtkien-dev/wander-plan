@@ -354,3 +354,8 @@ Customer explicitly requests mobile emulation. Scope: local candidate254139d on 
 
 E069 result:30 settled viewport/form cases PASS across10 portrait/landscape/reduced-height sizes. No persistent source defect; focused notes clear of sticky bars; console clean. One initial trip320 measurement during dialog animation rechecked after settled screenshot and passed. Viewport-only emulation limits recorded explicitly; no mobile touch/Safari/hardware claim. No source or saved-data change; viewport reset.
 workflow-action:A073 status:completed
+
+## E070 / A074 — P37 pre-release reconciliation, 01/11/2026
+workflow-action:A074 status:open
+Customer authorizes continuing project delivery; scope local pre-release preparation only. Verified GitHub dtkien-dev/wander-plan/main daead9b. P36 PR31 is open at b48f0a7, CI41220417353 PASS; A070 approval applies only to P36. Prepare P37 as0.17.2 after P36/0.17.1, locally integrate its existing branch and preserve both sets of tracker evidence; no PR31/main mutation, push or deploy. Current agent owns reconciliation, final QA and same-agent ITS, release notes/version metadata/rollback. Existing primary checkout remains untouched.
+
