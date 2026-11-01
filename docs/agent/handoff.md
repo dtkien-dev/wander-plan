@@ -83,3 +83,6 @@ P38/A077/E073 completed locally on feat/mobile-trip-experience from fetched orig
 
 ## Latest released checkpoint —0.18.0, 01/11/2026
 P38/A078/E074 released via PR34 df9bd12, approved head3da897c and PR CI41317406891 PASS. Main CI41317557088/Pages41317557092 PASS; public HTML/entry HTTP200/meta0.18.0, existing authenticated footer and375px itinerary/expense open+cancel/scroll smoke PASS, new warnings/errors0. No DB/config/business-data writes or login emails. Today preview day empty; live details not exercised, demo QA retained. Same-agent ITS; physical-device/Safari/native keyboard/light/full hosted limits remain. Closeout on docs/release-0.18.0 from df9bd12; resolve final docs SHA/PR/CI/Pages via Git history. No new feature; primary dirty checkout preserved.
+
+## Released0.18.1 and next work —01/11/2026
+PR36/0ca2859, CI41322151861/Pages41322152074/public/authenticated0.18.1 and390px open/cancel smoke PASS. No production data/config writes. Physical iPhone13 pending; customer allows next local work after rollout. Docs closeout docs/release-0.18.1. Next authorized work P40/idea3 expense clarity, separate release gate; do not treat0.18.1 approval as new-feature go-live.
