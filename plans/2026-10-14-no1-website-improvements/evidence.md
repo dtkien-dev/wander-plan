@@ -419,3 +419,7 @@ PASS local Chromium demo: Today activity details/full dates and safe Maps href, 
 QA defects fixed: persistent shell draft survived route discard; nested scroll-lock cleanup; duplicate modal label ID/topmost Escape. Regression tests cover these. Scoped same-agent ITS report security-review-p38-2026-11-01.md clear; not independent. Detector advisory font-size findings follow existing DESIGN ramp exceptions; no blocking finding. Tokens retained for both themes.
 NOT RUN: physical phone/Safari/WebKit/software keyboard/screen reader/live light theme, actual native reload dialog, full Supabase/hosted multi-user or new-head hosted CI. Native unload is best-effort and cannot recover drafts after mobile process termination. No new SQL/auth/access/persistence/money contract. No push/PR/main merge/deploy; release checklist and rollback prepared for fresh go-live approval.
 workflow-action:A077 status:completed
+
+## E074/A078 — Approved0.18.0 rollout, 01/11/2026
+workflow-action:A078 status:open
+Fetched origin/main5eb5674 unchanged; candidate41f8a3c clean. Verified GitHub target dtkien-dev/wander-plan, main, existing authenticated owner CLI. Scope source candidate unchanged plus approval records; push feat/mobile-trip-experience, PR/CI, checked-head merge and Pages/read-only verification. No SQL/config/data writes.

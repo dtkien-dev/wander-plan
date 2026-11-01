@@ -129,3 +129,5 @@ Customer approves P36/0.17.1 then P37/0.17.2 as presented at ddae86a. Execute ex
 ## A077 — P38 mobile trip experience, 01/11/2026
 Customer authorizes implementing the recommended priorities 1+2 through the existing workflow. Scope/acceptance in phases/P38-mobile-trip-experience.md. No production go-live approval; preserve deferred roadmap decisions.
 
+## A078 — Go-live0.18.0, 01/11/2026
+Customer explicitly approves go-live0.18.0 as presented at41f8a3c: purpose-branch push/PR, exact-head CI, merge main, automatic Pages, read-only live smoke and release closeout. No migration, access/config changes or real business-data writes.

@@ -3,14 +3,14 @@
 Tracker ID: wp-20261014-01
 Created: 2026-10-14 Asia/Saigon
 Last updated: 2026-11-01 Asia/Saigon
-Status: P38 local candidate0.18.0 verified; awaiting fresh go-live approval. Production remains0.17.2.
+Status: P38 candidate0.18.0 approved for go-live; ITO in progress.
 Plan mode: Exited
 Execution readiness: Ready
 Execute mode: Active
 Resume instruction: Resolve plans/2026-10-14-no1-website-improvements from the current clone root (tracker wp-20261014-01). Read docs/agent/README.md and workflow.md, then this index and every manifest file. Keep this exact repository-relative bundle as the execution source of truth; update it until explicit exit. If the execute skill is installed, it may be used with this resolved path.
 Workspace: Current clone root; never reuse another device's absolute path.
 Repository: GitHub dtkien-dev/wander-plan; fetched main5eb5674 (released0.17.2); local candidate feat/mobile-trip-experience.
-Active action: none — A077/E073 completed locally; customer go-live decision pending.
+Active action: A078/E074 — approved0.18.0 rollout, primary agent.
 
 <!-- workflow-active-snapshot:start version:2 -->
 ## Active Snapshot
