@@ -119,3 +119,6 @@ See phases/P37-responsive-forms.md. Shared layout/controls first, then browser Q
 
 ## P38 — Mobile trip experience
 A077/E073, branch feat/mobile-trip-experience from fetched5eb5674. Customer authorizes recommended priorities1+2. [Phase](phases/P38-mobile-trip-experience.md): shared editor/nav protection and Today details/Maps; local QA/ITS complete, candidate0.18.0. Fresh go-live approval required; no new database/dependency contract.
+
+## P38 release result
+0.18.0 released under A078 via PR34/df9bd12. Required CI/Pages/public/authenticated read-only mobile smoke PASS. No migration; coverage limits retained. Docs closeout shares outcomes under the same approval; no new feature scope.

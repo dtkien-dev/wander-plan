@@ -171,3 +171,6 @@ Customer-approved sequential P36/0.17.1 then P37/0.17.2 completed (A075/E071): P
 
 ## P38 — Safe editing and Today actions, local candidate01/11
 Customer authorizes the recommended priorities1+2. Local0.18.0 ready: modal/navigation discard protection, pending guards, activity details/Maps/current-next shortcut.201app/406embedded SQL/lint/build/audit-high and Chromium demo QA PASS; same-agent ITS clear. No migration/dependency change; fresh go-live approval pending. Physical-device/Safari/native keyboard/live light/full hosted limits recorded in release checklist. Other proposals/deferred choices remain unselected.
+
+## P38 — Released0.18.0, 01/11/2026
+PR34/df9bd12 after A078 approval; CI41317557088/Pages41317557092 and public/authenticated0.18.0 verified. Unsaved-edit protection and Today activity actions delivered; mobile dialogs open/cancel smoke PASS without production writes. No migration/dependency change. Physical-device/Safari/native keyboard/light/full-hosted-write limitations retained; current preview day empty so live details not exercised. Docs-only closeout follows, no new feature queued.
