@@ -125,3 +125,6 @@ A077/E073, branch feat/mobile-trip-experience from fetched5eb5674. Customer auth
 
 ## P39 — Safari mobile form overflow
 A079/E075, fix/safari-form-overflow; user iPhone13 report prioritized ahead of ideas3–5. Shared CSS repair and optional browser regression ready as0.18.1 after local QA/same-agent ITS. No dependency/DB change; physical iOS validation and fresh go-live approval remain. See phases/P39-safari-form-overflow.md.
+
+## P40 — Expense clarity before saving
+A081/E077 local0.19.0 candidate on feat/expense-clarity, idea3 next after approved0.18.1 rollout. Read-only schema-backed summary and settlement explanation/accessibility;209app/406SQL/188browser/lint/build/audit-high PASS, same-agent ITS clear. No migration/dependency or money calculation change. Separate go-live gate; ideas4–5 later.

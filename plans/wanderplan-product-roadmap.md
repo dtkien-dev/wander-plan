@@ -180,3 +180,9 @@ Customer iPhone13 report prioritized before ideas3–5. Shared form/native-selec
 
 ## P39 released0.18.1; next idea3
 A080 executed via PR36/0ca2859, required CI/Pages/public/authenticated390px smoke PASS. Physical iPhone13 confirmation remains pending. Customer authorizes proceeding to idea3 after go-live; ideas4–5 later. New-feature publication remains a separate approval gate.
+
+## P40 — Idea3 candidate0.19.0,01/11
+Expense summary before Save and clearer recipient confirmation implemented locally after0.18.1 technical release.209app/406SQL/188browser/lint/build/audit-high and same-agent ITS PASS. No new money/DB/dependency contract. Fresh0.19.0 go-live approval pending; physical iPhone13 feedback pending; ideas4–5 remain subsequent work.
+
+## P39 physical-device feedback received,01/11/2026
+Customer confirms original horizontal-panning/unequal-input issue no longer observed on iPhone13 after0.18.1. Original reported issue accepted; iOS version unknown. P40 physical feature/native-picker/keyboard tests remain unperformed. Published receipt7dc5c47 on docs/release-0.18.1, reconciled into local feature branch.

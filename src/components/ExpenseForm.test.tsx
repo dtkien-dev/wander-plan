@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { ExpenseForm } from './ExpenseForm'
 import type { TripPerson } from '../types'
@@ -9,6 +9,79 @@ const people: TripPerson[] = [
 ]
 
 afterEach(cleanup)
+
+const summaryPeople: TripPerson[] = [...people, { userId: 'third', email: 'third@example.com', displayName: 'Chi', role: 'editor', status: 'active', joinedAt: '' }]
+function openSummary() {
+  const submit = vi.fn()
+  render(<ExpenseForm tripStart="2026-11-27" tripEnd="2026-11-30" pending={false} people={summaryPeople} currentUserId="owner" onSubmit={submit} onCancel={vi.fn()} />)
+  fireEvent.change(screen.getByLabelText('Khoản chi'), { target: { value: 'Bữa tối' } })
+  fireEvent.change(screen.getByLabelText(/^Dự kiến/), { target: { value: '900000' } })
+  return { summary: screen.getByRole('region', { name: 'Tóm tắt khoản chi' }), submit }
+}
+
+it('previews estimate-only equal shares without recording an expense', () => {
+  const { summary, submit } = openSummary()
+  expect(summary).toHaveTextContent('Dự kiến: Bạn thanh toán 900.000')
+  expect(summary).toHaveTextContent('cho 3 người')
+  expect(summary).toHaveTextContent('Chia đều, mỗi người 300.000')
+  expect(summary).toHaveTextContent('chưa tính vào quyết toán')
+  expect(submit).not.toHaveBeenCalled()
+  fireEvent.change(screen.getByLabelText(/^Người thanh toán/), { target: { value: 'friend' } })
+  expect(summary).toHaveTextContent('Người bạn đồng hành thanh toán 900.000')
+})
+
+it('uses actual zero instead of the estimate in the summary', () => {
+  const { summary } = openSummary()
+  fireEvent.change(screen.getByLabelText(/Thực tế/), { target: { value: '0' } })
+  expect(summary).toHaveTextContent('Thực tế: Bạn thanh toán 0')
+  expect(summary).not.toHaveTextContent('900.000')
+  expect(summary).not.toHaveTextContent('300.000')
+  expect(summary).toHaveTextContent('tính số dư sau khi lưu')
+})
+
+it('shows exact individual allocations instead of claiming an equal per-head amount when dong remain', () => {
+  const { summary } = openSummary()
+  fireEvent.change(screen.getByLabelText(/^Dự kiến/), { target: { value: '900001' } })
+  expect(summary).toHaveTextContent('Chia đều (có phần lẻ)')
+  const rows = within(summary).getAllByRole('listitem')
+  expect(rows[0]).toHaveTextContent(/Người bạn đồng hành.*300\.001/)
+  expect(rows[1]).toHaveTextContent(/Bạn.*300\.000/)
+  expect(rows[2]).toHaveTextContent(/Chi.*300\.000/)
+  expect(summary).not.toHaveTextContent('mỗi người')
+})
+
+it('tracks shares and exact splits, removing the valid summary when the actual total no longer matches', () => {
+  const { summary } = openSummary()
+  fireEvent.click(screen.getByRole('radio', { name: 'Theo phần' }))
+  fireEvent.change(screen.getByLabelText('Số phần của Bạn'), { target: { value: '2' } })
+  expect(within(summary).getAllByRole('listitem')[1]).toHaveTextContent(/Bạn.*450\.000/)
+  fireEvent.change(screen.getByLabelText(/Thực tế/), { target: { value: '800000' } })
+  expect(within(summary).getAllByRole('listitem')[1]).toHaveTextContent(/Bạn.*400\.000/)
+  fireEvent.click(screen.getByRole('radio', { name: 'Theo số tiền' }))
+  expect(summary).toHaveTextContent('phần chia hợp lệ')
+  for (const [name, value] of [['Bạn', '100000'], ['Người bạn đồng hành', '200000'], ['Chi', '500000']]) {
+    fireEvent.change(screen.getByLabelText(`Số tiền của ${name}`), { target: { value } })
+  }
+  expect(within(summary).getAllByRole('listitem')[1]).toHaveTextContent(/Bạn.*100\.000/)
+  fireEvent.change(screen.getByLabelText(/Thực tế/), { target: { value: '810000' } })
+  expect(summary).toHaveTextContent('phần chia hợp lệ')
+  expect(within(summary).queryByRole('list')).not.toBeInTheDocument()
+})
+
+it.each(['-1', '0.5', ''])('does not present an invalid amount (%s) as a valid split', (value) => {
+  const { summary } = openSummary()
+  fireEvent.click(screen.getByRole('radio', { name: 'Theo phần' }))
+  fireEvent.change(screen.getByLabelText(/^Dự kiến/), { target: { value } })
+  expect(summary).toHaveTextContent('phần chia hợp lệ')
+  expect(summary).not.toHaveTextContent('thanh toán')
+})
+
+it('requires at least one participant before presenting a summary', () => {
+  const { summary } = openSummary()
+  for (const name of ['Bạn', 'Người bạn đồng hành', 'Chi']) fireEvent.click(screen.getByRole('checkbox', { name, exact: true }))
+  expect(summary).toHaveTextContent('phần chia hợp lệ')
+  expect(summary).not.toHaveTextContent('thanh toán')
+})
 
 describe('ExpenseForm', () => {
   it('defaults the payer to the creator and selects all active participants', () => {
@@ -167,6 +240,7 @@ describe('ExpenseForm', () => {
     render(<ExpenseForm expense={saved} tripStart="2026-11-27" tripEnd="2026-11-30" pending={false} people={people} currentUserId="owner"
       formerPeople={[{ userId: 'gone', displayName: 'Chi' }]} onSubmit={onSubmit} onCancel={vi.fn()} />)
     expect(screen.getByRole('note')).toHaveTextContent('Phần tiền đã khóa vì có người đã rời nhóm')
+    expect(screen.queryByRole('region', { name: 'Tóm tắt khoản chi' })).not.toBeInTheDocument()
     expect(screen.getByRole('note')).toHaveTextContent('Trả bởi Chi (đã rời nhóm) · Theo phần:')
     for (const label of ['Người thanh toán', 'Dự kiến', 'Thực tế']) expect(screen.queryByLabelText(label)).not.toBeInTheDocument()
     expect(screen.queryByRole('radio')).not.toBeInTheDocument()

@@ -29,13 +29,13 @@ interface SettlementPanelProps {
 export function SettlementPanel({ balances, transfers, payments, currentUserId, pending, personName, isFormer = () => false, onConfirm, onUndo }: SettlementPanelProps) {
   return (
     <section className={styles.settlement} aria-labelledby="settlement-title">
-      <header><h2 id="settlement-title">Ai cần trả cho ai?</h2><p className={styles.settlementHint}>Chỉ tính khoản đã chi thực tế. Người nhận tiền xác nhận khi đã nhận; số dư tự tính lại.</p></header>
+      <header><h2 id="settlement-title">Ai cần trả cho ai?</h2><p className={styles.settlementHint}>Chỉ tính khoản thực tế, đã trừ các thanh toán được xác nhận. Chỉ người nhận được bấm “Đã nhận tiền” sau khi nhận đủ số tiền trong dòng; người trả không xác nhận thay.</p></header>
       <ul className={styles.balances} aria-label="Số dư từng người">{balances.map((balance) => <li key={balance.userId}><span>{personName(balance.userId)}</span><strong className={balance.amountVnd > 0 ? 'amount-receive' : balance.amountVnd < 0 ? 'amount-owe' : ''}>{describeBalance(balance.amountVnd)}</strong></li>)}</ul>
       <div className={styles.transfers}>{transfers.length ? transfers.map((transfer) => (
         <article key={`${transfer.fromUserId}-${transfer.toUserId}`}>
           <p className={styles.transferSentence}><strong>{personName(transfer.fromUserId)}</strong> trả <strong>{personName(transfer.toUserId)}</strong></p><data className={`${styles.transferAmount} ${transfer.toUserId === currentUserId ? 'amount-receive' : transfer.fromUserId === currentUserId ? 'amount-owe' : ''}`} value={transfer.amountVnd}>{formatCurrency(transfer.amountVnd)}</data>
           {transfer.toUserId === currentUserId
-            ? <button className={`button button--primary ${styles.transferAction}`} type="button" disabled={pending} onClick={() => onConfirm(transfer)}><CheckCircle2 size={17} /> Đã nhận tiền</button>
+            ? <button className={`button button--primary ${styles.transferAction}`} type="button" disabled={pending} aria-label={`Đã nhận tiền ${formatCurrency(transfer.amountVnd)} từ ${personName(transfer.fromUserId)}`} onClick={() => onConfirm(transfer)}><CheckCircle2 size={17} /> Đã nhận tiền</button>
             : <small className={styles.transferAction}>Chờ {personName(transfer.toUserId)} xác nhận đã nhận</small>}
         </article>
       )) : <p>{payments.length ? 'Đã quyết toán xong.' : 'Chưa có khoản thực tế cần quyết toán.'}</p>}</div>
