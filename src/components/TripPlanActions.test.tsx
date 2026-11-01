@@ -42,6 +42,7 @@ it('copies the plan with a request key and safely cancels a draft', async () => 
   fireEvent.change(screen.getByLabelText('Ngày bắt đầu mới'), { target: { value: '2027-01-01' } })
   fireEvent.click(screen.getByRole('button', { name: 'Hủy', exact: true }))
   expect(mocks.copy).not.toHaveBeenCalled()
+  fireEvent.click(screen.getByRole('button', { name: 'Bỏ thay đổi', exact: true }))
   fireEvent.click(screen.getByRole('button', { name: 'Nhân bản chuyến', exact: true }))
   fireEvent.change(screen.getByLabelText('Tên chuyến mới'), { target: { value: 'New plan' } })
   fireEvent.change(screen.getByLabelText('Ngày bắt đầu mới'), { target: { value: '2027-01-01' } })

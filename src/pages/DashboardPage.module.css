@@ -12,13 +12,18 @@
 .rowChanged { background: var(--color-change-bg); }
 .time { font-size: 20px; font-weight: 700; font-variant-numeric: tabular-nums; }
 .stop { display: grid; gap: 2px; min-width: 0; }
-.stop strong { font-size: 16px; overflow-wrap: anywhere; }
+.stopLink { min-height: 44px; padding: 4px 0; border: 0; background: transparent; color: inherit; text-align: left; font: inherit; font-size: 16px; font-weight: 700; overflow-wrap: anywhere; cursor: pointer; }
+.stopLink:hover { text-decoration: underline; text-underline-offset: 3px; }
+.mapLink { display: inline-flex; align-items: center; justify-self: start; gap: 6px; min-height: 44px; color: var(--color-primary); font-size: 14px; font-weight: 600; }
+.details { display: grid; gap: 16px; margin: 0 0 24px; }
+.details dt { color: var(--color-text-muted); font-size: 14px; }
+.details dd { margin: 4px 0 0; overflow-wrap: anywhere; white-space: pre-wrap; }
 .stop span { color: var(--color-text-muted); font-size: 13px; overflow-wrap: anywhere; }
 .status { display: grid; justify-items: end; gap: 4px; }
 .boardEmpty { margin: 0 12px; padding: 18px 14px; color: var(--color-text); background: var(--color-board-row); border-radius: var(--radius-control); }
 .boardEmpty a { color: var(--color-primary); font-weight: 600; }
 .boardFoot { display: flex; flex-wrap: wrap; gap: 4px 16px; padding: 10px 14px 12px; }
-.boardLink { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 6px; color: var(--color-board-ink); background: transparent; border: 0; font-size: 14px; font-weight: 600; text-decoration: none; cursor: pointer; }
+.boardLink { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; max-width: 100%; padding: 0 6px; color: var(--color-board-ink); background: transparent; border: 0; font-size: 14px; font-weight: 600; text-align: left; overflow-wrap: anywhere; text-decoration: none; cursor: pointer; }
 .boardFoot :focus-visible { outline-color: var(--color-board-ink); }
 .boardLink:hover { text-decoration: underline; text-underline-offset: 3px; }
 .ticket { display: grid; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-surface); }

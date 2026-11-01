@@ -87,7 +87,7 @@ export function ExpenseForm({ expense, tripStart, tripEnd, pending, people, curr
   const moneyLocked = formerParticipantIds.length > 0 || formerPayerId !== null
   const nameOf = (userId: string) => activePeople.find((person) => person.userId === userId)?.displayName ?? formerName(userId)
   const savedMethod = expense?.splitMethod ?? 'equal'
-  const { register, handleSubmit, watch, formState: { errors } } = useForm<ExpenseFormValues>({
+  const { register, handleSubmit, watch, formState: { errors, isDirty, isSubmitting } } = useForm<ExpenseFormValues>({
     resolver: zodResolver(createSchema(tripStart, tripEnd, activeUserIds, formerParticipantIds, formerPayerId)),
     defaultValues: {
       ...(expense
@@ -116,7 +116,7 @@ export function ExpenseForm({ expense, tripStart, tripEnd, pending, people, curr
   const nights = isStay && endDate && endDate > expenseDate ? countNights(expenseDate, endDate) : 0
   const stayAmount = actual ?? estimated
   return (
-    <form className="form" onSubmit={handleSubmit((values) => onSubmit(toDraft(values, formerParticipantIds)))}>
+    <form className="form" data-unsaved={isDirty} data-pending={pending || isSubmitting} inert={pending || isSubmitting} onSubmit={handleSubmit((values) => onSubmit(toDraft(values, formerParticipantIds)))}>
       <label className="field field--wide">Khoản chi<input aria-required="true" {...register('title')} aria-invalid={Boolean(errors.title)} />{errors.title && <span>{errors.title.message}</span>}</label>
       <label className="field">Phân loại<select {...register('category')}><option value="food">Ăn uống</option><option value="transport">Di chuyển</option><option value="stay">Lưu trú</option><option value="ticket">Vé tham quan</option><option value="other">Khác</option></select></label>
       <label className="field">{startDateLabels[category] ?? 'Ngày'}<input type="date" min={tripStart} max={tripEnd} {...register('expenseDate')} aria-invalid={Boolean(errors.expenseDate)} />{errors.expenseDate && <span>{errors.expenseDate.message}</span>}</label>
@@ -155,8 +155,8 @@ export function ExpenseForm({ expense, tripStart, tripEnd, pending, people, curr
       )}
       <label className="field field--wide"><span className="field-label">Ghi chú <small className="field-optional">(không bắt buộc)</small></span><textarea rows={3} maxLength={500} {...register('notes')} aria-invalid={Boolean(errors.notes)} />{errors.notes && <span>{errors.notes.message}</span>}</label>
       <div className="form__actions field--wide">
-        <button className="button button--ghost" type="button" onClick={onCancel}>Hủy</button>
-        <button className="button button--primary" type="submit" disabled={pending}>{pending ? 'Đang lưu…' : expense ? 'Lưu thay đổi' : 'Thêm chi phí'}</button>
+        <button className="button button--ghost" type="button" data-dismiss disabled={pending || isSubmitting} onClick={onCancel}>Hủy</button>
+        <button className="button button--primary" type="submit" disabled={pending || isSubmitting}>{pending || isSubmitting ? 'Đang lưu…' : expense ? 'Lưu thay đổi' : 'Thêm chi phí'}</button>
       </div>
     </form>
   )

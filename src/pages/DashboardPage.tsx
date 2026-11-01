@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
-import { ArrowRight, Download, MapPin } from 'lucide-react'
+import { ArrowRight, Download, ExternalLink, MapPin } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { StateView } from '../components/StateView'
-import { formatCurrency, formatDate, safePercent } from '../lib/format'
+import { Modal } from '../components/Modal'
+import { formatCurrency, formatDate, isGoogleMapsUrl, safePercent } from '../lib/format'
 import { calculateExpenseSettlement } from '../lib/expenseSettlement'
 import { boardStatus, itemsOnDay, splitTotals, type BoardStatus } from '../lib/tripDay'
 import { downloadTripCalendarEvent, getTripClock, getTripReminder } from '../lib/tripReminder'
@@ -15,6 +16,7 @@ const statusLabels: Record<BoardStatus, string> = { done: 'Xong', now: 'Đang di
 export function DashboardPage() {
   const workspace = useWorkspace()
   const [now, setNow] = useState(() => new Date())
+  const [detailId, setDetailId] = useState<string | null>(null)
   useEffect(() => {
     const timer = window.setInterval(() => setNow(new Date()), 60_000)
     return () => window.clearInterval(timer)
@@ -30,6 +32,10 @@ export function DashboardPage() {
   const day = reminder.status === 'ongoing' ? clock.date : reminder.status === 'upcoming' ? trip.startDate : trip.endDate
   const dayItems = itemsOnDay(itinerary, day)
   const nowStamp = `${clock.date}T${clock.time}`
+  const detail = itinerary.find((item) => item.id === detailId)
+  const nextActivity = reminder.status === 'ongoing'
+    ? dayItems.find((item) => boardStatus(item, nowStamp) === 'now') ?? dayItems.find((item) => boardStatus(item, nowStamp) === 'next')
+    : reminder.status === 'upcoming' ? dayItems[0] : undefined
   const totals = splitTotals(expenses)
   const planned = totals.actual + totals.estimateOnly
   const settlement = calculateExpenseSettlement(expenses, people, workspace.data.settlementPayments ?? [])
@@ -49,6 +55,9 @@ export function DashboardPage() {
           </div>
           <p className={styles.boardDay} aria-live="polite"><time dateTime={day}>{formatDate(day)}</time><span>{dayLabel}</span></p>
         </header>
+        {nextActivity && <button className={styles.boardLink} type="button" onClick={() => setDetailId(nextActivity.id)}>
+          {reminder.status === 'ongoing' && boardStatus(nextActivity, nowStamp) === 'now' ? 'Đang diễn ra' : 'Tiếp theo'}: {nextActivity.title} <ArrowRight size={16} aria-hidden="true" />
+        </button>}
         {dayItems.length === 0
           ? <p className={styles.boardEmpty}>Chưa có hoạt động nào trong ngày này. <Link to="/itinerary">Thêm vào lịch trình</Link></p>
           : <ol className={styles.rows} aria-label={`Lịch ${formatDate(day)}`}>
@@ -58,7 +67,9 @@ export function DashboardPage() {
               return (
                 <li key={item.id} className={`${styles.row} ${status === 'done' ? styles.rowDone : ''} ${isChanged ? styles.rowChanged : ''}`}>
                   <time className={styles.time}>{item.visitDate === day ? item.startTime : '…'}</time>
-                  <div className={styles.stop}><strong>{item.title}</strong><span>{item.address}</span></div>
+                  <div className={styles.stop}><button className={styles.stopLink} type="button" onClick={() => setDetailId(item.id)} aria-label={`Xem chi tiết ${item.title}`}>{item.title}</button><span>{item.address}</span>
+                    {item.mapsUrl && isGoogleMapsUrl(item.mapsUrl) && <a className={styles.mapLink} href={item.mapsUrl} target="_blank" rel="noreferrer" aria-label={`Chỉ đường đến ${item.title}`}><ExternalLink size={16} aria-hidden="true" /> Chỉ đường</a>}
+                  </div>
                   <span className={styles.status}>
                     {isChanged && <span className="status-tag status-tag--changed">Đã đổi</span>}
                     <span className={`status-tag ${status === 'now' ? 'status-tag--now' : 'status-tag--muted'}`}>{statusLabels[status]}</span>
@@ -95,6 +106,22 @@ export function DashboardPage() {
           <p>{Math.round(safePercent(planned, trip.budgetVnd))}% ngân sách đã dự trù</p>
         </dl>
       </section>
+      <Modal open={Boolean(detail)} title={detail?.title ?? 'Chi tiết hoạt động'} onClose={() => setDetailId(null)}>
+        {detail && <>
+          <dl className={styles.details}>
+            <div><dt>Bắt đầu</dt><dd>{formatDate(detail.visitDate)} · {detail.startTime}</dd></div>
+            <div><dt>Kết thúc</dt><dd>{formatDate(detail.endDate ?? detail.visitDate)} · {detail.endTime}</dd></div>
+            <div><dt>Địa chỉ</dt><dd>{detail.address}</dd></div>
+            <div><dt>Chi phí dự kiến</dt><dd>{formatCurrency(detail.estimatedCostVnd)}</dd></div>
+            {detail.notes && <div><dt>Ghi chú</dt><dd>{detail.notes}</dd></div>}
+          </dl>
+          {(!detail.mapsUrl || !isGoogleMapsUrl(detail.mapsUrl)) && <p>Chưa có liên kết Google Maps hợp lệ. Bạn có thể xem địa chỉ ở trên.</p>}
+          <div className="form__actions">
+            <button className="button button--ghost" type="button" onClick={() => setDetailId(null)}>Đóng</button>
+            {detail.mapsUrl && isGoogleMapsUrl(detail.mapsUrl) && <a className="button button--primary" href={detail.mapsUrl} target="_blank" rel="noreferrer"><ExternalLink size={18} aria-hidden="true" /> Mở Google Maps</a>}
+          </div>
+        </>}
+      </Modal>
     </div>
   )
 }

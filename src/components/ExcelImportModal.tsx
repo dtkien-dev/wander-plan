@@ -79,7 +79,7 @@ export function ExcelImportModal({ open, trip, itinerary, expenses, people, pend
   }
 
   return (
-    <Modal open={open} title="Nhập dữ liệu từ Excel" onClose={close}>
+    <Modal dirty={Boolean(preview)} pending={pending || reading} open={open} title="Nhập dữ liệu từ Excel" onClose={close}>
       <div className={styles.intro}>
         <p>Dùng file mẫu để tạo mới, hoặc sửa file đã xuất để cập nhật. Giữ nguyên cột <strong>ID</strong> và <strong>Version</strong>; dòng trùng hoặc không đổi sẽ được bỏ qua.</p>
         <button className="button button--ghost" type="button" onClick={() => void downloadTemplate()}>
@@ -122,7 +122,7 @@ export function ExcelImportModal({ open, trip, itinerary, expenses, people, pend
         </>
       )}
       <div className={styles.actions}>
-        <button className="button button--ghost" type="button" disabled={pending} onClick={close}>Hủy</button>
+        <button className="button button--ghost" type="button" data-dismiss disabled={pending || reading} onClick={close}>Hủy</button>
         <button className="button button--primary" type="button" disabled={!preview || Boolean(problemCount) || !changeCount || reading || pending} onClick={() => void submit()}>
           <Upload size={18} /> {pending ? 'Đang áp dụng…' : changeCount ? `Áp dụng ${changeCount} thay đổi` : 'Nhập dữ liệu'}
         </button>

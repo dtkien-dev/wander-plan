@@ -64,3 +64,18 @@ it('confirms a received payment in an in-app dialog that names payer and amount'
   expect(record).toHaveBeenCalledWith(expect.objectContaining({ tripId: data.trip.id, expectedCount: data.settlementPaymentCount ?? 0 }))
   expect(confirm).not.toHaveBeenCalled()
 })
+
+it('keeps expense edits after failure and saves a retry without a discard prompt', async () => {
+  const save = vi.fn().mockRejectedValueOnce(new Error('Chưa thể lưu. Hãy thử lại.')).mockResolvedValueOnce(undefined)
+  mocks.mutations().expense.mutateAsync = save
+  render(<ExpensesPage />)
+  fireEvent.click(screen.getByRole('button', { name: `Sửa ${data.expenses[0].title}` }))
+  fireEvent.change(screen.getByLabelText('Khoản chi'), { target: { value: 'Chi phí đã sửa' } })
+  fireEvent.click(screen.getByRole('button', { name: 'Lưu thay đổi' }))
+  expect(await screen.findByRole('alert')).toHaveTextContent('Hãy thử lại')
+  expect(screen.getByLabelText('Khoản chi')).toHaveValue('Chi phí đã sửa')
+  fireEvent.click(screen.getByRole('button', { name: 'Lưu thay đổi' }))
+  await vi.waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
+  expect(save).toHaveBeenCalledTimes(2)
+  expect(save.mock.calls[1][0].draft.title).toBe('Chi phí đã sửa')
+})
