@@ -156,3 +156,6 @@ P28 A050/E046: released 0.13.0, production migration verified, PR #16/main CI/Pa
 29/10 — P28 documentation closeout complete: docs PR #17 merged acc310a, final main CI/Pages/public 0.13.0 PASS. Final receipt shared on docs/release-0.13.0; no next feature selected. Dependency maintenance remains separate.
 
 29/10 — A052: customer authorizes P29 (7-day itinerary trash), P30 (atomic trip/activity/optional expense-date shift with preview), P31 (owner template cloning without finances/members). Implementation/local UAT active; production go-live pending separate approval.
+
+## P36 checkpoint —31/10/2026
+Customer-authorized UI refinement candidate0.17.1: mobile/tablet itinerary readability, no new feature or business change. A069/E065 QA/ITS locally passed; release checklist prepared; awaiting fresh go-live approval. No publication/deployment. Deferred backlog decisions unchanged.

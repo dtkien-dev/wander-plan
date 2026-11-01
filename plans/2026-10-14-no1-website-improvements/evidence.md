@@ -328,3 +328,26 @@ QA: clean npm ci, npm audit 0 vulnerabilities, lint 0, 184 app tests/32 files, b
 ITS (same agent): advisory affects only the vite dev server, not the static Pages build; patch release from the same registry package, integrity in lock; no new dependency or override. No finding.
 ITO: customer approved go-live ("golive", 30/10). PR29 9b8f231, PR CI PASS, main CI 40983007374/Pages 40983007605 PASS; Dependabot PR27 closed as superseded, alert 7 state fixed; public HTTP 200/meta 0.17.0, Login renders, console 0. No production data change.
 workflow-action:A067 status:completed
+
+## E064 / A068 — mobile readability refinement (2026-10-31)
+workflow-action:A068 status:completed
+Authorization: customer requested UI review and optimization; no publication or production. Owner: current agent (review not independent). Base origin/main daead9b; branch fix/ui-polish, isolated worktree. Primary checkout dirty records preserved; 37 commits behind remote, no stash/reset/pull. Read all manifest files and P35, PRODUCT.md/DESIGN.md. Scope: itinerary mobile CSS, shared mobile form CSS, P36 and tracker records. No logic/data/API/Excel/demo/dependency changes. Acceptance: mobile title and amount have separate lines; form controls use 16px; desktop and behavior preserved. Browser demo baseline: dashboard desktop and expenses/itinerary/group/form at 375px, dark scheme.
+
+
+Final scope: itinerary CSS only. Shared fields already use 16px; duplicate override removed. Stack title/amount and align responsive layout to shell breakpoint900.
+
+QA: PASS 184 app tests, lint, demo build. Browser demo dark theme 320/375/768/1280px, selection toggle, no horizontal document overflow at 320/768; console errors 0. Final breakpoint change verified visually; no JS changes. Detector: four advisories on unchanged pre-existing font/radius declarations, outside this CSS diff. Same-agent scoped ITS: CSS only, no auth/data/dependency changes, no security blocker. NOT RUN: light-theme/real-device/full Supabase/hosted/SQL regression (no database change). npm ci reported 11 moderate advisories, dependency remediation deferred. Install used system Node20.17 with engine warning; verification used bundled Node24.22.1. No push/merge/deploy or production writes. Next: review local candidate, optional broader UAT, obtain fresh go-live approval before publication to main.
+
+## E065 / A069 — P36 pre-release QA and ITS (2026-10-31)
+workflow-action:A069 status:completed
+Authorization: customer requested completion of pre-go-live workflow, no new production approval. Scope: QA, independent scoped ITS, candidate metadata, release checklist and same tracker. Base remote daead9b unchanged after fetch; app candidate22d3457. No remote writes, push, merge or production changes. Owner current agent, independent review agents assigned UI security and release/privacy lenses.
+
+QA PASS: app184/32 files; lint; demo build after final CSS and0.17.1 metadata; unchanged30 migrations/406 SQL assertions/21 suites embedded. npm audit --audit-level=high: 0high/critical,11moderate in ESLint/minimatch dev tooling. npm audit --omit=dev --audit-level=moderate:0 findings. Verification runtime Node24.22.1; hosted CI Node20 not yet run.
+Browser demo: prior dark320/375/768/1280; light tokens375/320/768/900/901/1280 with long title and123456789 VND fixture, no horizontal document overflow at320/768/900/901/1280, nowrap amounts. Edit/save/reload fixture PASS; selection all3 PASS; confirmation opened and Escape canceled with3 retained and focus returned. No deletion performed. Console errors0. Light QA temporarily disabled dark media block locally; restored byte-identical foundation.css before final build. Native theme-switch behavior is NOT verified by forced-token QA.
+ITS: independent UI boundary/control review and release/privacy/supply-chain review found no reachable vulnerabilities in scoped CSS/doc diff; no auth/SQL/API/dependency/config changes. Same-agent coordinator verified final scope and no migration. Dependency warnings are dev-only and unchanged; fixes deferred to separate maintenance batch.
+NOT RUN: real device, screen reader, hosted auth/Realtime/concurrency, full Supabase service UAT, production smoke. CSS-only scope does not modify those contracts; embedded tests are not claimed as hosted coverage.
+Approval: pending current-batch go-live. No push/PR/merge/deploy or production writes. Candidate0.17.1 on fix/ui-polish; resolve final head by Git log. Next: customer review, then approved ITO path with PR CI and Pages/live checks.
+
+## E066/A070 — approved 0.17.1 release (31/10/2026)
+workflow-action:A070 status:open
+Customer approved execution of presented0.17.1 candidate906d695. Clarifying dependency question reviewed before release:11moderate records propagate from minimatch advisory GHSA-g3hv-75wg-m249 in ESLint dev tool chain; production dependency audit0; defer breaking tool migration, no audit-force. Scope approved UI+metadata+records only. Publish fix/ui-polish, PR to main, merge exact checked head after CI PASS, Pages/live read-only verification; no DB changes. Remote fetched unchanged daead9b; primary dirty checkout preserved.
