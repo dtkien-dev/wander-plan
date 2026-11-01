@@ -87,8 +87,9 @@ export function ExpenseForm({ expense, tripStart, tripEnd, pending, people, curr
   const moneyLocked = formerParticipantIds.length > 0 || formerPayerId !== null
   const nameOf = (userId: string) => activePeople.find((person) => person.userId === userId)?.displayName ?? formerName(userId)
   const savedMethod = expense?.splitMethod ?? 'equal'
+  const schema = createSchema(tripStart, tripEnd, activeUserIds, formerParticipantIds, formerPayerId)
   const { register, handleSubmit, watch, formState: { errors, isDirty, isSubmitting } } = useForm<ExpenseFormValues>({
-    resolver: zodResolver(createSchema(tripStart, tripEnd, activeUserIds, formerParticipantIds, formerPayerId)),
+    resolver: zodResolver(schema),
     defaultValues: {
       ...(expense
         ? { ...expense, participantUserIds: expense.participantUserIds.filter((userId) => activeUserIds.includes(userId)), roundTrip: expense.category === 'transport' && Boolean(expense.endDate) }
@@ -108,13 +109,17 @@ export function ExpenseForm({ expense, tripStart, tripEnd, pending, people, curr
   const splitTarget = splitTargetAmount({ actualAmountVnd: actual, estimatedAmountVnd: Number.isFinite(estimated) ? estimated : 0 })
   const amountTotal = selectedPeople.reduce((sum, person) => sum + (Number.isFinite(shareAmounts?.[person.userId]) ? shareAmounts[person.userId] : 0), 0)
   const shareDraft = { participantUserIds, paidByUserId, splitMethod, splitValues: pickValues(shareUnits, participantUserIds ?? []), actualAmountVnd: actual, estimatedAmountVnd: estimated }
-  const sharePreview = splitMethod === 'shares' && validateSplit(shareDraft) === null
+  const sharePreview = splitMethod === 'shares' && Number.isSafeInteger(splitTarget) && splitTarget >= 0 && validateSplit(shareDraft) === null
     ? new Map(splitExpenseAmount(splitTarget, shareDraft).map((share) => [share.userId, share.amountVnd]))
     : null
   const isStay = category === 'stay'
   const showEndDate = isStay || (category === 'transport' && roundTrip)
   const nights = isStay && endDate && endDate > expenseDate ? countNights(expenseDate, endDate) : 0
   const stayAmount = actual ?? estimated
+  const summaryResult = schema.safeParse(watch())
+  const summaryDraft = !moneyLocked && summaryResult.success ? toDraft(summaryResult.data, formerParticipantIds) : null
+  const summaryShares = summaryDraft ? splitExpenseAmount(splitTargetAmount(summaryDraft), summaryDraft) : []
+  const uniformEqualSplit = splitMethod === 'equal' && summaryShares.length > 0 && summaryShares.every((share) => share.amountVnd === summaryShares[0].amountVnd)
   return (
     <form className="form" data-unsaved={isDirty} data-pending={pending || isSubmitting} inert={pending || isSubmitting} onSubmit={handleSubmit((values) => onSubmit(toDraft(values, formerParticipantIds)))}>
       <label className="field field--wide">Khoản chi<input aria-required="true" {...register('title')} aria-invalid={Boolean(errors.title)} />{errors.title && <span>{errors.title.message}</span>}</label>
@@ -154,6 +159,16 @@ export function ExpenseForm({ expense, tripStart, tripEnd, pending, people, curr
         </>
       )}
       <label className="field field--wide"><span className="field-label">Ghi chú <small className="field-optional">(không bắt buộc)</small></span><textarea rows={3} maxLength={500} {...register('notes')} aria-invalid={Boolean(errors.notes)} />{errors.notes && <span>{errors.notes.message}</span>}</label>
+      {!moneyLocked && <section className="expense-summary field--wide" aria-label="Tóm tắt khoản chi">
+        <h3>Tóm tắt khoản chi</h3>
+        {summaryDraft && summaryShares.length > 0 ? <>
+          <p>{summaryDraft.actualAmountVnd === null ? 'Dự kiến' : 'Thực tế'}: {summaryDraft.paidByUserId === currentUserId ? 'Bạn' : nameOf(summaryDraft.paidByUserId)} thanh toán <data value={splitTargetAmount(summaryDraft)}>{formatCurrency(splitTargetAmount(summaryDraft))}</data> cho {summaryShares.length} người.</p>
+          {uniformEqualSplit
+            ? <p>Chia đều, mỗi người <data value={summaryShares[0].amountVnd}>{formatCurrency(summaryShares[0].amountVnd)}</data>.</p>
+            : <><p>{splitLabels[splitMethod]}{splitMethod === 'equal' ? ' (có phần lẻ)' : ''}:</p><ul>{summaryShares.map((share) => <li key={share.userId}><span>{share.userId === currentUserId ? 'Bạn' : nameOf(share.userId)}</span><data value={share.amountVnd}>{formatCurrency(share.amountVnd)}</data></li>)}</ul></>}
+          <p className="field-hint">{summaryDraft.actualAmountVnd === null ? 'Khoản dự kiến này chưa tính vào quyết toán.' : 'Phần chia thực tế này được dùng để tính số dư sau khi lưu.'}</p>
+        </> : <p className="field-hint">Hoàn tất các ô bắt buộc và phần chia hợp lệ để xem tóm tắt.</p>}
+      </section>}
       <div className="form__actions field--wide">
         <button className="button button--ghost" type="button" data-dismiss disabled={pending || isSubmitting} onClick={onCancel}>Hủy</button>
         <button className="button button--primary" type="submit" disabled={pending || isSubmitting}>{pending || isSubmitting ? 'Đang lưu…' : expense ? 'Lưu thay đổi' : 'Thêm chi phí'}</button>

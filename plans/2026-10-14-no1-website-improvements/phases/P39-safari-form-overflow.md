@@ -23,3 +23,6 @@ Status: local QA/ITS complete, candidate0.18.1; awaiting fresh go-live approval 
 
 ## Released01/11/2026
 PR36/0ca2859, required CI41322151861/Pages41322152074/public/authenticated0.18.1 and390px open/cancel smoke PASS. No data writes/migration. Actual iPhone13 confirmation remains pending and was requested; A080 permits continuing local idea3 after technical rollout while retaining this explicit limitation. Docs closeout on docs/release-0.18.1.
+
+## Customer acceptance,01/11/2026
+Customer reports the original issue is no longer seen on iPhone13. P39 reported-issue acceptance PASS; broader native-picker/software-keyboard scenarios not independently observed. Receipt published on docs/release-0.18.1.

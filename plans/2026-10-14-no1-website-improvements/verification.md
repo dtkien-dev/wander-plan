@@ -343,3 +343,10 @@ NOT RUN physical iPhone13/Safari/iOS native date/time/OS keyboard/touch/screen r
 ## E076/A080 —0.18.1 rollout receipt,01/11/2026
 PR36 headbb1027a CI41321888787 PASS, checked merge0ca2859. Main CI41322151861/Pages41322152074 verify/build/deploy PASS. Public HTTP200/meta0.18.1; existing authenticated footer0.18.1,390px itinerary/expense open+cancel, no horizontal overflow, original native types/select appearance, clean scroll recovery and new warnings/errors0. No migration/config/business-data writes or login email; viewport restored. Windows Chromium smoke is not physical iOS; customer iPhone13 confirmation requested asynchronously and remains pending. Customer explicitly asks to proceed to next work after go-live; idea3 may proceed locally while retaining this limitation, superseding the earlier wait-for-device ordering. No claim of physical Safari acceptance.
 Release records on docs/release-0.18.1 under the same approval; final docs PR/CI/Pages receipts follow. Original source unchanged. workflow-action:A080 status:completed
+
+## E077/A081 — P40 idea3 candidate0.19.0
+PASS209app/35files, lint/demo build,406embedded SQL/21suites, audit-high0high/critical (11existing moderate dev records), version-only lock comparison. Old-source focused control9fail/14pass, current source PASS.188compiled WebKit/Chromium light/dark viewport cases include valid financial summary and long-name stress. Actual0, equal/leftover/shares/exact splits, invalidation and frozen money covered in behavioral tests. Demo600000 save/reload and refused700000 mismatch preserve original stored amount; warnings/errors0. Same-agent scoped ITS clear.
+NOT RUN physical iPhone13/Safari/native picker/keyboard/touch/screen reader, full hosted/concurrency/production feature writes or new-head hosted CI.0.18.1 physical feedback remains pending; new-feature go-live approval separate.
+
+## P39 customer device acceptance,01/11/2026
+CUSTOMER-REPORTED PASS: original horizontal-panning/unequal input issue no longer observed on iPhone13 after0.18.1 request. iOS unknown; no claim of independently tested keyboard/picker/screen-reader cases or new P40 physical verification.

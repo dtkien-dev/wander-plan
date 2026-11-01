@@ -21,3 +21,6 @@ Customer go-live approval executed via PR34/df9bd12; CI/Pages/public/authenticat
 
 ## A079 — Safari repair before ideas3–5
 Customer authorizes fixing mobile form horizontal overflow; device iPhone13. Reproduced select overflow and prepared0.18.1 locally. No current-batch production approval, iOS version unknown; physical native controls remain unverified. Retain same tracker and deferred ideas.
+
+## A081 — Idea3 local candidate
+Customer asks to continue next work after0.18.1 go-live. P40 completes expense clarity locally as0.19.0, preserving existing split and payment rules. No approval to publish this new feature; physical iPhone13 feedback for0.18.1 remains pending. See P40/release checklist.

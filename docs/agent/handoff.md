@@ -1,3 +1,9 @@
+# Current candidate — Idea3 expense clarity,01/11/2026
+
+P40/A081/E077 local0.19.0 on feat/expense-clarity from mainca876df plus final0.18.1 receipt49723b4.209app/406SQL/188compiled-browser/lint/build/audit-high PASS; same-agent ITS clear. Read-only summary uses existing schema/split helpers; settlement copy/accessible payer+amount names; no money/API/SQL/dependency change. New-feature publication requires fresh approval. Customer-reported iPhone13 width/panning issue resolved on0.18.1; P40 physical-device checks pending; Windows WebKit native date/time fallback and other limits retained. Ideas4–5 subsequent. Resolve candidate SHA viaGit log, read P40/docs/releases/2026-11-01-0.19.0.md. Primary dirty checkout preserved.
+
+---
+
 # Current local candidate —0.18.1,01/11/2026
 
 P39/A079/E075 on fix/safari-form-overflow from main40c89ce plus final0.18.0 receipt e4ef7eb. Reproduced WebKit select overflow643px and repaired shared CSS;188 compiled browser cases/201 app tests/406 unchanged embedded SQL/lint/build/audit-high PASS. Same-agent ITS clear; no migration/dependency change. Windows WebKit dates/times fall back to text; actual iPhone13/Safari/native picker/OS keyboard/touch remain unverified. Fresh go-live approval pending; ideas3–5 deferred. No push/PR/deploy or production access/writes. Read P39 and docs/releases/2026-11-01-0.18.1.md, resolve local head through Git log. Primary dirty checkout preserved.

@@ -137,3 +137,12 @@ Customer requests fixing mobile Safari form width/horizontal overflow before rem
 
 ## A080 — Go-live0.18.1 and next work,01/11/2026
 Customer approves the presented0.18.1 candidate79476d0, branch publication/PR/exact-head CI/main merge/Pages/read-only smoke and release records, then proceeding to the next work (idea3: expense clarity). Physical iPhone13 confirmation remains pending; do not claim it was performed. New feature go-live requires its own concrete approval.
+
+## A081 — Next idea3 expense clarity
+Following verified0.18.1 technical go-live and A080 instruction to continue, implement idea3 locally on feat/expense-clarity. Use existing split math/schema; actual0 wins, estimate never counts as actual, former money and recipient-only confirmations unchanged. Physical iPhone13 acceptance remains pending; ideas4–5 later. New go-live gate separate.
+
+## A080 follow-up — customer iPhone13 acceptance,01/11/2026
+Customer replies that the horizontal movement/unequal input problem is no longer seen on the stated iPhone13 after the0.18.1 check request. Original P39 issue customer-reported PASS; iOS version unknown. Do not infer physical acceptance of the new0.19.0 feature or unobserved native-picker/keyboard scenarios.
+
+## A082 — Go-live0.19.0,01/11/2026
+Customer approves go-live of the concrete0.19.0 candidate2c0a78c: purpose-branch push/PR, exact-head shared CI, main merge/automatic Pages, read-only live smoke and release-record closeout. No migration, permission/config changes or production business-data test writes. Ideas4–5 are not included.

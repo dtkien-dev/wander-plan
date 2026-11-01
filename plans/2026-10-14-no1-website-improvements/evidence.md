@@ -453,3 +453,22 @@ Fetched main40c89ce unchanged; candidate79476d0 clean. Verified GitHub dtkien-de
 ## E076/A080 —0.18.1 rollout receipt,01/11/2026
 PR36 headbb1027a CI41321888787 PASS, checked merge0ca2859. Main CI41322151861/Pages41322152074 verify/build/deploy PASS. Public HTTP200/meta0.18.1; existing authenticated footer0.18.1,390px itinerary/expense open+cancel, no horizontal overflow, original native types/select appearance, clean scroll recovery and new warnings/errors0. No migration/config/business-data writes or login email; viewport restored. Windows Chromium smoke is not physical iOS; customer iPhone13 confirmation requested asynchronously and remains pending. Customer explicitly asks to proceed to next work after go-live; idea3 may proceed locally while retaining this limitation, superseding the earlier wait-for-device ordering. No claim of physical Safari acceptance.
 Release records on docs/release-0.18.1 under the same approval; final docs PR/CI/Pages receipts follow. Original source unchanged. workflow-action:A080 status:completed
+
+## E077/A081 — Expense clarity implementation
+workflow-action:A081 status:open
+Branch feat/expense-clarity based on app0ca2859 plus release record9764f76; docs PR37 underway, reconcile before completion. Scope ExpenseForm, SettlementPanel, shared summary CSS, targeted tests, metadata and tracker/release docs. PO/BA criteria P40 recorded. Read all split/form/settlement callers/tests; no SQL/money/access/persistence contract change, no production writes or publication. Primary dirty checkout preserved.
+
+## E077/A081 — P40 local verification,01/11/2026
+PASS209 application tests/35 files, lint/TypeScript/demo build,406 unchanged embedded SQL assertions/21 suites, audit-high (11existing moderate dev records,0high/critical), parsed lock equality version-only0.19.0. Existing mock request-id warning retained. Focused old-source ExpenseForm/SettlementPanel control9expected failures/14passes; restored current source and suite PASS.
+PASS188 compiled Windows WebKit/Chromium light/dark layout/interaction cases across320/375/390/844/768/1280/reduced height. Extended real expense form to valid900000 exact split500000/400000, checked read-only amounts and long synthetic display text, no modal/document overflow,44px visible actions, focus/select/cancel preserved. New JS page errors0. Shared browser script stays loopback/demo-only and adds no app dependency.
+PASS in-app Chromium390px demo: actual0 does not fall back to900000 estimate; actual600000/2 summary300000 each saved/reloaded/read back. Exact split600000 versus actual700000 removes valid summary and fails validation; discard/reopen confirms stored600000 unchanged. Screenshot synthetic demo only, kept outside Git; viewport restored, warnings/errors0. Synthetic demo expense retained in that browser for reproducibility. No production writes.
+Reuse review: schema validation and existing toDraft/split helpers only; no duplicated money formula or new state. Former-money guard, recipient-only confirm/undo, save/confirmation/pending/unsaved behavior and API contracts preserved. Same-agent scoped ITS report clear, not independent. Detector7existing advisories,0blocking.
+Reconciled docs PR37 mainca876df and published final0.18.1 receipt49723b4 before completion; source0.18.1 preserved. Physical iPhone13 confirmation still pending; Windows WebKit native date/time text fallback is not iOS coverage. NOT RUN physical Safari/native keyboard/touch/screen reader/full hosted/concurrent writes/new-head hosted CI. No P40 push/PR/deploy/go-live approval; ideas4–5 subsequent. Candidate0.19.0 ready for separate approval.
+workflow-action:A081 status:completed
+
+## E076/A080 follow-up — physical-device customer feedback
+Customer reports the original Safari width/panning problem no longer occurs on iPhone13. Customer-reported PASS, not independently observed. Published acceptance receipt on docs/release-0.18.1 and reconciled it into this candidate; no app source delta, no need to repeat unchanged tests. P40 physical native-control/keyboard coverage remains unperformed.
+
+## E078/A082 — Approved0.19.0 rollout
+workflow-action:A082 status:open
+Fetched mainca876df unchanged; source candidate2c0a78c clean, target GitHub dtkien-dev/wander-plan/main verified. Publish feat/expense-clarity and approved source, exact-head CI/merge, main/Pages/public/authenticated read-only smoke and records. Existing primary dirty checkout preserved. No database migration/config/data writes, new feature scope or paid service.

@@ -129,6 +129,13 @@ time, data { font-variant-numeric: tabular-nums; }
 .field-preview { color: var(--color-text-muted); font-size: 13px; font-weight: 500; font-variant-numeric: tabular-nums; }
 .field:not(.field--check) > span:not(.money-input):not(.field-label) { color: var(--color-danger); font-size: 13px; font-weight: 600; }
 .money-input { position: relative; display: block; min-width: 0; }
+.expense-summary { display: grid; min-width: 0; gap: 8px; padding-top: 16px; border-top: 1px solid var(--color-border); }
+.expense-summary h3 { margin: 0; font-size: 18px; }
+.expense-summary p { margin: 0; overflow-wrap: anywhere; }
+.expense-summary data { white-space: nowrap; font-weight: 600; }
+.expense-summary ul { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.expense-summary li { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+.expense-summary li span { min-width: 0; overflow-wrap: anywhere; }
 .money-input input { padding-right: 34px; text-align: right; font-variant-numeric: tabular-nums; }
 .money-input::after { content: "₫"; position: absolute; top: 50%; right: 12px; color: var(--color-text-muted); font-weight: 600; transform: translateY(-50%); pointer-events: none; }
 .participant-field { min-width: 0; margin: 0; padding: 0; border: 0; }

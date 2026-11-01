@@ -3,28 +3,30 @@
 Tracker ID: wp-20261014-01
 Created: 2026-10-14 Asia/Saigon
 Last updated: 2026-11-01 Asia/Saigon
-Status: P39 local candidate0.18.1 verified; awaiting go-live approval and physical iPhone13 confirmation. Production0.18.0.
+Status:0.19.0 customer-approved rollout in progress; production0.18.1 until verified deployment.
 Plan mode: Exited
 Execution readiness: Ready
 Execute mode: Active
 Resume instruction: Resolve plans/2026-10-14-no1-website-improvements from the current clone root (tracker wp-20261014-01). Read docs/agent/README.md and workflow.md, then this index and every manifest file. Keep this exact repository-relative bundle as the execution source of truth; update it until explicit exit. If the execute skill is installed, it may be used with this resolved path.
 Workspace: Current clone root; never reuse another device's absolute path.
-Repository: GitHub dtkien-dev/wander-plan; main40c89ce (released0.18.0); candidate fix/safari-form-overflow includes reconciled e4ef7eb receipt.
-Active action: A080/E076 — approved0.18.1 rollout, then separately scoped idea3.
+Repository: GitHub dtkien-dev/wander-plan; mainca876df (released0.18.1); feat/expense-clarity includes shared release/device receipts49723b4 and7dc5c47.
+Active action: A082/E078 — approved0.19.0 rollout, primary agent.
 
 <!-- workflow-active-snapshot:start version:2 -->
 ## Active Snapshot
 Profile: Durable
 Goal: Deliver verified scoped changes through PO/BA/IT/QA/ITS/go-live/ITO/PO.
-Current state: P39 Safari form CSS candidate0.18.1 on fix/safari-form-overflow from main40c89ce plus e4ef7eb receipt. Confirmed WebKit select overflow fixed;188 compiled browser cases/201 app tests/406 embedded SQL/lint/build/audit-high PASS. Same-agent ITS clear. No push/PR/deploy.
-Accepted decisions: repair Safari first; ideas3–5 remain deferred. Shared sizing/vertical scroll/native controls/zoom/unsaved guards preserved; no dependency/schema/data/access/money delta.
-Open items: fresh0.18.1 go-live approval and actual iPhone13 native date/time/keyboard/panning acceptance. Windows WebKit date/time becomes text, so it does not certify iOS native pickers. iOS version unknown.
-Next safe action: present docs/releases/2026-11-01-0.18.1.md; after approval fetch/reconcile, exact-head PR CI/main/Pages/read-only smoke and customer iPhone13 confirmation. Do not start3–5 before repair acceptance.
+Current state:0.18.1 app PR36/0ca2859 and docs PR37/ca876df complete, final CI41322739750/Pages41322739756/public0.18.1 PASS; receipt49723b4. P40 idea3 local candidate0.19.0, feat/expense-clarity;209app/406SQL/188browser/lint/build/audit-high PASS, same-agent ITS clear. No feature publication.
+Accepted decisions: customer approved0.18.1 and next local idea3. Existing schema/money/former-member/recipient-only rules preserved. No migration/dependency change. Ideas4–5 subsequent.
+Open items: separate0.19.0 go-live approval, P40 physical-device feedback and documented native-picker/keyboard/screen-reader/hosted-write limits. Windows WebKit falls back to text for dates/times.
+Next safe action: present docs/releases/2026-11-01-0.19.0.md; after new approval fetch/reconcile, exact-head PR CI, main/Pages/read-only smoke/records. Do not infer new-feature publication from A080.
 <!-- workflow-active-snapshot:end -->
 
 Shared workflow: [portable workflow](../../docs/agent/workflow.md). The references/*.md above belong to the optional installed execute skill; they are not missing repository files and are not required on a new device. Shared workflow contains the portable execution and evidence rules.
 
 ## Resume Checkpoint
+- E077/A081 (01/11): P40 local0.19.0 complete, feat/expense-clarity;209app/406SQL/188browser/lint/build/audit-high PASS, same-agent ITS clear; separate go-live approval pending. Baseline mainca876df+receipt49723b4; resolve candidate SHA viaGit log. Customer confirms original0.18.1 issue resolved on iPhone13; P40 device checks pending.
+
 - E075/A079 (01/11): local0.18.1 Safari form repair, fix/safari-form-overflow;188browser/201app/406SQL/lint/build/audit-high PASS, scoped same-agent ITS clear. Physical iPhone13/native picker not verified; fresh go-live approval pending. Source shared CSS+metadata only, optional manual browser script. Resolve head through Git log.
 
 - Final01/11: app PR34/docs PR35 merged; final main40c89ce CI41318165271/Pages41318165277/public/authenticated0.18.0 PASS. Receipt on docs/release-0.18.0, exact head viaGit log; no active action/new feature.
@@ -119,6 +121,8 @@ phases/P38-mobile-trip-experience.md
 security-review-p38-2026-11-01.md
 phases/P39-safari-form-overflow.md
 security-review-p39-2026-11-01.md
+phases/P40-expense-clarity.md
+security-review-p40-2026-11-01.md
 <!-- workflow-manifest:end -->
 
 Latest checkpoint 29/10: A055/E051 complete; independent review High fixed by forward provenance migration and verified in 353 embedded/full-local SQL, 168 app tests, lint/build. Prior E050 browser/mobile/Realtime/concurrency UAT passed. Candidate local on feat/trip-reschedule-templates-trash; resolve final commit via Git log. No push or production changes. Await fresh go-live approval.
