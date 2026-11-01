@@ -398,3 +398,13 @@ E071 P36: PR31 unchanged head b48f0a7 merged dc7e48e after CI41220417353 PASS. M
 P36 release receipt: PR31 dc7e48e, main CI41278137602/Pages41278137603 PASS; public HTTP200/meta0.17.1 and existing authenticated browser footer/itinerary route verified. 375px live itinerary has no horizontal overflow. No data saved. Separate automatic Dependabot Updates run41278146281 failed; unrelated to passing shared application/Pages verification and no dependency change in this rollout.
 workflow-action:A070 status:completed
 P37 A075/E071 continues: main reconciliation3f5b743 preserves identical src tree; publish0.17.2 PR only after P36 receipt above.
+
+P37 release progress: PR32 head58d8bcd passed CI41278325968 and merged ebfe72d. Main CI41278446256/Pages41278446221 running. No migration/data/config writes. Release closeout prepared separately on docs/release-0.17.2 from deployed candidate main; do not mark deployment verified until final receipts.
+
+
+E071 final release: P37 PR32 merge ebfe72d (checked head58d8bcd/CI41278325968 PASS); main CI41278446256/Pages41278446221 verify/build/deploy PASS. Public HTTP200/meta0.17.2 and existing authenticated footer0.17.2 confirmed. Live itinerary375 and expense375/768 open/cancel smoke PASS, no horizontal overflow; settled375 actions bottom666 inside667px viewport, tablet two-column form. No new browser console errors. No production business-data writes, DB/config changes or login emails. Viewport reset. Safari/iOS hardware and hosted write/concurrency remain untested; Chromium viewport checks are not Safari coverage.
+workflow-action:A075 status:completed
+
+## E072 / A076 — approved release closeout, 01/11/2026
+workflow-action:A076 status:open
+Publish docs-only release/tracker/roadmap/handoff outcomes under the approved sequential rollout. Branch docs/release-0.17.2 from main ebfe72d. Require exact docs PR CI and final main/Pages/public checks. No source/schema/dependency/config/data changes; final SHA resolved through Git log.

@@ -1,5 +1,9 @@
 # Điểm bàn giao
 
+## Latest released checkpoint —01/11/2026
+0.17.2 app rollout complete: P36 PR31 dc7e48e (CI41278137602/Pages41278137603 PASS), then P37 PR32 ebfe72d (head58d8bcd/PR CI41278325968, main CI41278446256/Pages41278446221 PASS). Public HTTP200/meta and authenticated footer0.17.2; read-only mobile/tablet itinerary/expense dialog smoke PASS, no new console errors. No DB/config/data writes or login email. Same-agent ITS; physical Safari/iOS/touch/software-keyboard limits remain. A075/E071 complete; docs-only closeout A076/E072 on docs/release-0.17.2, resolve final SHA via Git log and verify CI/Pages before claiming final closeout. No new feature queued; primary checkout changes preserved.
+
+
 vite 6.4.5 patch 30/10/2026 (A067/E063): PR29 9b8f231, PR CI PASS, main CI 40983007374/Pages 40983007605 PASS; Dependabot alert 7 fixed, PR27 closed as superseded; app still 0.17.0.
 
 Released 0.17.0 checkpoint 30/10/2026: P35/A066/E062 Bảng giờ tàu redesign, PR26 7393752 (head 180dec5), PR CI PASS, main CI 40981612990/Pages 40981612923 PASS; no migration; public meta 0.17.0, signed-out console 0. Authenticated smoke not run. DESIGN.md is the visual source of truth. No feature queued. Docs closeout on docs/release-0.17.0.
