@@ -3,28 +3,30 @@
 Tracker ID: wp-20261014-01
 Created: 2026-10-14 Asia/Saigon
 Last updated: 2026-11-01 Asia/Saigon
-Status: P38 candidate0.18.0 approved for go-live; ITO in progress.
+Status: Released0.18.0; app rollout verified, docs-only closeout on docs/release-0.18.0.
 Plan mode: Exited
 Execution readiness: Ready
 Execute mode: Active
 Resume instruction: Resolve plans/2026-10-14-no1-website-improvements from the current clone root (tracker wp-20261014-01). Read docs/agent/README.md and workflow.md, then this index and every manifest file. Keep this exact repository-relative bundle as the execution source of truth; update it until explicit exit. If the execute skill is installed, it may be used with this resolved path.
 Workspace: Current clone root; never reuse another device's absolute path.
-Repository: GitHub dtkien-dev/wander-plan; fetched main5eb5674 (released0.17.2); local candidate feat/mobile-trip-experience.
-Active action: A078/E074 — approved0.18.0 rollout, primary agent.
+Repository: GitHub dtkien-dev/wander-plan; main df9bd12 (PR34,released0.18.0); docs closeout docs/release-0.18.0.
+Active action: none — A078/E074 app rollout verified; docs-only publication under the same approval.
 
 <!-- workflow-active-snapshot:start version:2 -->
 ## Active Snapshot
 Profile: Durable
 Goal: Deliver verified scoped changes through PO/BA/IT/QA/ITS/go-live/ITO/PO.
-Current state: P38 mobile editor protection and Today details/Maps complete locally on feat/mobile-trip-experience from5eb5674. Candidate0.18.0;201app tests/406embedded SQL/lint/build/audit-high and Chromium demo QA PASS. Same-agent scoped ITS clear. No push/PR/deployment.
-Accepted decisions: A077 authorizes recommended priorities1+2 and local verification. Preserve board-blue identity, business/access/money contracts; no dependencies/migrations. Primary dirty checkout retained.
-Open items: fresh go-live approval; physical-device/Safari/native keyboard/screen reader/live light/full hosted/native unload coverage limits in release note. Existing deferred roadmap items unchanged.
-Next safe action: present candidate and release/rollback checklist for approval; then fetch/reconcile, publish purpose branch/PR, require exact-head CI, merge approved head and verify main/Pages/live smoke. No production changes before approval.
+Current state: P38 PR34 df9bd12 released0.18.0 after A078 approval. PR CI41317406891, main CI41317557088/Pages41317557092 and public/authenticated read-only375px smoke PASS. Docs-only closeout on docs/release-0.18.0.
+Accepted decisions: approved source and business/access/money contracts preserved. No migration/dependency/config change. Primary dirty checkout untouched. Same-agent ITS, no independent review claim.
+Open items: final docs PR/CI/Pages/public receipt; physical-device/Safari/native keyboard/screen-reader/live light/full hosted-write limits retained. Current Today preview day empty, so production details opening NOT RUN; compiled-demo details passed.
+Next safe action: publish docs-only records under A078; require exact-head shared CI and verify final main/Pages/public before closing. No new feature, DB scope or real-data test writes.
 <!-- workflow-active-snapshot:end -->
 
 Shared workflow: [portable workflow](../../docs/agent/workflow.md). The references/*.md above belong to the optional installed execute skill; they are not missing repository files and are not required on a new device. Shared workflow contains the portable execution and evidence rules.
 
 ## Resume Checkpoint
+- E074/A078 (01/11):0.18.0 app PR34 df9bd12, checked3da897c/PR CI41317406891. Main CI41317557088/Pages41317557092/public/authenticated375px open-cancel smoke PASS; no writes/migration. Docs-only closeout from df9bd12 on docs/release-0.18.0; final SHA/checks viaGit log.
+
 - E073/A077 (01/11): P38 local candidate0.18.0 complete on feat/mobile-trip-experience, base5eb5674.201app/406SQL/lint/demo build/audit-high PASS; compiled demo QA and same-agent ITS clear. Pending fresh go-live approval; no publication or production change. Read P38 and docs/releases/2026-11-01-0.18.0.md; resolve candidate SHA via Git log.
 
 - E071/A075 (01/11): sequential0.17.1 then0.17.2 released. PR31 dc7e48e main CI41278137602/Pages41278137603; PR32 ebfe72d checked58d8bcd CI41278325968 main CI41278446256/Pages41278446221 PASS. Public/authenticated0.17.2, mobile/tablet open+cancel smoke, new console errors0. Docs closeout A076/E072 follows; no data writes.

@@ -1,6 +1,6 @@
 # P38 — Protect editing and act from Today
 
-Status: in_progress · 01/11/2026 · A077/E073
+Status: released0.18.0 · 01/11/2026 · A078/E074
 Owner: primary agent, serial implementation and review.
 Branch: feat/mobile-trip-experience from fetched origin/main 5eb5674.
 
@@ -26,3 +26,6 @@ No push, production configuration/data changes or deployment authorized by this 
 ## Result — 01/11/2026
 Status: local QA/ITS complete; awaiting fresh customer go-live approval.
 201 app tests, lint/demo build,406 embedded SQL, audit-high/production audit and lock equality PASS. Actual demo browser Back/stay/discard, persistent create editor closure, scroll recovery, form cancellation, expense save/reload, Today details/Maps and keyboard focus PASS;320–1280/reduced-height current-dark viewport matrix PASS. Fixed QA findings are in scoped ITS report. Live light/physical-device/Safari/native keyboard/native unload/full hosted gaps remain explicit in release note. No migration/dependency change. Metadata0.18.0, local branch only; resolve commit via Git log. Next gate: customer approval of docs/releases/2026-11-01-0.18.0.md.
+
+## Released01/11/2026
+A078 approved; PR34 df9bd12 (head3da897c/CI41317406891), main CI41317557088/Pages41317557092 PASS. Public/authenticated0.18.0 and375px itinerary/expense open+cancel smoke PASS; no data writes/migration. Current preview day empty so hosted activity-details opening not exercised; demo evidence retained. Docs closeout on docs/release-0.18.0. All coverage limits remain explicit in release note.

@@ -423,3 +423,9 @@ workflow-action:A077 status:completed
 ## E074/A078 — Approved0.18.0 rollout, 01/11/2026
 workflow-action:A078 status:open
 Fetched origin/main5eb5674 unchanged; candidate41f8a3c clean. Verified GitHub target dtkien-dev/wander-plan, main, existing authenticated owner CLI. Scope source candidate unchanged plus approval records; push feat/mobile-trip-experience, PR/CI, checked-head merge and Pages/read-only verification. No SQL/config/data writes.
+
+## E074/A078 — Production0.18.0 receipt, 01/11/2026
+PASS: approved source41f8a3c preserved at PR34 head3da897c. PR CI41317406891 SUCCESS; checked-head merge df9bd12. Main CI41317557088 and Pages41317557092 verify/build/deploy SUCCESS. Public HTML and entry asset HTTP200/meta0.18.0. Actual existing authenticated browser footer0.18.0; itinerary/expense create dialogs open+cancel at375x667, no horizontal overflow,44px expense actions inside viewport; clean scroll recovery and hash navigation. New browser warnings/errors0. No business-data save/delete/payment, migration, access/config change or login email. Viewport override reset; original browser selection preserved.
+Current Today preview day has no activity, so production activity-detail opening is NOT RUN; local compiled demo details/Maps evidence E073 remains applicable. No physical-device/Safari/native keyboard/screen-reader/light/full hosted-write/concurrency coverage added. Native reload warnings remain best-effort. Separate automatic Dependabot Updates41317565232 failed, while required app CI/Pages passed; no dependency remediation included.
+Release records prepared on docs/release-0.18.0 from df9bd12, under the same approved closeout. Resolve the final docs PR/SHA and its exact CI/Pages receipt through Git history; source tree must remain identical to app release. No new feature selected. Primary dirty checkout remains untouched.
+workflow-action:A078 status:completed

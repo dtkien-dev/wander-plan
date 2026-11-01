@@ -15,3 +15,6 @@ Small verified units, serial by default; checkpoint changed files/tests/next ste
 
 ## A077 — P38 mobile trip experience
 Customer asks to implement the recommended priorities1+2 through the shared workflow. Same tracker, isolated purpose branch; primary dirty checkout preserved. Local candidate0.18.0 ready after QA and same-agent ITS. No push/production approval; see P38 and release checklist.
+
+## A078 —0.18.0 released
+Customer go-live approval executed via PR34/df9bd12; CI/Pages/public/authenticated smoke verified. Docs-only closeout under the same batch. Existing deferred choices and coverage limits remain.
