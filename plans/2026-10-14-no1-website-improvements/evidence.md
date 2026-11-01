@@ -472,3 +472,6 @@ Customer reports the original Safari width/panning problem no longer occurs on i
 ## E078/A082 — Approved0.19.0 rollout
 workflow-action:A082 status:open
 Fetched mainca876df unchanged; source candidate2c0a78c clean, target GitHub dtkien-dev/wander-plan/main verified. Publish feat/expense-clarity and approved source, exact-head CI/merge, main/Pages/public/authenticated read-only smoke and records. Existing primary dirty checkout preserved. No database migration/config/data writes, new feature scope or paid service.
+
+## E078/A082 — Verified0.19.0 rollout,01/11/2026
+PR38 approved published head7ab4fd1 / source2c0a78c, PR CI41325365156 PASS; exact-head merge6f8e719. Main CI41325531686/Pages41325531690 PASS. Public HTML/entry HTTP200 and meta0.19.0. Existing authenticated session: version0.19.0, settlement explanation, blank-form hint and existing valid allocation summary PASS;390x844 document/dialog no horizontal overflow; open/cancel unchanged, viewport and original route restored, warnings/errors0. No migration/config/business-data writes, payment confirmations or login emails. Physical P40 iOS/native picker/keyboard/touch/screen-reader and hosted writes/concurrency NOT RUN; same-agent review only. Docs closeout under the same approval; ideas4–5 remain subsequent. Primary dirty checkout preserved.
