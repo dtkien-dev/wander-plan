@@ -10,7 +10,7 @@ Execute mode: Active
 Resume instruction: Resolve plans/2026-10-14-no1-website-improvements from the current clone root (tracker wp-20261014-01). Read docs/agent/README.md and workflow.md, then this index and every manifest file. Keep this exact repository-relative bundle as the execution source of truth; update it until explicit exit. If the execute skill is installed, it may be used with this resolved path.
 Workspace: Current clone root; never reuse another device's absolute path.
 Repository: GitHub dtkien-dev/wander-plan; main40c89ce (released0.18.0); candidate fix/safari-form-overflow includes reconciled e4ef7eb receipt.
-Active action: none — A079/E075 local candidate complete; fresh go-live approval pending.
+Active action: A080/E076 — approved0.18.1 rollout, then separately scoped idea3.
 
 <!-- workflow-active-snapshot:start version:2 -->
 ## Active Snapshot
