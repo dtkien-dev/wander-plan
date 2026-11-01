@@ -143,3 +143,6 @@ Following verified0.18.1 technical go-live and A080 instruction to continue, imp
 
 ## A080 follow-up — customer iPhone13 acceptance,01/11/2026
 Customer replies that the horizontal movement/unequal input problem is no longer seen on the stated iPhone13 after the0.18.1 check request. Original P39 issue customer-reported PASS; iOS version unknown. Do not infer physical acceptance of the new0.19.0 feature or unobserved native-picker/keyboard scenarios.
+
+## A082 — Go-live0.19.0,01/11/2026
+Customer approves go-live of the concrete0.19.0 candidate2c0a78c: purpose-branch push/PR, exact-head shared CI, main merge/automatic Pages, read-only live smoke and release-record closeout. No migration, permission/config changes or production business-data test writes. Ideas4–5 are not included.

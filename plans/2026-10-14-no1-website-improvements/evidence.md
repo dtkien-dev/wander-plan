@@ -468,3 +468,7 @@ workflow-action:A081 status:completed
 
 ## E076/A080 follow-up — physical-device customer feedback
 Customer reports the original Safari width/panning problem no longer occurs on iPhone13. Customer-reported PASS, not independently observed. Published acceptance receipt on docs/release-0.18.1 and reconciled it into this candidate; no app source delta, no need to repeat unchanged tests. P40 physical native-control/keyboard coverage remains unperformed.
+
+## E078/A082 — Approved0.19.0 rollout
+workflow-action:A082 status:open
+Fetched mainca876df unchanged; source candidate2c0a78c clean, target GitHub dtkien-dev/wander-plan/main verified. Publish feat/expense-clarity and approved source, exact-head CI/merge, main/Pages/public/authenticated read-only smoke and records. Existing primary dirty checkout preserved. No database migration/config/data writes, new feature scope or paid service.

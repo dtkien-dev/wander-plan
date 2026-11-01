@@ -3,14 +3,14 @@
 Tracker ID: wp-20261014-01
 Created: 2026-10-14 Asia/Saigon
 Last updated: 2026-11-01 Asia/Saigon
-Status: Released0.18.1; P40 idea3 local candidate0.19.0 complete, awaiting separate go-live approval.
+Status:0.19.0 customer-approved rollout in progress; production0.18.1 until verified deployment.
 Plan mode: Exited
 Execution readiness: Ready
 Execute mode: Active
 Resume instruction: Resolve plans/2026-10-14-no1-website-improvements from the current clone root (tracker wp-20261014-01). Read docs/agent/README.md and workflow.md, then this index and every manifest file. Keep this exact repository-relative bundle as the execution source of truth; update it until explicit exit. If the execute skill is installed, it may be used with this resolved path.
 Workspace: Current clone root; never reuse another device's absolute path.
 Repository: GitHub dtkien-dev/wander-plan; mainca876df (released0.18.1); feat/expense-clarity includes shared release/device receipts49723b4 and7dc5c47.
-Active action: none — A081/E077 complete locally;0.19.0 go-live decision pending.
+Active action: A082/E078 — approved0.19.0 rollout, primary agent.
 
 <!-- workflow-active-snapshot:start version:2 -->
 ## Active Snapshot
