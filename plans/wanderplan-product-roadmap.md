@@ -174,3 +174,6 @@ Customer authorizes the recommended priorities1+2. Local0.18.0 ready: modal/navi
 
 ## P38 — Released0.18.0, 01/11/2026
 PR34/df9bd12 after A078 approval; CI41317557088/Pages41317557092 and public/authenticated0.18.0 verified. Unsaved-edit protection and Today activity actions delivered; mobile dialogs open/cancel smoke PASS without production writes. No migration/dependency change. Physical-device/Safari/native keyboard/light/full-hosted-write limitations retained; current preview day empty so live details not exercised. Docs-only closeout follows, no new feature queued.
+
+## P39 — Safari repair first, local0.18.1 candidate
+Customer iPhone13 report prioritized before ideas3–5. Shared form/native-select overflow repair and date/time box normalization locally verified:188browser/201app/406SQL/lint/build/audit-high PASS; same-agent ITS clear. No migration/dependency change. Fresh go-live approval and actual iPhone13 native-picker/keyboard/panning acceptance pending; no new feature scope started.

@@ -122,3 +122,6 @@ A077/E073, branch feat/mobile-trip-experience from fetched5eb5674. Customer auth
 
 ## P38 release result
 0.18.0 released under A078 via PR34/df9bd12. Required CI/Pages/public/authenticated read-only mobile smoke PASS. No migration; coverage limits retained. Docs closeout shares outcomes under the same approval; no new feature scope.
+
+## P39 — Safari mobile form overflow
+A079/E075, fix/safari-form-overflow; user iPhone13 report prioritized ahead of ideas3–5. Shared CSS repair and optional browser regression ready as0.18.1 after local QA/same-agent ITS. No dependency/DB change; physical iOS validation and fresh go-live approval remain. See phases/P39-safari-form-overflow.md.
