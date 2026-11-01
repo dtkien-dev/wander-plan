@@ -16,3 +16,5 @@ P36 b48f0a7 locally integrated at6c99509, preserving its unchanged code and reco
 
 ## Released01/11/2026
 P36 PR31 released first; P37 PR32 ebfe72d after PR CI41278325968 PASS. Main CI41278446256/Pages41278446221 PASS; public/authenticated0.17.2 and read-only mobile/tablet form smoke PASS. No production writes/migration; physical-device/Safari limits retained. Docs closeout continues under A076/E072.
+
+Final closeout: docs PR33/main5eb5674, final CI41278777642/Pages41278777657 PASS, public0.17.2 verified. A076/E072 complete; final receipt shared on docs/release-0.17.2.

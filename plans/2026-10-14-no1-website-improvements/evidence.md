@@ -408,3 +408,6 @@ workflow-action:A075 status:completed
 ## E072 / A076 — approved release closeout, 01/11/2026
 workflow-action:A076 status:open
 Publish docs-only release/tracker/roadmap/handoff outcomes under the approved sequential rollout. Branch docs/release-0.17.2 from main ebfe72d. Require exact docs PR CI and final main/Pages/public checks. No source/schema/dependency/config/data changes; final SHA resolved through Git log.
+
+E072 final receipt: docs PR33 checked7cecb74/CI41278672675 PASS, merged5eb5674. Final main CI41278777642 and Pages41278777657 verify/build/deploy PASS. Public HTTP200/meta0.17.2 confirmed; docs publication source/package/config/schema comparison to app release ebfe72d identical. Prior authenticated mobile/tablet smoke remains valid. No new source/data/config changes. Final receipt shared on docs/release-0.17.2; resolve its commit via Git log. Primary checkout remains preserved.
+workflow-action:A076 status:completed

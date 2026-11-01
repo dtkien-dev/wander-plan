@@ -1,5 +1,9 @@
 # Điểm bàn giao
 
+## Final0.17.2 closeout —01/11/2026
+P36 PR31 dc7e48e then P37 PR32 ebfe72d released; docs PR33 merged5eb5674 after CI41278672675. Final main CI41278777642/Pages41278777657 verify/build/deploy PASS, public HTTP200/meta0.17.2. Prior authenticated read-only phone/tablet form smoke PASS; app source/package/config/schema unchanged by docs. A075/E071 and A076/E072 completed. Final receipt is on docs/release-0.17.2; fetch and resolve its latest SHA via Git log. No active action or new feature scope. Physical Safari/iOS/touch/OS-keyboard and other recorded QA limits remain; primary checkout pre-existing edits preserved. Older open/pending checkpoints below are historical.
+
+
 ## Latest released checkpoint —01/11/2026
 0.17.2 app rollout complete: P36 PR31 dc7e48e (CI41278137602/Pages41278137603 PASS), then P37 PR32 ebfe72d (head58d8bcd/PR CI41278325968, main CI41278446256/Pages41278446221 PASS). Public HTTP200/meta and authenticated footer0.17.2; read-only mobile/tablet itinerary/expense dialog smoke PASS, no new console errors. No DB/config/data writes or login email. Same-agent ITS; physical Safari/iOS/touch/software-keyboard limits remain. A075/E071 complete; docs-only closeout A076/E072 on docs/release-0.17.2, resolve final SHA via Git log and verify CI/Pages before claiming final closeout. No new feature queued; primary checkout changes preserved.
 

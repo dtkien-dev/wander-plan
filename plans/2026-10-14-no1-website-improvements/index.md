@@ -3,28 +3,30 @@
 Tracker ID: wp-20261014-01
 Created: 2026-10-14 Asia/Saigon
 Last updated: 2026-11-01 Asia/Saigon
-Status: Released0.17.2; P36 then P37 app rollout verified, docs closeout in progress.
+Status: Released0.17.2 — app rollout and docs closeout complete.
 Plan mode: Exited
 Execution readiness: Ready
 Execute mode: Active
 Resume instruction: Resolve plans/2026-10-14-no1-website-improvements from the current clone root (tracker wp-20261014-01). Read docs/agent/README.md and workflow.md, then this index and every manifest file. Keep this exact repository-relative bundle as the execution source of truth; update it until explicit exit. If the execute skill is installed, it may be used with this resolved path.
 Workspace: Current clone root; never reuse another device's absolute path.
-Repository: GitHub dtkien-dev/wander-plan main ebfe72d (PR32,0.17.2); docs closeout on docs/release-0.17.2.
-Active action: A076/E072 — approved docs-only release closeout; app0.17.2 verified live.
+Repository: GitHub dtkien-dev/wander-plan main5eb5674 (docs PR33, app0.17.2); final receipt on docs/release-0.17.2, resolve final SHA via Git log.
+Active action: None — A075/E071 sequential rollout and A076/E072 docs closeout complete.
 
 <!-- workflow-active-snapshot:start version:2 -->
 ## Active Snapshot
 Profile: Durable
 Goal: Deliver verified scoped changes through PO/BA/IT/QA/ITS/go-live/ITO/PO.
-Current state: P36 PR31 dc7e48e released0.17.1, then P37 PR32 ebfe72d released0.17.2. Both main CI/Pages/public and existing authenticated read-only mobile smoke PASS. Docs closeout A076/E072 on docs/release-0.17.2.
+Current state: app0.17.2 released via PR32 ebfe72d after P36 PR31 dc7e48e. Docs PR33 merged5eb5674; final main CI41278777642/Pages41278777657 PASS, public0.17.2 verified. Authenticated mobile/tablet read-only smoke passed; no data writes.
 Accepted decisions: P37 improves forms consistently on mobile while preserving board-blue identity and all business/data/access contracts. P36 approval does not authorize P37. No new database or dependency change.
-Open items: final docs PR/CI/Pages/public receipt. Physical-device/Safari/touch/OS keyboard/light/hosted write QA gaps remain explicit; existing deferred roadmap choices retained.
-Next safe action: publish docs-only closeout PR under approved A075 rollout, require CI, merge checked head and verify final Pages/public; no new feature or DB scope.
+Open items: no active release action or newly approved feature. Physical-device/Safari/touch/OS keyboard/light/screen-reader/hosted-write limits and previously deferred roadmap choices remain documented.
+Next safe action: fetch main and docs/release-0.17.2 final receipt before choosing a customer-approved next batch; preserve primary checkout edits.
 <!-- workflow-active-snapshot:end -->
 
 Shared workflow: [portable workflow](../../docs/agent/workflow.md). The references/*.md above belong to the optional installed execute skill; they are not missing repository files and are not required on a new device. Shared workflow contains the portable execution and evidence rules.
 
 ## Resume Checkpoint
+- E072/A076 (01/11): docs PR33 merged5eb5674 after CI41278672675 PASS; final main CI41278777642/Pages41278777657 verify/build/deploy PASS, public0.17.2 verified. Final receipt on docs/release-0.17.2, resolve SHA via Git log. No active action/new feature; physical Safari/device limits retained.
+
 - E071/A075 (01/11): sequential0.17.1 then0.17.2 released. PR31 dc7e48e main CI41278137602/Pages41278137603; PR32 ebfe72d checked58d8bcd CI41278325968 main CI41278446256/Pages41278446221 PASS. Public/authenticated0.17.2, mobile/tablet open+cancel smoke, new console errors0. Docs closeout A076/E072 follows; no data writes.
 
 - E070/A074 (01/11): integrated P36 base6c99509 and P37 candidate0.17.2. Fresh supported Node24 install/184 app tests/406 embedded SQL/lint/demo build/audit-high and final compiled-browser checks PASS. Same-agent ITS no blocker. P36 PR31 open/CI PASS; P37 fresh approval pending; release checklist and rollback prepared. Resolve final SHA via Git log.

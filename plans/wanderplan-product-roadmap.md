@@ -168,3 +168,5 @@ Candidate0.17.2 on fix/mobile-forms preserves P36 PR31 baseline; E070/A074 QA/IT
 
 ## Released0.17.2 —01/11/2026
 Customer-approved sequential P36/0.17.1 then P37/0.17.2 completed (A075/E071): PR31 dc7e48e and PR32 ebfe72d, both main CI/Pages/public verified. Authenticated read-only mobile/tablet itinerary/expense smoke PASS; no data/schema/dependency changes. Docs closeout A076/E072 follows; no new backlog approval. Safari/iOS/touch/OS keyboard gaps remain explicit.
+
+0.17.2 closeout complete (A076/E072): docs PR33/main5eb5674, final CI41278777642/Pages41278777657 PASS, public0.17.2 verified. No active release action or new feature selected; final shared receipt on docs/release-0.17.2.
