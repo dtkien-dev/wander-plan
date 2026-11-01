@@ -20,3 +20,6 @@ WebKit upstream301648 documents date/time100% width with padding on iOS (not mac
 
 ## Result —01/11/2026
 Status: local QA/ITS complete, candidate0.18.1; awaiting fresh go-live approval and physical iPhone13 acceptance. Confirmed WebKit select overflow reproduced on old CSS, fixed from643px scroll region to matching318/388/638px bounds.188 compiled browser cases/201 app tests/406 embedded SQL/lint/build/audit-high PASS; no dependencies/migration. Windows WebKit date/time text fallback is an explicit limitation; iOS native-picker aspect not verified. Full release/rollback and evidence in docs/releases/2026-11-01-0.18.1.md and scoped ITS report. No push/deploy; ideas3–5 deferred.
+
+## Released01/11/2026
+PR36/0ca2859, required CI41322151861/Pages41322152074/public/authenticated0.18.1 and390px open/cancel smoke PASS. No data writes/migration. Actual iPhone13 confirmation remains pending and was requested; A080 permits continuing local idea3 after technical rollout while retaining this explicit limitation. Docs closeout on docs/release-0.18.1.

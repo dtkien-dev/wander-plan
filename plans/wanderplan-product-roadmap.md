@@ -177,3 +177,6 @@ PR34/df9bd12 after A078 approval; CI41317557088/Pages41317557092 and public/auth
 
 ## P39 — Safari repair first, local0.18.1 candidate
 Customer iPhone13 report prioritized before ideas3–5. Shared form/native-select overflow repair and date/time box normalization locally verified:188browser/201app/406SQL/lint/build/audit-high PASS; same-agent ITS clear. No migration/dependency change. Fresh go-live approval and actual iPhone13 native-picker/keyboard/panning acceptance pending; no new feature scope started.
+
+## P39 released0.18.1; next idea3
+A080 executed via PR36/0ca2859, required CI/Pages/public/authenticated390px smoke PASS. Physical iPhone13 confirmation remains pending. Customer authorizes proceeding to idea3 after go-live; ideas4–5 later. New-feature publication remains a separate approval gate.

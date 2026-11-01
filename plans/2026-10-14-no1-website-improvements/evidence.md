@@ -449,3 +449,7 @@ workflow-action:A079 status:completed
 ## E076/A080 — Approved0.18.1 rollout
 workflow-action:A080 status:open
 Fetched main40c89ce unchanged; candidate79476d0 clean. Verified GitHub dtkien-dev/wander-plan/main. Scope publish fix/safari-form-overflow, exact-head shared CI, approved merge/Pages/read-only smoke and records. No migration/config/data writes. After release, start idea3 separately, retaining physical-iOS limitation.
+
+## E076/A080 —0.18.1 rollout receipt,01/11/2026
+PR36 headbb1027a CI41321888787 PASS, checked merge0ca2859. Main CI41322151861/Pages41322152074 verify/build/deploy PASS. Public HTTP200/meta0.18.1; existing authenticated footer0.18.1,390px itinerary/expense open+cancel, no horizontal overflow, original native types/select appearance, clean scroll recovery and new warnings/errors0. No migration/config/business-data writes or login email; viewport restored. Windows Chromium smoke is not physical iOS; customer iPhone13 confirmation requested asynchronously and remains pending. Customer explicitly asks to proceed to next work after go-live; idea3 may proceed locally while retaining this limitation, superseding the earlier wait-for-device ordering. No claim of physical Safari acceptance.
+Release records on docs/release-0.18.1 under the same approval; final docs PR/CI/Pages receipts follow. Original source unchanged. workflow-action:A080 status:completed
