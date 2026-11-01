@@ -429,3 +429,8 @@ PASS: approved source41f8a3c preserved at PR34 head3da897c. PR CI41317406891 SUC
 Current Today preview day has no activity, so production activity-detail opening is NOT RUN; local compiled demo details/Maps evidence E073 remains applicable. No physical-device/Safari/native keyboard/screen-reader/light/full hosted-write/concurrency coverage added. Native reload warnings remain best-effort. Separate automatic Dependabot Updates41317565232 failed, while required app CI/Pages passed; no dependency remediation included.
 Release records prepared on docs/release-0.18.0 from df9bd12, under the same approved closeout. Resolve the final docs PR/SHA and its exact CI/Pages receipt through Git history; source tree must remain identical to app release. No new feature selected. Primary dirty checkout remains untouched.
 workflow-action:A078 status:completed
+
+## Final0.18.0 receipt —01/11/2026
+App PR34 df9bd12 and docs PR35 40c89ce merged. Docs headc4193e9 CI41317989557 PASS. Final main CI41318165271 and Pages41318165277 at40c89ce verify/build/deploy PASS; final public HTTP200/meta0.18.0 and existing authenticated footer0.18.0 verified, no dialogs left open. App source remains identical to approved release; no database/config/business-data writes. Owned local preview stopped; user browser viewport restored and original homepage retained.
+Release complete. This final receipt is shared on docs/release-0.18.0 without another main deployment; resolve its exact SHA through Git log. No active action/new feature. Physical-device/Safari/native keyboard/screen reader/live light/full hosted-write and current-empty-day production details limits remain as documented.
+workflow-action:A078 status:completed

@@ -1,3 +1,10 @@
+# Final release checkpoint —0.18.0, 01/11/2026
+
+App PR34 df9bd12 and docs PR35 40c89ce merged. Docs headc4193e9 CI41317989557 PASS. Final main CI41318165271 and Pages41318165277 at40c89ce verify/build/deploy PASS; final public HTTP200/meta0.18.0 and existing authenticated footer0.18.0 verified, no dialogs left open. App source remains identical to approved release; no database/config/business-data writes. Owned local preview stopped; user browser viewport restored and original homepage retained.
+Release complete. This final receipt is shared on docs/release-0.18.0 without another main deployment; resolve its exact SHA through Git log. No active action/new feature. Physical-device/Safari/native keyboard/screen reader/live light/full hosted-write and current-empty-day production details limits remain as documented.
+
+---
+
 # Điểm bàn giao
 
 ## Latest released checkpoint —01/11/2026
