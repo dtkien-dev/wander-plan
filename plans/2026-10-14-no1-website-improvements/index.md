@@ -3,28 +3,30 @@
 Tracker ID: wp-20261014-01
 Created: 2026-10-14 Asia/Saigon
 Last updated: 2026-11-01 Asia/Saigon
-Status: Released0.17.2; P36 then P37 app rollout verified, docs closeout in progress.
+Status: P38 candidate0.18.0 approved for go-live; ITO in progress.
 Plan mode: Exited
 Execution readiness: Ready
 Execute mode: Active
 Resume instruction: Resolve plans/2026-10-14-no1-website-improvements from the current clone root (tracker wp-20261014-01). Read docs/agent/README.md and workflow.md, then this index and every manifest file. Keep this exact repository-relative bundle as the execution source of truth; update it until explicit exit. If the execute skill is installed, it may be used with this resolved path.
 Workspace: Current clone root; never reuse another device's absolute path.
-Repository: GitHub dtkien-dev/wander-plan main ebfe72d (PR32,0.17.2); docs closeout on docs/release-0.17.2.
-Active action: A076/E072 — approved docs-only release closeout; app0.17.2 verified live.
+Repository: GitHub dtkien-dev/wander-plan; fetched main5eb5674 (released0.17.2); local candidate feat/mobile-trip-experience.
+Active action: A078/E074 — approved0.18.0 rollout, primary agent.
 
 <!-- workflow-active-snapshot:start version:2 -->
 ## Active Snapshot
 Profile: Durable
 Goal: Deliver verified scoped changes through PO/BA/IT/QA/ITS/go-live/ITO/PO.
-Current state: P36 PR31 dc7e48e released0.17.1, then P37 PR32 ebfe72d released0.17.2. Both main CI/Pages/public and existing authenticated read-only mobile smoke PASS. Docs closeout A076/E072 on docs/release-0.17.2.
-Accepted decisions: P37 improves forms consistently on mobile while preserving board-blue identity and all business/data/access contracts. P36 approval does not authorize P37. No new database or dependency change.
-Open items: final docs PR/CI/Pages/public receipt. Physical-device/Safari/touch/OS keyboard/light/hosted write QA gaps remain explicit; existing deferred roadmap choices retained.
-Next safe action: publish docs-only closeout PR under approved A075 rollout, require CI, merge checked head and verify final Pages/public; no new feature or DB scope.
+Current state: P38 mobile editor protection and Today details/Maps complete locally on feat/mobile-trip-experience from5eb5674. Candidate0.18.0;201app tests/406embedded SQL/lint/build/audit-high and Chromium demo QA PASS. Same-agent scoped ITS clear. No push/PR/deployment.
+Accepted decisions: A077 authorizes recommended priorities1+2 and local verification. Preserve board-blue identity, business/access/money contracts; no dependencies/migrations. Primary dirty checkout retained.
+Open items: fresh go-live approval; physical-device/Safari/native keyboard/screen reader/live light/full hosted/native unload coverage limits in release note. Existing deferred roadmap items unchanged.
+Next safe action: present candidate and release/rollback checklist for approval; then fetch/reconcile, publish purpose branch/PR, require exact-head CI, merge approved head and verify main/Pages/live smoke. No production changes before approval.
 <!-- workflow-active-snapshot:end -->
 
 Shared workflow: [portable workflow](../../docs/agent/workflow.md). The references/*.md above belong to the optional installed execute skill; they are not missing repository files and are not required on a new device. Shared workflow contains the portable execution and evidence rules.
 
 ## Resume Checkpoint
+- E073/A077 (01/11): P38 local candidate0.18.0 complete on feat/mobile-trip-experience, base5eb5674.201app/406SQL/lint/demo build/audit-high PASS; compiled demo QA and same-agent ITS clear. Pending fresh go-live approval; no publication or production change. Read P38 and docs/releases/2026-11-01-0.18.0.md; resolve candidate SHA via Git log.
+
 - E071/A075 (01/11): sequential0.17.1 then0.17.2 released. PR31 dc7e48e main CI41278137602/Pages41278137603; PR32 ebfe72d checked58d8bcd CI41278325968 main CI41278446256/Pages41278446221 PASS. Public/authenticated0.17.2, mobile/tablet open+cancel smoke, new console errors0. Docs closeout A076/E072 follows; no data writes.
 
 - E070/A074 (01/11): integrated P36 base6c99509 and P37 candidate0.17.2. Fresh supported Node24 install/184 app tests/406 embedded SQL/lint/demo build/audit-high and final compiled-browser checks PASS. Same-agent ITS no blocker. P36 PR31 open/CI PASS; P37 fresh approval pending; release checklist and rollback prepared. Resolve final SHA via Git log.
@@ -107,6 +109,8 @@ security-review-p36-2026-10-31.md
 
 phases/P37-responsive-forms.md
 security-review-p37-2026-11-01.md
+phases/P38-mobile-trip-experience.md
+security-review-p38-2026-11-01.md
 <!-- workflow-manifest:end -->
 
 Latest checkpoint 29/10: A055/E051 complete; independent review High fixed by forward provenance migration and verified in 353 embedded/full-local SQL, 168 app tests, lint/build. Prior E050 browser/mobile/Realtime/concurrency UAT passed. Candidate local on feat/trip-reschedule-templates-trash; resolve final commit via Git log. No push or production changes. Await fresh go-live approval.

@@ -12,3 +12,6 @@ Public URL fetch failed; no authenticated UI/live database reproduction. Deploye
 
 ## Resource strategy
 Small verified units, serial by default; checkpoint changed files/tests/next step. Quota differs from context size. No fixed token/5-hour completion promise. Recommendations do not automatically change model.
+
+## A077 — P38 mobile trip experience
+Customer asks to implement the recommended priorities1+2 through the shared workflow. Same tracker, isolated purpose branch; primary dirty checkout preserved. Local candidate0.18.0 ready after QA and same-agent ITS. No push/production approval; see P38 and release checklist.

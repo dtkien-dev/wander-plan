@@ -69,3 +69,26 @@ it('lists recoverable activities for the owner and reports restore errors inline
   expect(await screen.findByRole('alert')).toHaveTextContent('Ngày nằm ngoài chuyến đi.')
   expect(restore).toHaveBeenCalledWith(data.itineraryTrash[0])
 })
+
+it('keeps failed edits for retry and prevents dismissing an in-flight save', async () => {
+  let finish!: () => void
+  const save = vi.fn().mockRejectedValueOnce(new Error('Mất kết nối. Hãy thử lại.'))
+    .mockImplementationOnce(() => new Promise<void>((resolve) => { finish = resolve }))
+  const mutations = mocks.mutations()
+  mutations.itinerary.mutateAsync = save
+  render(<ItineraryPage />)
+  fireEvent.click(screen.getAllByRole('button', { name: 'Sửa Camping' })[0])
+  fireEvent.change(screen.getByLabelText('Tên địa điểm'), { target: { value: 'Camping updated' } })
+  fireEvent.click(screen.getByRole('button', { name: 'Lưu thay đổi' }))
+  expect(await screen.findByRole('alert')).toHaveTextContent('Mất kết nối')
+  expect(screen.getByLabelText('Tên địa điểm')).toHaveValue('Camping updated')
+  fireEvent.click(screen.getByRole('button', { name: 'Lưu thay đổi' }))
+  await waitFor(() => expect(save).toHaveBeenCalledTimes(2))
+  expect(screen.getByRole('button', { name: 'Hủy', exact: true })).toBeDisabled()
+  fireEvent.keyDown(document, { key: 'Escape' })
+  fireEvent.click(screen.getByRole('button', { name: 'Đóng' }))
+  expect(screen.getByRole('dialog', { name: 'Chỉnh sửa địa điểm' })).toBeInTheDocument()
+  finish()
+  await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
+  expect(save.mock.calls[1][0].draft.title).toBe('Camping updated')
+})

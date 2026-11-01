@@ -24,14 +24,14 @@ const schema = z.object({
 function CreateTripForm({ onDone }: { onDone: () => void }) {
   const requestId = useRef(crypto.randomUUID())
   const { createTrip } = useWorkspaceMutations()
-  const { register, handleSubmit, formState: { errors } } = useForm<TripDraft>({ resolver: zodResolver(schema), defaultValues: { name: '', destination: '', startDate: '', endDate: '', budgetVnd: 0, maxMembers: 4 } })
+  const { register, handleSubmit, formState: { errors, isDirty, isSubmitting } } = useForm<TripDraft>({ resolver: zodResolver(schema), defaultValues: { name: '', destination: '', startDate: '', endDate: '', budgetVnd: 0, maxMembers: 4 } })
   const [error, setError] = useState('')
   const submit = async (draft: TripDraft) => {
     setError('')
     try { await createTrip.mutateAsync({ draft, requestId: requestId.current }); onDone() }
     catch (failure) { setError(failure instanceof Error ? failure.message : 'Chưa thể tạo chuyến đi.') }
   }
-  return <form className="form" onSubmit={handleSubmit(submit)}>
+  return <form className="form" data-unsaved={isDirty} data-pending={createTrip.isPending || isSubmitting} inert={createTrip.isPending || isSubmitting} onSubmit={handleSubmit(submit)}>
     <label className="field field--wide">Tên chuyến đi<input {...register('name')} autoFocus aria-invalid={Boolean(errors.name)} />{errors.name && <span>{errors.name.message}</span>}</label>
     <label className="field field--wide">Điểm đến<input {...register('destination')} aria-invalid={Boolean(errors.destination)} />{errors.destination && <span>{errors.destination.message}</span>}</label>
     <label className="field">Ngày bắt đầu<input type="date" {...register('startDate')} aria-invalid={Boolean(errors.startDate)} />{errors.startDate && <span>{errors.startDate.message}</span>}</label>

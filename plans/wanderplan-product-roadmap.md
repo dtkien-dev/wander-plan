@@ -168,3 +168,6 @@ Candidate0.17.2 on fix/mobile-forms preserves P36 PR31 baseline; E070/A074 QA/IT
 
 ## Released0.17.2 —01/11/2026
 Customer-approved sequential P36/0.17.1 then P37/0.17.2 completed (A075/E071): PR31 dc7e48e and PR32 ebfe72d, both main CI/Pages/public verified. Authenticated read-only mobile/tablet itinerary/expense smoke PASS; no data/schema/dependency changes. Docs closeout A076/E072 follows; no new backlog approval. Safari/iOS/touch/OS keyboard gaps remain explicit.
+
+## P38 — Safe editing and Today actions, local candidate01/11
+Customer authorizes the recommended priorities1+2. Local0.18.0 ready: modal/navigation discard protection, pending guards, activity details/Maps/current-next shortcut.201app/406embedded SQL/lint/build/audit-high and Chromium demo QA PASS; same-agent ITS clear. No migration/dependency change; fresh go-live approval pending. Physical-device/Safari/native keyboard/live light/full hosted limits recorded in release checklist. Other proposals/deferred choices remain unselected.

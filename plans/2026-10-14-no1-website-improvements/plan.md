@@ -116,3 +116,6 @@ See phases/P36-mobile-readability.md. A068/E064, customer-authorized local UI re
 
 ## A071 — P37 responsive forms
 See phases/P37-responsive-forms.md. Shared layout/controls first, then browser QA and scoped ITS; production remains gated separately.
+
+## P38 — Mobile trip experience
+A077/E073, branch feat/mobile-trip-experience from fetched5eb5674. Customer authorizes recommended priorities1+2. [Phase](phases/P38-mobile-trip-experience.md): shared editor/nav protection and Today details/Maps; local QA/ITS complete, candidate0.18.0. Fresh go-live approval required; no new database/dependency contract.

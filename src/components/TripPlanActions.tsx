@@ -44,7 +44,7 @@ function PlanForm({ data, action, onDone }: { data: WorkspaceData; action: Actio
       onDone()
     } catch (failure) { setError(failure instanceof Error ? failure.message : 'Chưa thể cập nhật kế hoạch.') }
   }
-  return <form className="form" onSubmit={submit}>
+  return <form className="form" data-unsaved={Boolean(startDate) || shiftExpenses || name !== `${source.trip.name.slice(0, 90)} (bản sao)`} data-pending={busy} inert={busy} onSubmit={submit}>
     {cloning && <label className="field field--wide">Tên chuyến mới<input required minLength={2} maxLength={100} value={name} disabled={busy} onChange={(event) => setName(event.target.value)} /></label>}
     <label className="field field--wide">Ngày bắt đầu mới<input required type="date" value={startDate} disabled={busy} onChange={(event) => { setStartDate(event.target.value); setError('') }} /></label>
     <p className="field--wide">Giữ nguyên số ngày của chuyến. {cloning ? 'Chỉ sao chép lịch trình và nội dung checklist; bỏ đánh dấu hoàn thành và người phụ trách. Không sao chép thành viên, lời mời, chi phí, thanh toán hay thùng rác.' : 'Các hoạt động dời cùng số ngày; giờ bắt đầu/kết thúc được giữ nguyên.'}</p>
@@ -64,7 +64,7 @@ function PlanForm({ data, action, onDone }: { data: WorkspaceData; action: Actio
     </div>}
     {conflicts.length > 0 && <p className="form-error-banner field--wide" role="alert">Có {conflicts.length} khoản chi nằm ngoài khoảng ngày mới. Chọn dời ngày các khoản chi để tiếp tục.</p>}
     {error && <p className="form-error-banner field--wide" role="alert">{error}</p>}
-    <div className="form__actions field--wide"><button className="button button--ghost" type="button" disabled={busy} onClick={onDone}>Hủy</button><button className="button button--primary" type="submit" disabled={busy || !preview || sameDate || conflicts.length > 0}>{busy ? 'Đang xử lý…' : cloning ? 'Tạo bản sao' : 'Xác nhận dời chuyến'}</button></div>
+    <div className="form__actions field--wide"><button className="button button--ghost" type="button" data-dismiss disabled={busy} onClick={onDone}>Hủy</button><button className="button button--primary" type="submit" disabled={busy || !preview || sameDate || conflicts.length > 0}>{busy ? 'Đang xử lý…' : cloning ? 'Tạo bản sao' : 'Xác nhận dời chuyến'}</button></div>
   </form>
 }
 

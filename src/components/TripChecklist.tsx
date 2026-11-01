@@ -50,7 +50,7 @@ function ChecklistForm({ initial, members, busy, error, onSave }: {
     event.preventDefault()
     if (title.trim()) void onSave({ title: title.trim(), assignedTo: assignedTo || null, completed: initial?.completed ?? false })
   }
-  return <form className="form" onSubmit={submit}>
+  return <form className="form" data-unsaved={title !== (initial?.title ?? '') || assignedTo !== (initial?.assignedTo ?? '')} data-pending={busy} inert={busy} onSubmit={submit}>
     <label className="field field--wide">Việc cần chuẩn bị<input required maxLength={150} value={title} onChange={(event) => setTitle(event.target.value)} /></label>
     <label className="field field--wide">Người phụ trách (tùy chọn)<select value={assignedTo} onChange={(event) => setAssignedTo(event.target.value)}><option value="">Chưa phân công</option>{members.map((person) => <option key={person.userId} value={person.userId!}>{person.displayName}</option>)}</select></label>
     {error && <p className="form-error-banner field--wide" role="alert">{error}</p>}

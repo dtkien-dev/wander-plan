@@ -408,3 +408,18 @@ workflow-action:A075 status:completed
 ## E072 / A076 — approved release closeout, 01/11/2026
 workflow-action:A076 status:open
 Publish docs-only release/tracker/roadmap/handoff outcomes under the approved sequential rollout. Branch docs/release-0.17.2 from main ebfe72d. Require exact docs PR CI and final main/Pages/public checks. No source/schema/dependency/config/data changes; final SHA resolved through Git log.
+
+## E073/A077 — P38 implementation, 01/11/2026
+workflow-action:A077 status:open
+Fetched origin/main5eb5674; isolated feat/mobile-trip-experience. Existing primary checkout dirty records preserved. Scope shared modal/navigation protection and Today details, plus tests/styles/tracker/release preparation. Local synthetic QA only; no push, external messages or production effects. PO/BA acceptance recorded in P38; no SQL, membership, expense math or persistence contract change.
+
+## E073/A077 — P38 verification and handoff, 01/11/2026
+PASS Node24.22.1 clean npm ci;201 application tests/35 files, npm run lint, TypeScript/demo npm run build;406 embedded SQL assertions/21 suites over30 unchanged migrations. Audit-high0high/critical, existing11moderate dev-tool records; production-only audit0. Parsed lock equality confirms version-only metadata0.18.0, no dependency change. Existing TripManager fixture logs a duplicate mock request-id warning; no test failure. New Modal/Dashboard regression control on pre-change source:10failed/1passed; restored candidate and full suite PASS.
+PASS local Chromium demo: Today activity details/full dates and safe Maps href, viewport320/375/390/768/1280 plus375x320, confirmation and expense form without horizontal overflow, action targets>=44px. Cancel/close/Escape/continue preserve actual field values; browser Back stay retains itinerary input; explicit discard closes persistent create-trip editor and restores scrolling. Checklist/settings/clone/dates cancellation exercised; date control used real ArrowUp after automation fill did not update React. Expense edit/save/reload readback passed and sample title restored. Tab wraps from detail Maps action to Close; Escape restores opening button. Final compiled0.18.0 browser warning/error log empty. Viewport override reset. Owned dev server stopped; compiled demo preview retained for review. No production access/writes/emails.
+QA defects fixed: persistent shell draft survived route discard; nested scroll-lock cleanup; duplicate modal label ID/topmost Escape. Regression tests cover these. Scoped same-agent ITS report security-review-p38-2026-11-01.md clear; not independent. Detector advisory font-size findings follow existing DESIGN ramp exceptions; no blocking finding. Tokens retained for both themes.
+NOT RUN: physical phone/Safari/WebKit/software keyboard/screen reader/live light theme, actual native reload dialog, full Supabase/hosted multi-user or new-head hosted CI. Native unload is best-effort and cannot recover drafts after mobile process termination. No new SQL/auth/access/persistence/money contract. No push/PR/main merge/deploy; release checklist and rollback prepared for fresh go-live approval.
+workflow-action:A077 status:completed
+
+## E074/A078 — Approved0.18.0 rollout, 01/11/2026
+workflow-action:A078 status:open
+Fetched origin/main5eb5674 unchanged; candidate41f8a3c clean. Verified GitHub target dtkien-dev/wander-plan, main, existing authenticated owner CLI. Scope source candidate unchanged plus approval records; push feat/mobile-trip-experience, PR/CI, checked-head merge and Pages/read-only verification. No SQL/config/data writes.

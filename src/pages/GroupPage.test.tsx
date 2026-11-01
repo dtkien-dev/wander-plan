@@ -108,6 +108,7 @@ describe('GroupPage invitations', () => {
     fireEvent.change(screen.getByLabelText('Tên chuyến đi'), { target: { value: 'Bản nháp chưa lưu' } })
     fireEvent.click(screen.getByRole('button', { name: 'Hủy chỉnh sửa' }))
     expect(update).not.toHaveBeenCalled()
+    fireEvent.click(screen.getByRole('button', { name: 'Bỏ thay đổi', exact: true }))
     fireEvent.click(screen.getByRole('button', { name: 'Chỉnh sửa chuyến', exact: true }))
     expect(screen.getByLabelText('Tên chuyến đi')).toHaveValue(trip.name)
     fireEvent.change(screen.getByLabelText('Tên chuyến đi'), { target: { value: 'Hành trình Huế cùng bạn' } })

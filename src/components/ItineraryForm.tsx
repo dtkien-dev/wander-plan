@@ -32,7 +32,7 @@ interface ItineraryFormProps {
 }
 
 export function ItineraryForm({ item, tripStart, tripEnd, itinerary, pending, onSubmit, onCancel }: ItineraryFormProps) {
-  const { register, handleSubmit, watch, formState: { errors } } = useForm<ItineraryDraft>({
+  const { register, handleSubmit, watch, formState: { errors, isDirty, isSubmitting } } = useForm<ItineraryDraft>({
     resolver: zodResolver(createSchema(tripStart, tripEnd)),
     defaultValues: item ?? {
       title: '', visitDate: tripStart, endDate: null, startTime: '08:00', endTime: '09:30', estimatedCostVnd: 0,
@@ -42,7 +42,7 @@ export function ItineraryForm({ item, tripStart, tripEnd, itinerary, pending, on
   const [visitDate, endDate, startTime, endTime, estimatedCost] = watch(['visitDate', 'endDate', 'startTime', 'endTime', 'estimatedCostVnd'])
   const clashes = findOverlaps({ id: item?.id, visitDate, endDate, startTime, endTime }, itinerary)
   return (
-    <form className="form" onSubmit={handleSubmit(onSubmit)}>
+    <form className="form" data-unsaved={isDirty} data-pending={pending || isSubmitting} inert={pending || isSubmitting} onSubmit={handleSubmit(onSubmit)}>
       <label className="field field--wide">Tên địa điểm<input aria-required="true" {...register('title')} aria-invalid={Boolean(errors.title)} />{errors.title && <span>{errors.title.message}</span>}</label>
       <label className="field">Ngày đến<input type="date" min={tripStart} max={tripEnd} {...register('visitDate')} aria-invalid={Boolean(errors.visitDate)} />{errors.visitDate && <span>{errors.visitDate.message}</span>}</label>
       <label className="field">Đến ngày (nếu nhiều ngày)<input type="date" min={visitDate || tripStart} max={tripEnd} {...register('endDate', { setValueAs: (value) => value === '' || value == null ? null : value })} aria-invalid={Boolean(errors.endDate)} />{errors.endDate && <span>{errors.endDate.message}</span>}</label>
@@ -54,8 +54,8 @@ export function ItineraryForm({ item, tripStart, tripEnd, itinerary, pending, on
       <label className="field field--wide"><span className="field-label">Google Maps URL <small className="field-optional">(không bắt buộc)</small></span><input type="url" placeholder="https://maps.app.goo.gl/..." {...register('mapsUrl')} aria-invalid={Boolean(errors.mapsUrl)} />{errors.mapsUrl && <span>{errors.mapsUrl.message}</span>}</label>
       <label className="field field--wide"><span className="field-label">Ghi chú <small className="field-optional">(không bắt buộc)</small></span><textarea rows={3} {...register('notes')} aria-invalid={Boolean(errors.notes)} />{errors.notes && <span>{errors.notes.message}</span>}</label>
       <div className="form__actions field--wide">
-        <button className="button button--ghost" type="button" onClick={onCancel}>Hủy</button>
-        <button className="button button--primary" type="submit" disabled={pending}>{pending ? 'Đang lưu…' : item ? 'Lưu thay đổi' : 'Thêm địa điểm'}</button>
+        <button className="button button--ghost" type="button" data-dismiss disabled={pending || isSubmitting} onClick={onCancel}>Hủy</button>
+        <button className="button button--primary" type="submit" disabled={pending || isSubmitting}>{pending || isSubmitting ? 'Đang lưu…' : item ? 'Lưu thay đổi' : 'Thêm địa điểm'}</button>
       </div>
     </form>
   )
