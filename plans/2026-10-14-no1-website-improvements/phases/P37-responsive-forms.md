@@ -2,7 +2,7 @@
 
 Date: 01/11/2026 Asia/Saigon. Owner: current agent, serial.
 Authorization: A071; customer requests consistent mobile usability and visual refinement across forms, retaining current blue identity.
-Status: Locally complete; QA/scoped ITS passed, production approval pending. Baseline: origin/main daead9b; branch fix/mobile-forms in isolated worktree. Primary checkout edits preserved. P36/A070 on fix/ui-polish is a separate unmerged approved batch; do not overwrite its records or treat its approval as this batch's approval.
+Status: Released0.17.2 on01/11/2026; A075/E071 complete, docs closeout A076/E072.
 
 Scope: shared field/dialog/selection/action CSS; optional label markup in expense/itinerary forms; numeric keyboard for trip creation. Review all Modal/form consumers (trip settings/create/reschedule/clone, checklist, profile, confirmation, Excel) and Login styling. No schema, money rules, persistence, permissions, dependencies or production writes.
 
@@ -13,3 +13,6 @@ Follow-up A072/E068: actual Chromium demo save/reload for trip, expense (includi
 
 ## A074/E070 pre-release candidate
 P36 b48f0a7 locally integrated at6c99509, preserving its unchanged code and record history. Candidate0.17.2 metadata aligned. Fresh Node24.22.1 clean install/184 app/406 embedded SQL/lint/demo build/audit-high PASS; production audit0. Same-agent formal correctness/ITS report has no blocker. Compiled0.17.2 itinerary375 and expense768 open/cancel checks PASS. See docs/releases/2026-11-01-0.17.2.md for current approval scope, sequential P36→P37 rollout and rollback. Current status: ready for customer approval; no P37 push/PR/deploy.
+
+## Released01/11/2026
+P36 PR31 released first; P37 PR32 ebfe72d after PR CI41278325968 PASS. Main CI41278446256/Pages41278446221 PASS; public/authenticated0.17.2 and read-only mobile/tablet form smoke PASS. No production writes/migration; physical-device/Safari limits retained. Docs closeout continues under A076/E072.

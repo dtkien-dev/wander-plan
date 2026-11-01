@@ -165,3 +165,6 @@ Customer selected consistent mobile form refinement; local candidate on fix/mobi
 
 ## P37 pre-release —01/11/2026
 Candidate0.17.2 on fix/mobile-forms preserves P36 PR31 baseline; E070/A074 QA/ITS complete locally.184 app/406 embedded SQL/lint/build PASS, production audit0,11 existing moderate dev-tool findings. Release/rollback prepared; fresh P37 approval pending before sequential P36→P37 rollout. No production or new feature/backlog change.
+
+## Released0.17.2 —01/11/2026
+Customer-approved sequential P36/0.17.1 then P37/0.17.2 completed (A075/E071): PR31 dc7e48e and PR32 ebfe72d, both main CI/Pages/public verified. Authenticated read-only mobile/tablet itinerary/expense smoke PASS; no data/schema/dependency changes. Docs closeout A076/E072 follows; no new backlog approval. Safari/iOS/touch/OS keyboard gaps remain explicit.
