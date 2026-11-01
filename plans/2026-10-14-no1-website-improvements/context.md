@@ -18,3 +18,6 @@ Customer asks to implement the recommended priorities1+2 through the shared work
 
 ## A078 —0.18.0 released
 Customer go-live approval executed via PR34/df9bd12; CI/Pages/public/authenticated smoke verified. Docs-only closeout under the same batch. Existing deferred choices and coverage limits remain.
+
+## A079 — Safari repair before ideas3–5
+Customer authorizes fixing mobile form horizontal overflow; device iPhone13. Reproduced select overflow and prepared0.18.1 locally. No current-batch production approval, iOS version unknown; physical native controls remain unverified. Retain same tracker and deferred ideas.

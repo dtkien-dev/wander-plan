@@ -1,3 +1,9 @@
+# Current local candidate —0.18.1,01/11/2026
+
+P39/A079/E075 on fix/safari-form-overflow from main40c89ce plus final0.18.0 receipt e4ef7eb. Reproduced WebKit select overflow643px and repaired shared CSS;188 compiled browser cases/201 app tests/406 unchanged embedded SQL/lint/build/audit-high PASS. Same-agent ITS clear; no migration/dependency change. Windows WebKit dates/times fall back to text; actual iPhone13/Safari/native picker/OS keyboard/touch remain unverified. Fresh go-live approval pending; ideas3–5 deferred. No push/PR/deploy or production access/writes. Read P39 and docs/releases/2026-11-01-0.18.1.md, resolve local head through Git log. Primary dirty checkout preserved.
+
+---
+
 # Final release checkpoint —0.18.0, 01/11/2026
 
 App PR34 df9bd12 and docs PR35 40c89ce merged. Docs headc4193e9 CI41317989557 PASS. Final main CI41318165271 and Pages41318165277 at40c89ce verify/build/deploy PASS; final public HTTP200/meta0.18.0 and existing authenticated footer0.18.0 verified, no dialogs left open. App source remains identical to approved release; no database/config/business-data writes. Owned local preview stopped; user browser viewport restored and original homepage retained.

@@ -3,28 +3,30 @@
 Tracker ID: wp-20261014-01
 Created: 2026-10-14 Asia/Saigon
 Last updated: 2026-11-01 Asia/Saigon
-Status: Released0.18.0; final app/docs CI/Pages/public/authenticated verification complete.
+Status: P39 local candidate0.18.1 verified; awaiting go-live approval and physical iPhone13 confirmation. Production0.18.0.
 Plan mode: Exited
 Execution readiness: Ready
 Execute mode: Active
 Resume instruction: Resolve plans/2026-10-14-no1-website-improvements from the current clone root (tracker wp-20261014-01). Read docs/agent/README.md and workflow.md, then this index and every manifest file. Keep this exact repository-relative bundle as the execution source of truth; update it until explicit exit. If the execute skill is installed, it may be used with this resolved path.
 Workspace: Current clone root; never reuse another device's absolute path.
-Repository: GitHub dtkien-dev/wander-plan; main df9bd12 (PR34,released0.18.0); docs closeout docs/release-0.18.0.
-Active action: none — A078 complete; final shared receipt on docs/release-0.18.0.
+Repository: GitHub dtkien-dev/wander-plan; main40c89ce (released0.18.0); candidate fix/safari-form-overflow includes reconciled e4ef7eb receipt.
+Active action: none — A079/E075 local candidate complete; fresh go-live approval pending.
 
 <!-- workflow-active-snapshot:start version:2 -->
 ## Active Snapshot
 Profile: Durable
 Goal: Deliver verified scoped changes through PO/BA/IT/QA/ITS/go-live/ITO/PO.
-Current state:0.18.0 complete: app PR34 df9bd12, docs PR35 40c89ce; final main CI41318165271/Pages41318165277 and public/authenticated0.18.0 PASS. Final shared receipt on docs/release-0.18.0.
-Accepted decisions: approved source and business/access/money contracts preserved. No migration/dependency/config change. Primary dirty checkout untouched. Same-agent ITS, no independent review claim.
-Open items: no release blocker; physical-device/Safari/native keyboard/screen-reader/live light/full hosted-write limits retained. Current Today preview day empty, so production details opening NOT RUN; compiled-demo details passed.
-Next safe action: no new feature selected. Fetch latest main and docs/release-0.18.0 receipt before starting customer-selected work; preserve coverage limits and primary dirty checkout.
+Current state: P39 Safari form CSS candidate0.18.1 on fix/safari-form-overflow from main40c89ce plus e4ef7eb receipt. Confirmed WebKit select overflow fixed;188 compiled browser cases/201 app tests/406 embedded SQL/lint/build/audit-high PASS. Same-agent ITS clear. No push/PR/deploy.
+Accepted decisions: repair Safari first; ideas3–5 remain deferred. Shared sizing/vertical scroll/native controls/zoom/unsaved guards preserved; no dependency/schema/data/access/money delta.
+Open items: fresh0.18.1 go-live approval and actual iPhone13 native date/time/keyboard/panning acceptance. Windows WebKit date/time becomes text, so it does not certify iOS native pickers. iOS version unknown.
+Next safe action: present docs/releases/2026-11-01-0.18.1.md; after approval fetch/reconcile, exact-head PR CI/main/Pages/read-only smoke and customer iPhone13 confirmation. Do not start3–5 before repair acceptance.
 <!-- workflow-active-snapshot:end -->
 
 Shared workflow: [portable workflow](../../docs/agent/workflow.md). The references/*.md above belong to the optional installed execute skill; they are not missing repository files and are not required on a new device. Shared workflow contains the portable execution and evidence rules.
 
 ## Resume Checkpoint
+- E075/A079 (01/11): local0.18.1 Safari form repair, fix/safari-form-overflow;188browser/201app/406SQL/lint/build/audit-high PASS, scoped same-agent ITS clear. Physical iPhone13/native picker not verified; fresh go-live approval pending. Source shared CSS+metadata only, optional manual browser script. Resolve head through Git log.
+
 - Final01/11: app PR34/docs PR35 merged; final main40c89ce CI41318165271/Pages41318165277/public/authenticated0.18.0 PASS. Receipt on docs/release-0.18.0, exact head viaGit log; no active action/new feature.
 
 - E074/A078 (01/11):0.18.0 app PR34 df9bd12, checked3da897c/PR CI41317406891. Main CI41317557088/Pages41317557092/public/authenticated375px open-cancel smoke PASS; no writes/migration. Docs-only closeout from df9bd12 on docs/release-0.18.0; final SHA/checks viaGit log.
@@ -115,6 +117,8 @@ phases/P37-responsive-forms.md
 security-review-p37-2026-11-01.md
 phases/P38-mobile-trip-experience.md
 security-review-p38-2026-11-01.md
+phases/P39-safari-form-overflow.md
+security-review-p39-2026-11-01.md
 <!-- workflow-manifest:end -->
 
 Latest checkpoint 29/10: A055/E051 complete; independent review High fixed by forward provenance migration and verified in 353 embedded/full-local SQL, 168 app tests, lint/build. Prior E050 browser/mobile/Realtime/concurrency UAT passed. Candidate local on feat/trip-reschedule-templates-trash; resolve final commit via Git log. No push or production changes. Await fresh go-live approval.

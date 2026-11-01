@@ -100,28 +100,35 @@ time, data { font-variant-numeric: tabular-nums; }
 .form-error-banner, .shell-alert { margin-bottom: 16px; padding: 12px 14px; color: var(--color-danger); background: var(--color-danger-bg); border: 1px solid var(--color-danger); border-radius: var(--radius-inset); font-size: 14px; line-height: 1.5; }
 .shell-alert { position: relative; z-index: 25; display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 12px; width: min(1180px, calc(100% - 40px)); margin: 12px auto 0; }
 .shell-alert button { min-width: 44px; min-height: 44px; color: inherit; background: transparent; border: 0; font-weight: 700; cursor: pointer; }
-.modal-backdrop { position: fixed; inset: 0; z-index: 80; display: grid; place-items: center; padding: 24px; background: var(--color-scrim); }
-.modal { width: min(640px, 100%); max-height: min(800px, 90dvh); overflow: auto; overscroll-behavior: contain; scroll-padding-block: 96px 112px; padding: 0 24px 24px; color: var(--color-text); background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-shell); box-shadow: var(--shadow-raised); animation: modal-in 220ms var(--ease-out); }
+.modal-backdrop { position: fixed; inset: 0; z-index: 80; display: grid; grid-template-columns: minmax(0, 1fr); place-items: center; padding: 24px; background: var(--color-scrim); }
+.modal { width: min(640px, 100%); min-width: 0; max-width: 100%; max-height: min(800px, 90dvh); overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain; scroll-padding-block: 96px 112px; padding: 0 24px 24px; color: var(--color-text); background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-shell); box-shadow: var(--shadow-raised); animation: modal-in 220ms var(--ease-out); }
 .modal__header { position: sticky; top: 0; z-index: 2; display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 16px; margin: 0 -24px 18px; padding: 18px 24px 14px; background: var(--color-surface); border-bottom: 1px solid var(--color-border); }
 .modal__header h2 { min-width: 0; margin: 0; font-size: 20px; overflow-wrap: anywhere; }
 .modal .form__actions { position: sticky; bottom: -24px; z-index: 2; margin: 0 -24px -24px; padding: 14px 24px; background: var(--color-surface); border-top: 1px solid var(--color-border); }
 .modal__body { display: contents; }
 .modal__body[hidden] { display: none; }
 @keyframes modal-in { from { opacity: 0; transform: translateY(12px); } }
-.form { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.form { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); min-width: 0; gap: 16px; }
 .field { display: grid; min-width: 0; align-content: start; gap: 8px; color: var(--color-text); font-size: 14px; font-weight: 600; overflow-wrap: anywhere; }
 .field--wide { grid-column: 1 / -1; }
 .field-optional { color: var(--color-text-muted); font-weight: 400; }
 .field-label { line-height: 1.5; }
 ::placeholder { color: var(--color-text-muted); opacity: 1; }
-.field input, .field select, .field textarea { width: 100%; min-width: 0; min-height: 48px; padding: 11px 12px; color: var(--color-text); background: var(--color-field); border: 1px solid var(--color-border-strong); border-radius: var(--radius-control); font-size: 16px; font-weight: 400; transition: border-color 160ms var(--ease-out), box-shadow 160ms var(--ease-out); }
+.field input, .field select, .field textarea { display: block; width: 100%; min-width: 0; max-width: 100%; min-height: 48px; padding: 11px 12px; color: var(--color-text); background: var(--color-field); border: 1px solid var(--color-border-strong); border-radius: var(--radius-control); font-size: 16px; font-weight: 400; transition: border-color 160ms var(--ease-out), box-shadow 160ms var(--ease-out); }
+/* Native WebKit option overflow escapes the select box; contain it at the field. */
+.field:has(> select) { overflow-x: clip; }
+.field:has(> select):focus-within { outline: 2px solid var(--color-focus); outline-offset: 2px; }
+/* Keep iOS native date/time pickers while using the same box sizing as text inputs. */
+.field input[type="date"], .field input[type="time"] { appearance: none; line-height: 1.5; }
+.field input::-webkit-date-and-time-value { min-height: 1.5em; text-align: left; }
+.field input::-webkit-datetime-edit { padding: 0; }
 .field textarea { min-height: 92px; resize: vertical; }
 .field input:focus, .field select:focus, .field textarea:focus { border-color: var(--color-primary); box-shadow: 0 0 0 3px var(--color-mint-strong); }
 .field input:disabled, .field select:disabled, .field textarea:disabled { color: var(--color-text-muted); background: var(--color-surface-muted); cursor: not-allowed; }
 .field [aria-invalid="true"] { border-color: var(--color-danger); }
 .field-preview { color: var(--color-text-muted); font-size: 13px; font-weight: 500; font-variant-numeric: tabular-nums; }
 .field:not(.field--check) > span:not(.money-input):not(.field-label) { color: var(--color-danger); font-size: 13px; font-weight: 600; }
-.money-input { position: relative; display: block; }
+.money-input { position: relative; display: block; min-width: 0; }
 .money-input input { padding-right: 34px; text-align: right; font-variant-numeric: tabular-nums; }
 .money-input::after { content: "₫"; position: absolute; top: 50%; right: 12px; color: var(--color-text-muted); font-weight: 600; transform: translateY(-50%); pointer-events: none; }
 .participant-field { min-width: 0; margin: 0; padding: 0; border: 0; }

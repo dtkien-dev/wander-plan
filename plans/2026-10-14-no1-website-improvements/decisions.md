@@ -131,3 +131,6 @@ Customer authorizes implementing the recommended priorities 1+2 through the exis
 
 ## A078 — Go-live0.18.0, 01/11/2026
 Customer explicitly approves go-live0.18.0 as presented at41f8a3c: purpose-branch push/PR, exact-head CI, merge main, automatic Pages, read-only live smoke and release closeout. No migration, access/config changes or real business-data writes.
+
+## A079 — Safari overflow first,01/11/2026
+Customer requests fixing mobile Safari form width/horizontal overflow before remaining ideas3–5. Device iPhone13; iOS unknown. Implementation/local synthetic QA authorized, production approval separate. P39 owns scope/acceptance;3–5 remain deferred.
