@@ -10,7 +10,7 @@ Execute mode: Active
 Resume instruction: Resolve plans/2026-10-14-no1-website-improvements from the current clone root (tracker wp-20261014-01). Read docs/agent/README.md and workflow.md, then this index and every manifest file. Keep this exact repository-relative bundle as the execution source of truth; update it until explicit exit. If the execute skill is installed, it may be used with this resolved path.
 Workspace: Current clone root; never reuse another device's absolute path.
 Repository: GitHub dtkien-dev/wander-plan; deployed main daead9b (0.17.0). P36 PR31 b48f0a7 open/CI PASS; P37 fix/mobile-forms locally includes P36, candidate0.17.2.
-Active action: None — A074/E070 pre-release preparation complete; P37 go-live approval pending. P36/A070 remains a separate open production action.
+Active action: A075/E071 — customer-approved sequential P36 then P37 go-live.
 
 <!-- workflow-active-snapshot:start version:2 -->
 ## Active Snapshot

@@ -121,3 +121,7 @@ Customer requests all forms refined consistently on phones and selects this scop
 
 ## A074 — pre-release preparation, 01/11/2026
 Customer asks to continue the project workflow. Prepare P37 locally as0.17.2 on the preserved approved P36/0.17.1 baseline, complete QA/ITS and concrete release/rollback records. P36 PR31 remains separate; do not infer fresh P37 go-live permission or silently expand PR31. Approval gate and exact release sequence are in docs/releases/2026-11-01-0.17.2.md.
+
+## A075 — go-live approval, 01/11/2026
+Customer approves P36/0.17.1 then P37/0.17.2 as presented at ddae86a. Execute exact sequential rollout/checks/closeout from docs/releases/2026-11-01-0.17.2.md. No migration or production business-data writes.
+

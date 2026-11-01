@@ -386,3 +386,8 @@ E070 reconciliation: local merge6c99509 retains P36 branch b48f0a7 and both reco
 E070 QA/ITS result: supported Node24.22.1 clean install,184 app/406 embedded SQL/lint/demo build/audit-high PASS, production audit0. Final compiled-browser0.17.2 edit/cancel checks PASS. Same-agent scoped correctness/ITS report clear, limitations explicit. Release notes and sequential P36→P37 ITO/rollback checklist ready. No production approval inferred from current continue instruction.
 workflow-action:A074 status:completed
 Next gate: customer approval of concrete P37/0.17.2 scope and sequential rollout. Resolve final candidate head via Git log; primary checkout unchanged.
+
+## E071 / A075 — approved P36 then P37 go-live, 01/11/2026
+workflow-action:A075 status:open
+Customer explicitly approves go-live of presented0.17.2 candidate ddae86a and sequential P36/0.17.1→P37/0.17.2. Scope: merge unchanged checked P36 PR31 b48f0a7, verify main CI/Pages/live0.17.1, reconcile local P37 on new main, publish P37 CI-gated PR and merge exact passing head, verify Pages/live0.17.2, read-only browser smoke and release closeout. No DB or production business-data writes. Preserve primary checkout. Separate Safari/device-emulation capability question does not delay the approved release; report limitations honestly.
+
