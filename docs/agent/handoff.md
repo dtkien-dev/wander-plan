@@ -92,3 +92,7 @@ P38/A078/E074 released via PR34 df9bd12, approved head3da897c and PR CI413174068
 
 ## Released0.18.1 and next work —01/11/2026
 PR36/0ca2859, CI41322151861/Pages41322152074/public/authenticated0.18.1 and390px open/cancel smoke PASS. No production data/config writes. Physical iPhone13 pending; customer allows next local work after rollout. Docs closeout docs/release-0.18.1. Next authorized work P40/idea3 expense clarity, separate release gate; do not treat0.18.1 approval as new-feature go-live.
+
+## E078/A082 — Verified0.19.0 rollout,01/11/2026
+PR38 approved published head7ab4fd1 / source2c0a78c, PR CI41325365156 PASS; exact-head merge6f8e719. Main CI41325531686/Pages41325531690 PASS. Public HTML/entry HTTP200 and meta0.19.0. Existing authenticated session: version0.19.0, settlement explanation, blank-form hint and existing valid allocation summary PASS;390x844 document/dialog no horizontal overflow; open/cancel unchanged, viewport and original route restored, warnings/errors0. No migration/config/business-data writes, payment confirmations or login emails. Physical P40 iOS/native picker/keyboard/touch/screen-reader and hosted writes/concurrency NOT RUN; same-agent review only. Docs closeout under the same approval; ideas4–5 remain subsequent. Primary dirty checkout preserved.
+Release records: docs/releases/2026-11-01-0.19.0.md; shared docs/release-0.19.0, resolve final SHA/checks via Git log.

@@ -1,6 +1,6 @@
 # P40 — Idea3: explain money before saving
 
-Status: local_candidate · A081/E077 ·01/11/2026
+Status: released0.19.0 · A082/E078 ·01/11/2026
 Owner: primary agent, serial implementation and same-agent review.
 Branch: feat/expense-clarity from verified0.18.1 app0ca2859 plus published release record9764f76. Reconcile final docs/main before completion.
 
@@ -20,3 +20,6 @@ Clarify settlement copy: balances account for recorded payments, only recipients
 
 ## Result —01/11/2026
 Local candidate0.19.0 complete;209 app/406 SQL/lint/build/audit-high and188 compiled browser cases PASS; demo save/reload/invalid-split refusal PASS. Same-agent scoped ITS clear, no independent claim. Source uses current schema/split helpers, no new money/API/SQL/access/storage/dependency rule. Physical iPhone13/hosted limits retained. Reconciled mainca876df plus final0.18.1 receipt49723b4. Next gate separate customer go-live approval using docs/releases/2026-11-01-0.19.0.md; ideas4–5 not implemented.
+
+## E078/A082 — Verified0.19.0 rollout,01/11/2026
+PR38 approved published head7ab4fd1 / source2c0a78c, PR CI41325365156 PASS; exact-head merge6f8e719. Main CI41325531686/Pages41325531690 PASS. Public HTML/entry HTTP200 and meta0.19.0. Existing authenticated session: version0.19.0, settlement explanation, blank-form hint and existing valid allocation summary PASS;390x844 document/dialog no horizontal overflow; open/cancel unchanged, viewport and original route restored, warnings/errors0. No migration/config/business-data writes, payment confirmations or login emails. Physical P40 iOS/native picker/keyboard/touch/screen-reader and hosted writes/concurrency NOT RUN; same-agent review only. Docs closeout under the same approval; ideas4–5 remain subsequent. Primary dirty checkout preserved.
