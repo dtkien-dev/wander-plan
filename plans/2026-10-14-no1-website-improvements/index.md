@@ -3,7 +3,7 @@
 Tracker ID: wp-20261014-01
 Created: 2026-10-14 Asia/Saigon
 Last updated: 2026-11-01 Asia/Saigon
-Status: P37 candidate0.17.2 QA/ITS complete locally; production0.17.0, P36 PR31 pending.
+Status: P36 released0.17.1; P37/0.17.2 approved rollout in progress.
 Plan mode: Exited
 Execution readiness: Ready
 Execute mode: Active

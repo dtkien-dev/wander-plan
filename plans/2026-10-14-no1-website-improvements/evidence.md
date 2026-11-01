@@ -391,3 +391,10 @@ Next gate: customer approval of concrete P37/0.17.2 scope and sequential rollout
 workflow-action:A075 status:open
 Customer explicitly approves go-live of presented0.17.2 candidate ddae86a and sequential P36/0.17.1→P37/0.17.2. Scope: merge unchanged checked P36 PR31 b48f0a7, verify main CI/Pages/live0.17.1, reconcile local P37 on new main, publish P37 CI-gated PR and merge exact passing head, verify Pages/live0.17.2, read-only browser smoke and release closeout. No DB or production business-data writes. Preserve primary checkout. Separate Safari/device-emulation capability question does not delay the approved release; report limitations honestly.
 
+
+E071 P36: PR31 unchanged head b48f0a7 merged dc7e48e after CI41220417353 PASS. Main CI41278137602 and Pages41278137603 started. P37 merged new main locally; source tree identical before/after reconciliation, no code/test changes required. Publication waits for0.17.1 verification.
+
+
+P36 release receipt: PR31 dc7e48e, main CI41278137602/Pages41278137603 PASS; public HTTP200/meta0.17.1 and existing authenticated browser footer/itinerary route verified. 375px live itinerary has no horizontal overflow. No data saved. Separate automatic Dependabot Updates run41278146281 failed; unrelated to passing shared application/Pages verification and no dependency change in this rollout.
+workflow-action:A070 status:completed
+P37 A075/E071 continues: main reconciliation3f5b743 preserves identical src tree; publish0.17.2 PR only after P36 receipt above.
