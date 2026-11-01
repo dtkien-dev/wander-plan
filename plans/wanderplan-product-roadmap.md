@@ -159,3 +159,9 @@ P28 A050/E046: released 0.13.0, production migration verified, PR #16/main CI/Pa
 
 ## P36 checkpoint —31/10/2026
 Customer-authorized UI refinement candidate0.17.1: mobile/tablet itinerary readability, no new feature or business change. A069/E065 QA/ITS locally passed; release checklist prepared; awaiting fresh go-live approval. No publication/deployment. Deferred backlog decisions unchanged.
+
+## P37 — responsive forms, 01/11/2026
+Customer selected consistent mobile form refinement; local candidate on fix/mobile-forms, A071/E067. Shared layout and selection polish, optional labels and trip numeric keyboard hints;184 tests/lint/demo build and demo browser checks PASS. Physical-device/Safari/hosted gaps in verification. Fresh go-live approval pending; no publication or production change. Separate P36/A070 remains on fix/ui-polish.
+
+## P37 pre-release —01/11/2026
+Candidate0.17.2 on fix/mobile-forms preserves P36 PR31 baseline; E070/A074 QA/ITS complete locally.184 app/406 embedded SQL/lint/build PASS, production audit0,11 existing moderate dev-tool findings. Release/rollback prepared; fresh P37 approval pending before sequential P36→P37 rollout. No production or new feature/backlog change.

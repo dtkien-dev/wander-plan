@@ -351,3 +351,50 @@ Approval: pending current-batch go-live. No push/PR/merge/deploy or production w
 ## E066/A070 — approved 0.17.1 release (31/10/2026)
 workflow-action:A070 status:open
 Customer approved execution of presented0.17.1 candidate906d695. Clarifying dependency question reviewed before release:11moderate records propagate from minimatch advisory GHSA-g3hv-75wg-m249 in ESLint dev tool chain; production dependency audit0; defer breaking tool migration, no audit-force. Scope approved UI+metadata+records only. Publish fix/ui-polish, PR to main, merge exact checked head after CI PASS, Pages/live read-only verification; no DB changes. Remote fetched unchanged daead9b; primary dirty checkout preserved.
+
+## E067 / A071 — responsive forms, 01/11/2026
+workflow-action:A071 status:open
+Customer authorizes consistent mobile form refinement. Branch fix/mobile-forms from fetched origin/main daead9b; current agent owns P37 shared CSS, form markup and records. No external effects, push or deploy. Primary checkout and separate P36/A070 worktree retained. Read form/Modal consumers and tests before edits; preserve validation, financial and authentication contracts.
+
+
+IT: shared fields minimum48px, wrapping optional-label spans, mint selected choices/native controls, correct checkbox/radio sizing, phone20px form gaps, tablet two columns, max640px safe-area bottom sheets, focus scroll padding, single-action full width, numeric keyboard hints on trip creation. DESIGN.md updated. No behavior/schema/dependency change.
+QA/ITS: see E067 in verification.md; full184 tests/lint/demo build PASS, browser form widths320–1280 and short viewport PASS. Same-agent scoped security review clear. Existing11 moderate dev-tool audit findings retained; zero high/critical. No physical-device/Safari/hosted validation or browser data saves.
+workflow-action:A071 status:completed
+Local candidate ready for review; production approval pending. P36/A070 remains separate on fix/ui-polish and must be reconciled before any eventual release. No main/push/deploy performed.
+
+## E068 / A072 — P37 browser verification follow-up, 01/11/2026
+workflow-action:A072 status:open
+Customer requests verification of the local form candidate254139d. Fetched remote unchanged; branch fix/mobile-forms clean. Scope: browser demo synthetic trip/create/expense/itinerary/checklist save-reload, error/cancel/focus and responsive checks; review-only unless a defect is found. No production access/push/deploy. Current agent owns verification and record updates.
+
+
+E068 result: browser synthetic create/expense/exact-split validation/multi-day itinerary/checklist save-reload, checklist responsive320–1280 and keyboard/cancel checks PASS; no console errors/warnings. No source defect found. QA trip retained only in browser demo. Existing candidate tests remain valid; remaining physical-device/hosted gaps recorded in verification.
+workflow-action:A072 status:completed
+
+## E069 / A073 — mobile viewport matrix, 01/11/2026
+workflow-action:A073 status:open
+Customer explicitly requests mobile emulation. Scope: local candidate254139d on fix/mobile-forms; phone portrait/landscape and reduced-height viewport matrix for forms, scroll/focus and console inspection. Chromium viewport emulation only; no claim of native Safari, touch injection or device hardware. No production/external writes, source edits or deployment expected.
+
+
+E069 result:30 settled viewport/form cases PASS across10 portrait/landscape/reduced-height sizes. No persistent source defect; focused notes clear of sticky bars; console clean. One initial trip320 measurement during dialog animation rechecked after settled screenshot and passed. Viewport-only emulation limits recorded explicitly; no mobile touch/Safari/hardware claim. No source or saved-data change; viewport reset.
+workflow-action:A073 status:completed
+
+## E070 / A074 — P37 pre-release reconciliation, 01/11/2026
+workflow-action:A074 status:open
+Customer authorizes continuing project delivery; scope local pre-release preparation only. Verified GitHub dtkien-dev/wander-plan/main daead9b. P36 PR31 is open at b48f0a7, CI41220417353 PASS; A070 approval applies only to P36. Prepare P37 as0.17.2 after P36/0.17.1, locally integrate its existing branch and preserve both sets of tracker evidence; no PR31/main mutation, push or deploy. Current agent owns reconciliation, final QA and same-agent ITS, release notes/version metadata/rollback. Existing primary checkout remains untouched.
+
+E070 reconciliation: local merge6c99509 retains P36 branch b48f0a7 and both record histories; only documentation conflicts, no application conflict. Prepared P37 metadata0.17.2 (root package/lock/HTML); actual dependency graph unchanged. PR31 remains untouched/open and its CI PASS; no main/remote mutation.
+E070 QA/ITS result: supported Node24.22.1 clean install,184 app/406 embedded SQL/lint/demo build/audit-high PASS, production audit0. Final compiled-browser0.17.2 edit/cancel checks PASS. Same-agent scoped correctness/ITS report clear, limitations explicit. Release notes and sequential P36→P37 ITO/rollback checklist ready. No production approval inferred from current continue instruction.
+workflow-action:A074 status:completed
+Next gate: customer approval of concrete P37/0.17.2 scope and sequential rollout. Resolve final candidate head via Git log; primary checkout unchanged.
+
+## E071 / A075 — approved P36 then P37 go-live, 01/11/2026
+workflow-action:A075 status:open
+Customer explicitly approves go-live of presented0.17.2 candidate ddae86a and sequential P36/0.17.1→P37/0.17.2. Scope: merge unchanged checked P36 PR31 b48f0a7, verify main CI/Pages/live0.17.1, reconcile local P37 on new main, publish P37 CI-gated PR and merge exact passing head, verify Pages/live0.17.2, read-only browser smoke and release closeout. No DB or production business-data writes. Preserve primary checkout. Separate Safari/device-emulation capability question does not delay the approved release; report limitations honestly.
+
+
+E071 P36: PR31 unchanged head b48f0a7 merged dc7e48e after CI41220417353 PASS. Main CI41278137602 and Pages41278137603 started. P37 merged new main locally; source tree identical before/after reconciliation, no code/test changes required. Publication waits for0.17.1 verification.
+
+
+P36 release receipt: PR31 dc7e48e, main CI41278137602/Pages41278137603 PASS; public HTTP200/meta0.17.1 and existing authenticated browser footer/itinerary route verified. 375px live itinerary has no horizontal overflow. No data saved. Separate automatic Dependabot Updates run41278146281 failed; unrelated to passing shared application/Pages verification and no dependency change in this rollout.
+workflow-action:A070 status:completed
+P37 A075/E071 continues: main reconciliation3f5b743 preserves identical src tree; publish0.17.2 PR only after P36 receipt above.

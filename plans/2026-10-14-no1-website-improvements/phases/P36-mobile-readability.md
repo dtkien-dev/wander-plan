@@ -12,3 +12,6 @@ Browser demo: prior dark320/375/768/1280; light tokens375/320/768/900/901/1280 w
 ITS: independent UI boundary/control review and release/privacy/supply-chain review found no reachable vulnerabilities in scoped CSS/doc diff; no auth/SQL/API/dependency/config changes. Same-agent coordinator verified final scope and no migration. Dependency warnings are dev-only and unchanged; fixes deferred to separate maintenance batch.
 NOT RUN: real device, screen reader, hosted auth/Realtime/concurrency, full Supabase service UAT, production smoke. CSS-only scope does not modify those contracts; embedded tests are not claimed as hosted coverage.
 Approval: pending current-batch go-live. No push/PR/merge/deploy or production writes. Candidate0.17.1 on fix/ui-polish; resolve final head by Git log. Next: customer review, then approved ITO path with PR CI and Pages/live checks.
+
+## Released01/11/2026
+PR31 dc7e48e, main CI41278137602/Pages41278137603 PASS; public/authenticated0.17.1 and375px itinerary no-overflow smoke PASS. No DB/data mutation. A070 completed; prior pending notes are historical.

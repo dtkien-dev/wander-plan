@@ -113,3 +113,6 @@ Customer reviewed impeccable findings and approved: P34 expense trash (0.16.0) f
 
 ## P36 — Mobile readability
 See phases/P36-mobile-readability.md. A068/E064, customer-authorized local UI refinement, no production approval.
+
+## A071 — P37 responsive forms
+See phases/P37-responsive-forms.md. Shared layout/controls first, then browser QA and scoped ITS; production remains gated separately.

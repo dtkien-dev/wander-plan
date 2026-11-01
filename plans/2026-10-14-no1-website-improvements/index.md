@@ -2,30 +2,35 @@
 <!-- workflow-record version:4 kind:plan tracker-id:wp-20261014-01 -->
 Tracker ID: wp-20261014-01
 Created: 2026-10-14 Asia/Saigon
-Last updated: 2026-10-31 Asia/Saigon
-Status: Released 0.17.0 (P35 Bảng giờ tàu redesign)
+Last updated: 2026-11-01 Asia/Saigon
+Status: P36 released0.17.1; P37/0.17.2 approved rollout in progress.
 Plan mode: Exited
 Execution readiness: Ready
 Execute mode: Active
 Resume instruction: Resolve plans/2026-10-14-no1-website-improvements from the current clone root (tracker wp-20261014-01). Read docs/agent/README.md and workflow.md, then this index and every manifest file. Keep this exact repository-relative bundle as the execution source of truth; update it until explicit exit. If the execute skill is installed, it may be used with this resolved path.
 Workspace: Current clone root; never reuse another device's absolute path.
-Repository: deployed app main 7393752 (PR26, 0.17.0). Docs closeout on docs/release-0.17.0; resolve final receipt via Git log.
-Active action: A070/E066 — customer-approved0.17.1 go-live; PR CI then merge/Pages/live checks, no DB change.
+Repository: GitHub dtkien-dev/wander-plan; deployed main daead9b (0.17.0). P36 PR31 b48f0a7 open/CI PASS; P37 fix/mobile-forms locally includes P36, candidate0.17.2.
+Active action: A075/E071 — customer-approved sequential P36 then P37 go-live.
 
 <!-- workflow-active-snapshot:start version:2 -->
 ## Active Snapshot
 Profile: Durable
-Required references: references/intake.md, references/implementation.md, references/parallel-execution.md, references/completion.md, references/post-merge-cleanup.md
-Goal: Deliver verified daily improvements through plan, code, QA, security, go-live and next-day notes.
-Current state: P33 released0.15.0 under A062/E058; both production migrations, approved verified-account admin grant, CI/Pages/public and authenticated read-only UI PASS. Docs-only closeout follows.
-Accepted decisions: prior product/financial/consent decisions retained. A061 adds website admin access across all trips, owner promotion of accepted members and creator-only co-owner demotion. Initial admin supplied privately; no new-batch production approval.
-Open items: R07/R17/R18 deferred by customer (A043/A044). E040 items 1–3 fixed under A045/P27; workspace refresh optimization remains deferred. Customer reports successful sign-in and requests no further R15 proposals; hosted email/Realtime remain unverified.
-Next safe action: publish docs/release-0.15.0 outcomes through CI-gated PR, verify final Pages/public and share final receipt. No new feature selected; preserve primary checkout changes.
+Goal: Deliver verified scoped changes through PO/BA/IT/QA/ITS/go-live/ITO/PO.
+Current state: production0.17.0 at main daead9b. P36 PR31 (b48f0a7, CI41220417353 PASS) approved under A070 but not merged. P37 candidate0.17.2 on fix/mobile-forms locally integrates P36 and retains both histories; QA/scoped same-agent ITS complete under A074/E070.
+Accepted decisions: P37 improves forms consistently on mobile while preserving board-blue identity and all business/data/access contracts. P36 approval does not authorize P37. No new database or dependency change.
+Open items: P37 production approval; then sequential P36 release and P37 PR/CI/Pages/live checks. Physical devices/Safari/touch/OS keyboard/light/hosted limits remain explicit. Existing deferred R07/R17/R18 and hosted QA decisions retained.
+Next safe action: present docs/releases/2026-11-01-0.17.2.md for approval. No remote mutation before approval of P37 scope and release sequence. Primary checkout pre-existing edits preserved.
 <!-- workflow-active-snapshot:end -->
 
 Shared workflow: [portable workflow](../../docs/agent/workflow.md). The references/*.md above belong to the optional installed execute skill; they are not missing repository files and are not required on a new device. Shared workflow contains the portable execution and evidence rules.
 
 ## Resume Checkpoint
+- E070/A074 (01/11): integrated P36 base6c99509 and P37 candidate0.17.2. Fresh supported Node24 install/184 app tests/406 embedded SQL/lint/demo build/audit-high and final compiled-browser checks PASS. Same-agent ITS no blocker. P36 PR31 open/CI PASS; P37 fresh approval pending; release checklist and rollback prepared. Resolve final SHA via Git log.
+
+- E068/A072 (01/11): candidate254139d browser create/expense/exact-split validation/multi-day/checklist save-reload, responsive320–1280, keyboard/cancel PASS; no console issues. No source fix needed. QA trip retained in browser demo; no production change.
+
+- E067/A071/P37 (01/11): responsive forms locally verified on fix/mobile-forms from daead9b. 184 tests/lint/demo build, browser widths320–1280 and short viewport PASS; same-agent ITS clear. No deploy. Reconcile separate unmerged P36/A070 before release; read P37 and verification gaps. Resolve candidate SHA via Git log.
+
 - E063/A067 (30/10): vite 6.4.5 security patch (GHSA-8g5g-mxqh-grgj, dev scope). PR29 9b8f231, PR CI PASS, main CI 40983007374/Pages 40983007605 PASS; alert 7 fixed; app version unchanged 0.17.0. No feature queued.
 - E062/A066/P35 (30/10): 0.17.0 released. PR26 7393752 (head 180dec5), PR CI PASS, main CI 40981612990/Pages 40981612923 PASS; no migration; public HTTP 200/meta 0.17.0, signed-out console 0. Authenticated smoke not run. No feature queued.
 - E060/A064/P34 (29/10): 0.16.0 released. PR24 96c419e, main CI 40886069902/Pages 40886070224 PASS; production migration 20261029150000 once after private backup, contracts verified; public meta 0.16.0. Authenticated smoke not run (signed out). Next: P35 redesign (A063).
@@ -97,6 +102,9 @@ security-review-p33-2026-10-29.md
 phases/P32-workspace-hook-boundary.md
 phases/P36-mobile-readability.md
 security-review-p36-2026-10-31.md
+
+phases/P37-responsive-forms.md
+security-review-p37-2026-11-01.md
 <!-- workflow-manifest:end -->
 
 Latest checkpoint 29/10: A055/E051 complete; independent review High fixed by forward provenance migration and verified in 353 embedded/full-local SQL, 168 app tests, lint/build. Prior E050 browser/mobile/Realtime/concurrency UAT passed. Candidate local on feat/trip-reschedule-templates-trash; resolve final commit via Git log. No push or production changes. Await fresh go-live approval.
