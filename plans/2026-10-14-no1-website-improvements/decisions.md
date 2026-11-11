@@ -149,3 +149,6 @@ Customer approves go-live of the concrete0.19.0 candidate2c0a78c: purpose-branch
 
 ## A083 — Friend quick guide
 2026-11-11 (Asia/Saigon). User approved the proposed invitation hint and per-trip guide, then authorized implementation. Separate approval applies to publishing on main.
+
+## A084 — P41 go-live
+2026-11-11 (Asia/Saigon). User approved publishing the reviewed 898b9e4 candidate via PR #40, main merge, Pages verification and release closeout.

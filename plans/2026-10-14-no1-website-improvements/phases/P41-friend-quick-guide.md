@@ -1,6 +1,6 @@
 # P41 — Hướng dẫn nhanh cho thành viên được mời
 
-Status: locally verified · A083/E079 · 2026-11-11 Asia/Saigon
+Status: released · A084/E080 · 2026-11-11 Asia/Saigon
 Owner: primary agent
 Branch: feat/friend-quick-guide from origin/main 410d6d8 (0.19.0, PR #39 docs closeout).
 
@@ -11,3 +11,6 @@ Scope: TripManager, AppShell, guide component, focused tests and tracker. No dep
 
 ## Result
 Local implementation, QA and scoped same-agent review complete. App 210, embedded SQL 406, lint, build, audit-high and mocked Chromium 320/390/1280px passed. Physical devices and full-stack or hosted invitation acceptance remain unverified. Ready for user review and separate go-live approval.
+
+## Release
+A084/E080 complete. PR #40 merged e8bee8a. Main CI and Pages passed. Deployed guide and login smoke passed as described in verification. See docs/releases/2026-11-11-friend-quick-guide.md.

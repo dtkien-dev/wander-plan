@@ -1,3 +1,7 @@
+# Latest release checkpoint — 2026-11-11
+
+P41 friend quick guide released through PR #40 at e8bee8a. Main CI 43043146077, Pages 43043146161, public HTML/asset, signed-out login and deployed Chromium mock-backed guide smoke passed. Physical devices and real hosted invitation acceptance remain unverified. No database/config changes. A084/E080 complete. [Release receipt](../releases/2026-11-11-friend-quick-guide.md). Docs closeout on docs/friend-quick-guide-release.
+
 # Current candidate — Idea3 expense clarity,01/11/2026
 
 P40/A081/E077 local0.19.0 on feat/expense-clarity from mainca876df plus final0.18.1 receipt49723b4.209app/406SQL/188compiled-browser/lint/build/audit-high PASS; same-agent ITS clear. Read-only summary uses existing schema/split helpers; settlement copy/accessible payer+amount names; no money/API/SQL/dependency change. New-feature publication requires fresh approval. Customer-reported iPhone13 width/panning issue resolved on0.18.1; P40 physical-device checks pending; Windows WebKit native date/time fallback and other limits retained. Ideas4–5 subsequent. Resolve candidate SHA viaGit log, read P40/docs/releases/2026-11-01-0.19.0.md. Primary dirty checkout preserved.
