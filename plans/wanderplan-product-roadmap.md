@@ -193,3 +193,6 @@ Release records: docs/releases/2026-11-01-0.19.0.md; shared docs/release-0.19.0,
 
 ## Friend quick guide — released 2026-11-11
 P41 shipped in PR #40. Pending invite guidance and a dismissible per-trip guide link to Itinerary, Expenses and Group. [Release receipt](../docs/releases/2026-11-11-friend-quick-guide.md).
+
+## Mobile actions menu — released 2026-11-11
+P42 keeps the Itinerary and Expenses overflow menu inside the screen when its trigger wraps. [Release receipt](../docs/releases/2026-11-11-mobile-actions-menu.md).

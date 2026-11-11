@@ -370,3 +370,8 @@ PR38 approved published head7ab4fd1 / source2c0a78c, PR CI41325365156 PASS; exac
 - PASS: 40 page/width/role/engine combinations on the local compiled build with mocked backend. Itinerary and Expenses, owner/editor, Chromium/WebKit, 320/375/390/768/1280px. Menu fits horizontally, Nhập Excel opens, and Escape closes the menu and returns focus.
 - PASS: 210 app tests, lint, demo build, same-agent CSS review and git diff --check.
 - NOT RUN: physical phone and production rollout.
+
+### E082 production rollout
+- PASS: PR #41 CI 43046064481, main CI 43046302683, Pages 43046302689 on cd1a003.
+- PASS: live HTML and new stylesheet index-BKbISkMR.css HTTP 200. Deployed Chromium/WebKit checked Itinerary and Expenses menu bounds, Excel dialog and Escape focus at five widths with synthetic owner data.
+- NOT RUN: physical phones and real hosted account flow.

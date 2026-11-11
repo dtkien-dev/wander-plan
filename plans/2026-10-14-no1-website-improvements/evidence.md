@@ -496,3 +496,9 @@ User reported the Lich trinh ellipsis overflow. Reproduced on deployed source wi
 
 <!-- workflow-action:A085 status:completed -->
 Local fix verified. At 320px the 220px panel now spans x=84–304px in both pages. Scoped review found only CSS positioning changes. No production deployment.
+
+## E082 — P42 production release
+<!-- workflow-action:A086 status:open -->
+Approved head 600b531. PR #41 CI 43046064481 passed, merged as cd1a003.
+<!-- workflow-action:A086 status:completed -->
+Main CI 43046302683 and Pages 43046302689 passed. Live HTML and new CSS returned HTTP 200. Deployed browser menu smoke passed with synthetic data. No production data or config writes.

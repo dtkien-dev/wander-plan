@@ -1,3 +1,7 @@
+# Latest release checkpoint — P42, 2026-11-11
+
+P42 released via PR #41 at cd1a003. Main CI 43046302683, Pages 43046302689, live asset and deployed menu smoke passed. A086/E082 complete. Physical phone check remains unverified. [Release receipt](../releases/2026-11-11-mobile-actions-menu.md). Docs closeout on docs/mobile-actions-menu-release.
+
 # Latest release checkpoint — 2026-11-11
 
 P41 friend quick guide released through PR #40 at e8bee8a. Main CI 43043146077, Pages 43043146161, public HTML/asset, signed-out login and deployed Chromium mock-backed guide smoke passed. Physical devices and real hosted invitation acceptance remain unverified. No database/config changes. A084/E080 complete. [Release receipt](../releases/2026-11-11-friend-quick-guide.md). Docs closeout on docs/friend-quick-guide-release.

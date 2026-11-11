@@ -3,23 +3,23 @@
 Tracker ID: wp-20261014-01
 Created: 2026-10-14 Asia/Saigon
 Last updated: 2026-11-11 Asia/Saigon
-Status: P42 local candidate verified; production go-live pending.
+Status: P42 released and verified.
 Plan mode: Exited
 Execution readiness: Ready
 Execute mode: Active
 Resume instruction: Resolve plans/2026-10-14-no1-website-improvements from the current clone root (tracker wp-20261014-01). Read docs/agent/README.md and workflow.md, then this index and every manifest file. Keep this exact repository-relative bundle as the execution source of truth; update it until explicit exit. If the execute skill is installed, it may be used with this resolved path.
 Workspace: Current clone root; never reuse another device's absolute path.
-Repository: GitHub dtkien-dev/wander-plan; P41 main e8bee8a; closeout on docs/friend-quick-guide-release.
-Active action: None — A085/E081 completed locally.
+Repository: GitHub dtkien-dev/wander-plan; P42 main cd1a003; closeout on docs/mobile-actions-menu-release.
+Active action: None — A086/E082 production verification complete.
 
 <!-- workflow-active-snapshot:start version:2 -->
 ## Active Snapshot
 Profile: Durable
 Goal: Deliver verified scoped changes through PO/BA/IT/QA/ITS/go-live/ITO/PO.
-Current state: P41 released via PR #40 at e8bee8a. Main CI, Pages and public smoke passed.
+Current state: P42 released via PR #41 at cd1a003. Main CI, Pages and public browser smoke passed.
 Accepted decisions: A082/E078 approves this release and closeout. Existing money/recipient/former-member rules preserved. No migration/dependency change. Original Safari issue customer-accepted after0.18.1.
 Open items: P40 physical iOS/native keyboard/picker/screen-reader and hosted-write/concurrency checks unperformed;11 existing moderate dev-tool findings. Ideas4–5 subsequent.
-Next safe action: review fix/mobile-actions-menu for P42 go-live. Physical-device testing remains unverified.
+Next safe action: no active batch. Physical-device testing remains unverified.
 <!-- workflow-active-snapshot:end -->
 
 Shared workflow: [portable workflow](../../docs/agent/workflow.md). The references/*.md above belong to the optional installed execute skill; they are not missing repository files and are not required on a new device. Shared workflow contains the portable execution and evidence rules.
