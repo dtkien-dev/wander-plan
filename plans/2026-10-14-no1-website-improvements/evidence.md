@@ -489,3 +489,10 @@ Local implementation and scoped same-agent review complete. No authorization, ne
 
 <!-- workflow-action:A084 status:completed -->
 Main CI 43043146077 and Pages 43043146161 passed for e8bee8a. Live HTML and new entry index-DiYJg6vV.js HTTP 200, meta 0.19.0. Signed-out login and deployed frontend invitation/guide smoke passed in Chromium with synthetic data and intercepted Supabase traffic. No production database writes or emails.
+
+## E081 — Mobile actions menu
+<!-- workflow-action:A085 status:open -->
+User reported the Lich trinh ellipsis overflow. Reproduced on deployed source with synthetic owner data. Shared mobile CSS only.
+
+<!-- workflow-action:A085 status:completed -->
+Local fix verified. At 320px the 220px panel now spans x=84–304px in both pages. Scoped review found only CSS positioning changes. No production deployment.
