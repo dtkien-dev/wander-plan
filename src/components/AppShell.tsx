@@ -5,6 +5,7 @@ import { Brand } from './Brand'
 import { useAuth } from '../providers/AuthProvider'
 import { useWorkspaceContext } from '../providers/WorkspaceProvider'
 import { TripManager } from './TripManager'
+import { TripGuide } from './TripGuide'
 import { NotificationBell } from './NotificationBell'
 import { version } from '../../package.json'
 
@@ -17,7 +18,9 @@ const navItems = [
 
 export function AppShell() {
   const { isDemo, session, signOut } = useAuth()
-  const { identity, tripId, isSiteAdmin } = useWorkspaceContext()
+  const { identity, tripId, workspace, isSiteAdmin } = useWorkspaceContext()
+  const guideKey = !isDemo && tripId && workspace.data?.trip.id === tripId && workspace.data.currentRole === 'editor'
+    ? `wander-plan:trip-guide:${identity}:${tripId}` : null
   const [signOutError, setSignOutError] = useState('')
   const [signingOut, setSigningOut] = useState(false)
   const logout = async () => {
@@ -55,6 +58,7 @@ export function AppShell() {
       <main className="page" id="noi-dung" tabIndex={-1} data-ai-id="page-content">
         {isSiteAdmin && <p className="role-badge" aria-label="Vai trò website">Admin website · Quản lý mọi chuyến</p>}
         <TripManager />
+        {guideKey && <TripGuide key={guideKey} storageKey={guideKey} />}
         <div key={`${identity}-${tripId ?? 'none'}`}><Outlet /></div>
       </main>
       <footer className="app-footer">WanderPlan <span className="version-badge" aria-label="Phiên bản website">v{version}</span></footer>

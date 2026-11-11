@@ -117,6 +117,7 @@ describe('TripManager', () => {
 
   it('accepts and declines incoming invitations through the mutation contract', async () => {
     render(<TripManager />, { wrapper })
+    expect(screen.getByText(/để xem lịch trình và chi phí của chuyến đi/)).toBeVisible()
     fireEvent.click(screen.getByRole('button', { name: 'Nhận lời mời' }))
     await waitFor(() => expect(mocks.mutations.respondInvitation.mutateAsync).toHaveBeenCalledWith({ tripId: 'invited-trip', accept: true }))
     expect(await screen.findByText('Bạn đã tham gia chuyến đi.')).toBeInTheDocument()

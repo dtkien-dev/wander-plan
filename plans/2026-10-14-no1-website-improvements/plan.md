@@ -128,3 +128,6 @@ A079/E075, fix/safari-form-overflow; user iPhone13 report prioritized ahead of i
 
 ## P40 — Expense clarity before saving
 A081/E077 local0.19.0 candidate on feat/expense-clarity, idea3 next after approved0.18.1 rollout. Read-only schema-backed summary and settlement explanation/accessibility;209app/406SQL/188browser/lint/build/audit-high PASS, same-agent ITS clear. No migration/dependency or money calculation change. Separate go-live gate; ideas4–5 later.
+
+## P41 — Friend quick guide
+A083/E079 on feat/friend-quick-guide. [Phase](phases/P41-friend-quick-guide.md). Local candidate verified. Separate go-live approval required.

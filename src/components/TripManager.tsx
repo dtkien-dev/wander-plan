@@ -70,7 +70,9 @@ export function TripManager() {
       </div>
     </div>
     {invitations.isError && <p role="alert">Chưa thể tải lời mời. <button className="text-link" type="button" onClick={() => void invitations.refetch()}>Thử lại</button></p>}
-    {Boolean(invitations.data?.length) && <div className={styles.invitations}><h2>Lời mời đang chờ</h2>{invitations.data!.map((invitation) => <article key={invitation.tripId}>
+    {Boolean(invitations.data?.length) && <div className={styles.invitations}><h2>Lời mời đang chờ</h2>
+      <p>Chọn <strong>Nhận lời mời</strong> để xem lịch trình và chi phí của chuyến đi.</p>
+      {invitations.data!.map((invitation) => <article key={invitation.tripId}>
       <div><strong>{invitation.tripName}</strong><p>{invitation.destination} · {formatDate(invitation.startDate)} — {formatDate(invitation.endDate)}</p></div>
       <div className={styles.actions}><button className="button button--primary" disabled={respondInvitation.isPending} type="button" onClick={() => void respond(invitation.tripId, true)}>Nhận lời mời</button><button className="button button--ghost" disabled={respondInvitation.isPending} type="button" onClick={() => void respond(invitation.tripId, false)}>Từ chối</button></div>
     </article>)}</div>}
