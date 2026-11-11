@@ -131,3 +131,6 @@ A081/E077 local0.19.0 candidate on feat/expense-clarity, idea3 next after approv
 
 ## P41 — Friend quick guide
 A083/E079 on feat/friend-quick-guide. [Phase](phases/P41-friend-quick-guide.md). Local candidate verified. Separate go-live approval required.
+
+## P42 — Mobile actions menu
+A085/E081 local candidate verified on fix/mobile-actions-menu. [Phase](phases/P42-mobile-actions-menu.md). Production go-live pending.

@@ -359,3 +359,14 @@ PR38 approved published head7ab4fd1 / source2c0a78c, PR CI41325365156 PASS; exac
 - PASS: Chromium at 320, 390 and 1280px with synthetic session and mocked Supabase HTTP/realtime. Pending hint, acceptance, active-trip guide, all three routes, dismiss/reload/reopen, page width and uncaught errors checked. App tests cover account/trip isolation.
 - PASS: same-agent scoped review. Existing route, invitation RPC and workspace authorization reused. Browser preference stores only the dismissal flag.
 - NOT RUN: physical phone, hosted authentication/invitation writes and full-stack browser UAT. No deployment.
+
+### E080 production rollout
+- PASS: PR #40 CI 43042764402, main CI 43043146077 and Pages 43043146161. Exact approved head 898b9e4 merged as e8bee8a.
+- PASS: live HTML and new JS entry HTTP 200, meta 0.19.0, signed-out login page. Deployed build passed invitation hint, acceptance, links, close/reload/reopen at 320/390/1280px with mocked Supabase. No uncaught page errors or horizontal overflow.
+- NOT RUN: real hosted account/invitation flow and physical devices.
+
+## P42 — Mobile actions menu
+- Baseline on deployed build: synthetic owner at 320px measured the panel at x=-105px after trigger wrapping.
+- PASS: 40 page/width/role/engine combinations on the local compiled build with mocked backend. Itinerary and Expenses, owner/editor, Chromium/WebKit, 320/375/390/768/1280px. Menu fits horizontally, Nhập Excel opens, and Escape closes the menu and returns focus.
+- PASS: 210 app tests, lint, demo build, same-agent CSS review and git diff --check.
+- NOT RUN: physical phone and production rollout.

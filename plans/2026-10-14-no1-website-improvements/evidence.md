@@ -482,3 +482,17 @@ PR38 approved published head7ab4fd1 / source2c0a78c, PR CI41325365156 PASS; exac
 
 <!-- workflow-action:A083 status:completed -->
 Local implementation and scoped same-agent review complete. No authorization, network write, or database change introduced. Dismissal stores only a closed flag keyed by account and trip. See P41 and verification for QA and remaining limits.
+
+## E080 — P41 go-live
+<!-- workflow-action:A084 status:open -->
+2026-11-11 (Asia/Saigon). User approved go-live for candidate 898b9e4. PR #40 exact-head CI 43042764402 passed; merged as e8bee8a. Main CI 43043146077 and Pages 43043146161 started for the merge commit. Frontend-only release.
+
+<!-- workflow-action:A084 status:completed -->
+Main CI 43043146077 and Pages 43043146161 passed for e8bee8a. Live HTML and new entry index-DiYJg6vV.js HTTP 200, meta 0.19.0. Signed-out login and deployed frontend invitation/guide smoke passed in Chromium with synthetic data and intercepted Supabase traffic. No production database writes or emails.
+
+## E081 — Mobile actions menu
+<!-- workflow-action:A085 status:open -->
+User reported the Lich trinh ellipsis overflow. Reproduced on deployed source with synthetic owner data. Shared mobile CSS only.
+
+<!-- workflow-action:A085 status:completed -->
+Local fix verified. At 320px the 220px panel now spans x=84–304px in both pages. Scoped review found only CSS positioning changes. No production deployment.

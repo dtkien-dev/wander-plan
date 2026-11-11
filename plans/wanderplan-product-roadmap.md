@@ -190,3 +190,6 @@ Customer confirms original horizontal-panning/unequal-input issue no longer obse
 ## E078/A082 — Verified0.19.0 rollout,01/11/2026
 PR38 approved published head7ab4fd1 / source2c0a78c, PR CI41325365156 PASS; exact-head merge6f8e719. Main CI41325531686/Pages41325531690 PASS. Public HTML/entry HTTP200 and meta0.19.0. Existing authenticated session: version0.19.0, settlement explanation, blank-form hint and existing valid allocation summary PASS;390x844 document/dialog no horizontal overflow; open/cancel unchanged, viewport and original route restored, warnings/errors0. No migration/config/business-data writes, payment confirmations or login emails. Physical P40 iOS/native picker/keyboard/touch/screen-reader and hosted writes/concurrency NOT RUN; same-agent review only. Docs closeout under the same approval; ideas4–5 remain subsequent. Primary dirty checkout preserved.
 Release records: docs/releases/2026-11-01-0.19.0.md; shared docs/release-0.19.0, resolve final SHA/checks via Git log.
+
+## Friend quick guide — released 2026-11-11
+P41 shipped in PR #40. Pending invite guidance and a dismissible per-trip guide link to Itinerary, Expenses and Group. [Release receipt](../docs/releases/2026-11-11-friend-quick-guide.md).
