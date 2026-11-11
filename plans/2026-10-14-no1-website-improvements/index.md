@@ -2,24 +2,24 @@
 <!-- workflow-record version:4 kind:plan tracker-id:wp-20261014-01 -->
 Tracker ID: wp-20261014-01
 Created: 2026-10-14 Asia/Saigon
-Last updated: 2026-11-01 Asia/Saigon
-Status:0.19.0 released and live verified; docs closeout in progress.
+Last updated: 2026-11-11 Asia/Saigon
+Status: P41 local candidate verified; go-live approval pending.
 Plan mode: Exited
 Execution readiness: Ready
 Execute mode: Active
 Resume instruction: Resolve plans/2026-10-14-no1-website-improvements from the current clone root (tracker wp-20261014-01). Read docs/agent/README.md and workflow.md, then this index and every manifest file. Keep this exact repository-relative bundle as the execution source of truth; update it until explicit exit. If the execute skill is installed, it may be used with this resolved path.
 Workspace: Current clone root; never reuse another device's absolute path.
 Repository: GitHub dtkien-dev/wander-plan; mainca876df (released0.18.1); feat/expense-clarity includes shared release/device receipts49723b4 and7dc5c47.
-Active action: A082/E078 — release record closeout, primary agent.
+Active action: None — A083/E079 completed locally.
 
 <!-- workflow-active-snapshot:start version:2 -->
 ## Active Snapshot
 Profile: Durable
 Goal: Deliver verified scoped changes through PO/BA/IT/QA/ITS/go-live/ITO/PO.
-Current state:0.19.0 released via PR38/6f8e719; PR CI41325365156, main CI41325531686, Pages41325531690/public/authenticated read-only smoke PASS. Docs closeout on docs/release-0.19.0.
+Current state: 0.19.0 release records merged at 410d6d8. P41 local QA and same-agent scoped review passed; see verification.
 Accepted decisions: A082/E078 approves this release and closeout. Existing money/recipient/former-member rules preserved. No migration/dependency change. Original Safari issue customer-accepted after0.18.1.
 Open items: P40 physical iOS/native keyboard/picker/screen-reader and hosted-write/concurrency checks unperformed;11 existing moderate dev-tool findings. Ideas4–5 subsequent.
-Next safe action: publish docs-only release closeout, verify exact-head CI/Pages and receipt. No further feature or production-data write approved by this rollout.
+Next safe action: review P41 on feat/friend-quick-guide (base 410d6d8, resolve candidate SHA via Git log). No production publication until separate go-live approval.
 <!-- workflow-active-snapshot:end -->
 
 Shared workflow: [portable workflow](../../docs/agent/workflow.md). The references/*.md above belong to the optional installed execute skill; they are not missing repository files and are not required on a new device. Shared workflow contains the portable execution and evidence rules.
@@ -122,6 +122,7 @@ security-review-p38-2026-11-01.md
 phases/P39-safari-form-overflow.md
 security-review-p39-2026-11-01.md
 phases/P40-expense-clarity.md
+phases/P41-friend-quick-guide.md
 security-review-p40-2026-11-01.md
 <!-- workflow-manifest:end -->
 

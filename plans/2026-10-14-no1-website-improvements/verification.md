@@ -353,3 +353,9 @@ CUSTOMER-REPORTED PASS: original horizontal-panning/unequal input issue no longe
 
 ## E078/A082 — Verified0.19.0 rollout,01/11/2026
 PR38 approved published head7ab4fd1 / source2c0a78c, PR CI41325365156 PASS; exact-head merge6f8e719. Main CI41325531686/Pages41325531690 PASS. Public HTML/entry HTTP200 and meta0.19.0. Existing authenticated session: version0.19.0, settlement explanation, blank-form hint and existing valid allocation summary PASS;390x844 document/dialog no horizontal overflow; open/cancel unchanged, viewport and original route restored, warnings/errors0. No migration/config/business-data writes, payment confirmations or login emails. Physical P40 iOS/native picker/keyboard/touch/screen-reader and hosted writes/concurrency NOT RUN; same-agent review only. Docs closeout under the same approval; ideas4–5 remain subsequent. Primary dirty checkout preserved.
+
+## P41 — Friend quick guide · 2026-11-11
+- PASS: 210 app tests across 35 files, lint, demo production build, 406 embedded SQL assertions and audit at high threshold. Audit reported seven existing moderate dev-tool findings.
+- PASS: Chromium at 320, 390 and 1280px with synthetic session and mocked Supabase HTTP/realtime. Pending hint, acceptance, active-trip guide, all three routes, dismiss/reload/reopen, page width and uncaught errors checked. App tests cover account/trip isolation.
+- PASS: same-agent scoped review. Existing route, invitation RPC and workspace authorization reused. Browser preference stores only the dismissal flag.
+- NOT RUN: physical phone, hosted authentication/invitation writes and full-stack browser UAT. No deployment.

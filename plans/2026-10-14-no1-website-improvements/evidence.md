@@ -475,3 +475,10 @@ Fetched mainca876df unchanged; source candidate2c0a78c clean, target GitHub dtki
 
 ## E078/A082 — Verified0.19.0 rollout,01/11/2026
 PR38 approved published head7ab4fd1 / source2c0a78c, PR CI41325365156 PASS; exact-head merge6f8e719. Main CI41325531686/Pages41325531690 PASS. Public HTML/entry HTTP200 and meta0.19.0. Existing authenticated session: version0.19.0, settlement explanation, blank-form hint and existing valid allocation summary PASS;390x844 document/dialog no horizontal overflow; open/cancel unchanged, viewport and original route restored, warnings/errors0. No migration/config/business-data writes, payment confirmations or login emails. Physical P40 iOS/native picker/keyboard/touch/screen-reader and hosted writes/concurrency NOT RUN; same-agent review only. Docs closeout under the same approval; ideas4–5 remain subsequent. Primary dirty checkout preserved.
+
+## E079 — P41 implementation and verification
+<!-- workflow-action:A083 status:open -->
+2026-11-11 (Asia/Saigon). User approved local implementation. Worktree feat/friend-quick-guide based on fetched main 410d6d8. Scope recorded in P41. No production effects authorized.
+
+<!-- workflow-action:A083 status:completed -->
+Local implementation and scoped same-agent review complete. No authorization, network write, or database change introduced. Dismissal stores only a closed flag keyed by account and trip. See P41 and verification for QA and remaining limits.

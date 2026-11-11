@@ -146,3 +146,6 @@ Customer replies that the horizontal movement/unequal input problem is no longer
 
 ## A082 — Go-live0.19.0,01/11/2026
 Customer approves go-live of the concrete0.19.0 candidate2c0a78c: purpose-branch push/PR, exact-head shared CI, main merge/automatic Pages, read-only live smoke and release-record closeout. No migration, permission/config changes or production business-data test writes. Ideas4–5 are not included.
+
+## A083 — Friend quick guide
+2026-11-11 (Asia/Saigon). User approved the proposed invitation hint and per-trip guide, then authorized implementation. Separate approval applies to publishing on main.
